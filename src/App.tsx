@@ -10,12 +10,14 @@ import {
 } from './types/game';
 import {
   generateRandomBirth,
+  generateBirthForDistrict,
   generateCohort,
   updateCohort,
   checkMortality,
   pickPersonalEvent,
   checkDilemmaTrigger,
-  getRandomJob
+  getRandomJob,
+  PresetProfile
 } from './utils/simulation';
 import { PAUSE_QUESTIONS } from './data/pauseQuestions';
 import { audioManager } from './utils/audio';
@@ -24,14 +26,15 @@ import { Header } from './components/Header';
 import { StatusBars } from './components/StatusBars';
 import { TimelineLog } from './components/TimelineLog';
 import { DilemmaCard } from './components/DilemmaCard';
-import { CohortPanel } from './components/CohortPanel';
+import { SideDashboard } from './components/SideDashboard';
 import { YearFocusSelector } from './components/YearFocusSelector';
 import { PauseModal } from './components/PauseModal';
 import { EndingReceipt } from './components/EndingReceipt';
 import { MemorialHall, MemorialRecord } from './components/MemorialHall';
 import { BirthModal } from './components/BirthModal';
+import { ScrollText, Scale, Users } from 'lucide-react';
 
-const BASE_YEAR_TICK_MS = 6000; // 1년 = 6초 (0.5x=12초, 1x=6초, 2x=3초 - 몰입감과 템포의 황금 밸런스)
+const BASE_YEAR_TICK_MS = 6000; // 1년 = 6초
 
 export const App: React.FC = () => {
   // 메인 상태
@@ -48,9 +51,12 @@ export const App: React.FC = () => {
   const [focus, setFocus] = useState<YearFocus>('learning');
 
   // 컨트롤 상태
-  const [isPaused, setIsPaused] = useState<boolean>(true); // 처음엔 출생 모달 확인 후 시작
+  const [isPaused, setIsPaused] = useState<boolean>(true);
   const [speed, setSpeed] = useState<number>(1);
   const [isMuted, setIsMuted] = useState<boolean>(false);
+
+  // 모바일 전용 뷰 탭 ('timeline' | 'impact' | 'cohort')
+  const [mobileTab, setMobileTab] = useState<'timeline' | 'impact' | 'cohort'>('timeline');
 
   // 모달 팝업 상태
   const [isBirthModalOpen, setIsBirthModalOpen] = useState<boolean>(true);
@@ -62,7 +68,21 @@ export const App: React.FC = () => {
   const resolvedDilemmaIds = useRef<Set<string>>(new Set());
   const timerRef = useRef<number | null>(null);
 
-  // 게임 초기화
+  // 캐릭터 재추첨 (무작위)
+  const handleRerollRandom = useCallback(() => {
+    const newCitizen = generateRandomBirth(2026);
+    setCitizen(newCitizen);
+    setCohort(generateCohort(2026, newCitizen.district.id));
+  }, []);
+
+  // 프리셋 인물 선택
+  const handleSelectPreset = useCallback((preset: PresetProfile) => {
+    const newCitizen = generateBirthForDistrict(preset.districtId, 2026, preset.defaultDecile);
+    setCitizen(newCitizen);
+    setCohort(generateCohort(2026, newCitizen.district.id));
+  }, []);
+
+  // 게임 초기화 (다시 태어나기)
   const startNewLife = useCallback(() => {
     const newCitizen = generateRandomBirth(2026);
     const newCohort = generateCohort(2026, newCitizen.district.id);
@@ -74,8 +94,8 @@ export const App: React.FC = () => {
     setIsEndingOpen(false);
     setActiveDilemma(null);
     setActivePauseQuestion(null);
+    setMobileTab('timeline');
 
-    // 출생 첫 로그
     setTimeline([
       {
         id: 'log_birth',
@@ -105,7 +125,7 @@ export const App: React.FC = () => {
         text: `2026년, 진주시 ${citizen.district.name}에서 태어났습니다. ${citizen.district.description}`
       }
     ]);
-  }, []);
+  }, [citizen.district.name, citizen.district.description, citizen.birthYear]);
 
   // 오디오 토글
   const handleToggleMute = () => {
@@ -134,13 +154,11 @@ export const App: React.FC = () => {
       const nextAge = prevCitizen.age + 1;
       const nextYear = prevCitizen.currentYear + 1;
 
-      // 직업 갱신
       let nextJob = prevCitizen.job;
       if (nextAge === 19 || nextAge === 26 || nextAge === 65) {
         nextJob = getRandomJob(prevCitizen.district.id, nextAge);
       }
 
-      // 초점 보정
       let { health, happiness, learning, bonds } = prevCitizen;
       if (focus === 'learning') learning = Math.min(100, learning + 3);
       if (focus === 'work') happiness = Math.max(0, happiness - 1);
@@ -148,12 +166,10 @@ export const App: React.FC = () => {
       if (focus === 'health') health = Math.min(100, health + 3);
       if (focus === 'change') happiness = Math.min(100, happiness + 2);
 
-      // 자연 노화 페널티
       if (nextAge > 65) {
         health = Math.max(0, health - 1);
       }
 
-      // 1. 사망 판정
       const tempCitizen: CitizenStatus = {
         ...prevCitizen,
         age: nextAge,
@@ -165,6 +181,7 @@ export const App: React.FC = () => {
         job: nextJob
       };
 
+      // 1. 사망 판정
       const mortality = checkMortality(tempCitizen, cityIndicators);
       if (mortality.willDie) {
         setIsPaused(true);
@@ -203,7 +220,7 @@ export const App: React.FC = () => {
         audioManager.playChimeSound();
       }
 
-      // 4. 딜레마 체크 (우선순위)
+      // 4. 딜레마 체크
       const dilemma = checkDilemmaTrigger(tempCitizen, resolvedDilemmaIds.current);
       if (dilemma && !pauseDef) {
         setIsPaused(true);
@@ -277,7 +294,6 @@ export const App: React.FC = () => {
 
     resolvedDilemmaIds.current.add(activeDilemma.id);
 
-    // 개인 스탯 및 도시 지표 반영
     setCitizen(prev => {
       const p = option.impactPersonal;
       return {
@@ -313,7 +329,6 @@ export const App: React.FC = () => {
       };
     });
 
-    // 타임라인에 딜레마 및 나비효과 추가
     setTimeline(t => [
       ...t,
       {
@@ -407,32 +422,102 @@ export const App: React.FC = () => {
         onToggleMute={handleToggleMute}
       />
 
-      {/* 2. 상태 게이지 (개인 4대 지표 + 도시 트레이드오프) */}
+      {/* 2. 상태 게이지 (개인 4대 지표) */}
       <StatusBars
         citizen={citizen}
         cityIndicators={cityIndicators}
       />
 
-      {/* 3. 메인 콘텐츠: 텍스트 타임라인 + 코호트 사이드바 */}
-      <main className="flex-1 max-w-7xl w-full mx-auto flex flex-col lg:flex-row overflow-hidden">
-        {/* 중앙 생애 타임라인 로그 */}
-        <TimelineLog entries={timeline} />
+      {/* 3. 모바일 전용 뷰 전환 탭 바 (lg:hidden) */}
+      <div className="lg:hidden bg-space-950 border-b border-space-800 px-2 py-1.5 flex items-center justify-around text-xs">
+        <button
+          onClick={() => {
+            setMobileTab('timeline');
+            audioManager.playClickSound();
+          }}
+          className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg font-medium transition ${
+            mobileTab === 'timeline'
+              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
+              : 'text-slate-400'
+          }`}
+        >
+          <ScrollText className="w-3.5 h-3.5" />
+          <span>생애 기록</span>
+        </button>
 
-        {/* 우측 동시 출생자 4인 코호트 */}
-        <CohortPanel cohort={cohort} birthYear={citizen.birthYear} />
+        <button
+          onClick={() => {
+            setMobileTab('impact');
+            audioManager.playClickSound();
+          }}
+          className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg font-medium transition relative ${
+            mobileTab === 'impact'
+              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
+              : 'text-slate-400'
+          }`}
+        >
+          <Scale className="w-3.5 h-3.5" />
+          <span>내 선택 & 도시 변화</span>
+          {citizen.choicesHistory.length > 0 && (
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+          )}
+        </button>
+
+        <button
+          onClick={() => {
+            setMobileTab('cohort');
+            audioManager.playClickSound();
+          }}
+          className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg font-medium transition ${
+            mobileTab === 'cohort'
+              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 font-bold'
+              : 'text-slate-400'
+          }`}
+        >
+          <Users className="w-3.5 h-3.5" />
+          <span>동갑내기</span>
+        </button>
+      </div>
+
+      {/* 4. 메인 콘텐츠: 텍스트 타임라인 + 사이드 대시보드 */}
+      <main className="flex-1 max-w-7xl w-full mx-auto flex flex-col lg:flex-row overflow-hidden relative">
+        
+        {/* 데스크톱: 타임라인 항상 보임 / 모바일: mobileTab === 'timeline'일 때만 보임 */}
+        <div className={`flex-1 flex flex-col overflow-hidden ${mobileTab !== 'timeline' ? 'hidden lg:flex' : 'flex'}`}>
+          <TimelineLog entries={timeline} />
+        </div>
+
+        {/* 데스크톱: 사이드바 항상 보임 / 모바일: mobileTab이 impact 또는 cohort일 때 보임 */}
+        <div className={`w-full lg:w-84 xl:w-96 flex flex-col overflow-hidden ${mobileTab === 'timeline' ? 'hidden lg:flex' : 'flex flex-1'}`}>
+          <SideDashboard
+            cohort={cohort}
+            birthYear={citizen.birthYear}
+            choicesHistory={citizen.choicesHistory}
+            cityIndicators={cityIndicators}
+            activeTab={mobileTab === 'cohort' ? 'cohort' : 'impact'}
+            onTabChange={(t) => {
+              if (mobileTab !== 'timeline') {
+                setMobileTab(t);
+              }
+            }}
+          />
+        </div>
+
       </main>
 
-      {/* 4. 하단 이번 해의 초점 칩 선택기 */}
+      {/* 5. 하단 올해의 초점 칩 선택기 */}
       <YearFocusSelector
         currentFocus={focus}
         onSelectFocus={setFocus}
       />
 
-      {/* 모달 1: 출생 모달 */}
+      {/* 모달 1: 출생 및 인물 선택 모달 */}
       {isBirthModalOpen && (
         <BirthModal
           citizen={citizen}
           onStartLife={handleStartLife}
+          onRerollRandom={handleRerollRandom}
+          onSelectPreset={handleSelectPreset}
         />
       )}
 

@@ -45,61 +45,61 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn">
-      <div className="bg-space-900 border border-amber-500/40 rounded-2xl max-w-2xl w-full my-auto shadow-2xl shadow-amber-950/40 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-5 overflow-y-auto animate-fadeIn">
+      <div className="bg-space-900 border border-amber-500/40 rounded-2xl max-w-2xl w-full my-auto shadow-2xl shadow-amber-950/40 overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* 헤더 */}
-        <div className="bg-gradient-to-r from-amber-950/60 to-space-900 px-5 py-4 border-b border-amber-500/30 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-amber-500/20 text-amber-300">
-              <Scale className="w-5 h-5" />
+        <div className="bg-gradient-to-r from-amber-950/60 to-space-900 px-3.5 sm:px-5 py-3 sm:py-4 border-b border-amber-500/30 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="p-1.5 sm:p-2 rounded-lg bg-amber-500/20 text-amber-300">
+              <Scale className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <span className="text-xs font-mono font-semibold text-amber-400/90">
+              <span className="text-[10px] sm:text-xs font-mono font-semibold text-amber-400/90 block">
                 {age}세 ({year}년) · 진주의 갈림길
               </span>
-              <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+              <h2 className="text-sm sm:text-base font-bold text-white tracking-tight leading-tight">
                 {dilemma.title}
               </h2>
             </div>
           </div>
-          <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-amber-950 text-amber-300 border border-amber-600/30">
+          <span className="px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-medium bg-amber-950 text-amber-300 border border-amber-600/30 shrink-0 ml-1">
             {dilemma.category}
           </span>
         </div>
 
         {/* 본문 스크롤 영역 */}
-        <div className="p-5 space-y-4 overflow-y-auto text-sm">
+        <div className="p-3.5 sm:p-5 space-y-3.5 overflow-y-auto text-xs sm:text-sm">
           
           {/* 1막: FACT 사실 */}
-          <div className="bg-space-850 p-3.5 rounded-xl border border-sky-600/30">
-            <div className="flex items-center gap-1.5 text-sky-400 font-semibold text-xs mb-1.5">
-              <AlertCircle className="w-4 h-4" />
+          <div className="bg-space-850 p-3 rounded-xl border border-sky-600/30">
+            <div className="flex items-center gap-1.5 text-sky-400 font-semibold text-[11px] sm:text-xs mb-1">
+              <AlertCircle className="w-3.5 h-3.5" />
               <span>[FACT] 공공데이터 및 공식 사실</span>
             </div>
             <p className="text-slate-300 text-xs sm:text-sm leading-relaxed font-sans break-keep">
               {dilemma.factText}
             </p>
-            <div className="mt-2 text-[11px] text-sky-400/80 font-mono">
+            <div className="mt-1.5 text-[10px] text-sky-400/80 font-mono">
               출처: {dilemma.factSource}
             </div>
           </div>
 
           {/* 2막: STANCE 양측 입장 대립 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-            <div className="bg-space-850 p-3 rounded-lg border border-slate-700">
-              <span className="font-semibold text-amber-300 block mb-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div className="bg-space-850 p-2.5 rounded-lg border border-slate-700">
+              <span className="font-semibold text-amber-300 block mb-0.5 text-[11px]">
                 🗣️ {dilemma.stanceA.actor}
               </span>
-              <p className="text-slate-300 leading-relaxed break-keep">
+              <p className="text-slate-300 leading-relaxed break-keep text-[11px]">
                 "{dilemma.stanceA.summary}"
               </p>
             </div>
-            <div className="bg-space-850 p-3 rounded-lg border border-slate-700">
-              <span className="font-semibold text-amber-300 block mb-1">
+            <div className="bg-space-850 p-2.5 rounded-lg border border-slate-700">
+              <span className="font-semibold text-amber-300 block mb-0.5 text-[11px]">
                 🗣️ {dilemma.stanceB.actor}
               </span>
-              <p className="text-slate-300 leading-relaxed break-keep">
+              <p className="text-slate-300 leading-relaxed break-keep text-[11px]">
                 "{dilemma.stanceB.summary}"
               </p>
             </div>
@@ -107,15 +107,15 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
 
           {/* 3막: CHOICE 1단계 - 나의 입장 선택 */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
               1단계: 당신의 입장은 무엇입니까?
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
               {dilemma.options.map((opt) => (
                 <button
                   key={opt.stance}
                   onClick={() => handleStanceChange(opt.stance)}
-                  className={`p-2.5 rounded-lg border text-xs font-medium text-left transition-all ${
+                  className={`p-2 rounded-lg border text-xs font-medium text-left transition-all ${
                     selectedStance === opt.stance
                       ? 'bg-amber-500/20 border-amber-400 text-amber-200 ring-1 ring-amber-400/50'
                       : 'bg-space-850 border-slate-700 text-slate-400 hover:text-slate-200 hover:bg-space-800'
@@ -135,15 +135,15 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
           {/* 3막: CHOICE 2단계 - 그 입장을 선택한 이유 */}
           {currentOption.reasons.length > 0 && (
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">
-                2단계: 당신이 이 입장을 택한 구체적인 이유는 무엇입니까?
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                2단계: 이 입장을 택한 구체적인 이유는 무엇입니까?
               </label>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {currentOption.reasons.map((r) => (
                   <label
                     key={r}
                     onClick={() => audioManager.playClickSound()}
-                    className={`flex items-center gap-2 p-2.5 rounded-lg border text-xs cursor-pointer transition ${
+                    className={`flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer transition ${
                       selectedReason === r
                         ? 'bg-amber-950/40 border-amber-500/60 text-amber-200'
                         : 'bg-space-850 border-slate-700/60 text-slate-400 hover:bg-space-800 hover:text-slate-200'
@@ -156,7 +156,7 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
                       onChange={() => setSelectedReason(r)}
                       className="accent-amber-500"
                     />
-                    <span className="font-sans break-keep">{r}</span>
+                    <span className="font-sans break-keep leading-snug">{r}</span>
                   </label>
                 ))}
               </div>
@@ -165,13 +165,13 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
 
           {/* 3막: CHOICE 3단계 - 시민 참여 방식 */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-300 mb-1">
               3단계: 어떻게 참여하시겠습니까?
             </label>
             <select
               value={participation}
               onChange={(e) => setParticipation(e.target.value)}
-              className="w-full bg-space-850 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400"
+              className="w-full bg-space-850 border border-slate-700 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-amber-400"
             >
               {participationOptions.map((p) => (
                 <option key={p} value={p}>
@@ -183,11 +183,11 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
 
         </div>
 
-        {/* 액션 버튼 */}
-        <div className="p-4 bg-space-950 border-t border-slate-800 flex items-center justify-end gap-3">
+        {/* 하단 확정 버튼 */}
+        <div className="p-3 sm:p-4 bg-space-950 border-t border-slate-800 flex items-center justify-end">
           <button
             onClick={handleSubmit}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 text-space-950 hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20 transition-all transform active:scale-95"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-amber-500 to-amber-600 text-space-950 hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20 transition-all transform active:scale-95"
           >
             이 결정으로 살아가기
           </button>

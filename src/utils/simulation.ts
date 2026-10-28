@@ -4,6 +4,64 @@ import { JINJU_DISTRICTS, JINJU_META } from '../data/jinjuData';
 import { PERSONAL_EVENTS } from '../data/personalEvents';
 import { JINJU_DILEMMAS } from '../data/dilemmas';
 
+export interface PresetProfile {
+  id: string;
+  name: string;
+  districtId: string;
+  tag: string;
+  headline: string;
+  desc: string;
+  defaultDecile: number;
+}
+
+export const PRESET_PROFILES: PresetProfile[] = [
+  {
+    id: 'chungmugong_lh',
+    name: '혁신도시 공기업 자녀',
+    districtId: 'chungmugong',
+    tag: '신도심 · 공공기관',
+    headline: '충무공동 대단지 아파트',
+    desc: '수도권에서 진주로 이전해 온 공공기관 임직원 가정. 쾌적한 신도시 인프라와 과밀학급 속에서 자랍니다.',
+    defaultDecile: 5
+  },
+  {
+    id: 'seongbuk_market',
+    name: '원도심 전통시장 상인 자녀',
+    districtId: 'seongbuk',
+    tag: '원도심 · 골목상권',
+    headline: '진주성 앞 성북동 골목',
+    desc: '중앙시장과 논개시장의 유서 깊은 상인 가정. 진주의 역사적 자부심과 원도심 상권 침체의 갈림길을 봅니다.',
+    defaultDecile: 3
+  },
+  {
+    id: 'sugok_smartfarm',
+    name: '수곡 수출딸기 스마트팜 자녀',
+    districtId: 'sugok',
+    tag: '농촌특화 · 수출농업',
+    headline: '수곡면 첨단 비닐하우스',
+    desc: '전국 최고 품질의 딸기를 해외로 수출하는 고소득 농가. 맑은 남강 상류 자연과 면 지역 장거리 통학을 경험합니다.',
+    defaultDecile: 4
+  },
+  {
+    id: 'gaho_college',
+    name: '경상국립대 앞 대학가 자녀',
+    districtId: 'gaho',
+    tag: '대학가 · 청년문화',
+    headline: '가좌동 대학로 원룸촌',
+    desc: '수만 명의 대학생이 오가는 청년 문화의 거리. 20대 청년들의 졸업 후 상경과 일자리 고민을 가장 가까이서 체감합니다.',
+    defaultDecile: 3
+  },
+  {
+    id: 'pyeonggeo_academy',
+    name: '평거 10호광장 명문학원가 자녀',
+    districtId: 'pyeonggeo',
+    tag: '명문학군 · 남강변',
+    headline: '평거동 대형 학원가',
+    desc: '남강 둔치 쉼터와 10호광장 학원 빌딩들. 높은 교육열과 학업 경쟁, 의대·명문대 진학의 열기 속에 성장합니다.',
+    defaultDecile: 4
+  }
+];
+
 export function pickDistrictByBirthWeight(): DistrictInfo {
   const totalWeight = JINJU_DISTRICTS.reduce((sum, d) => sum + d.birthWeight, 0);
   let rand = Math.random() * totalWeight;
@@ -43,10 +101,14 @@ export function getRandomJob(districtId: string, age: number): JobType {
 
 export function generateRandomBirth(birthYear: number = 2026): CitizenStatus {
   const district = pickDistrictByBirthWeight();
+  return generateBirthForDistrict(district.id, birthYear);
+}
+
+export function generateBirthForDistrict(districtId: string, birthYear: number = 2026, overrideDecile?: number): CitizenStatus {
+  const district = JINJU_DISTRICTS.find(d => d.id === districtId) || JINJU_DISTRICTS[0];
   const gender: '남성' | '여성' = Math.random() < 0.51 ? '남성' : '여성';
-  
-  // 소득 분위: 1~5분위 (해당 지역의 avgIncomeDecile을 중심으로 정규화)
-  const baseDecile = Math.round(district.avgIncomeDecile + (Math.random() * 2 - 1));
+
+  const baseDecile = overrideDecile ?? Math.round(district.avgIncomeDecile + (Math.random() * 2 - 1));
   const incomeDecile = Math.max(1, Math.min(5, baseDecile));
   const monthlyIncomeWon = incomeDecile * 1100000 + Math.floor(Math.random() * 600000);
 
@@ -99,7 +161,6 @@ export function updateCohort(cohort: CohortPerson[], age: number): CohortPerson[
   return cohort.map(p => {
     if (!p.isAlive) return p;
 
-    // 80세 이상 사망 확률
     if (age > 78 && Math.random() < 0.08) {
       return {
         ...p,
@@ -148,29 +209,23 @@ export function updateCohort(cohort: CohortPerson[], age: number): CohortPerson[
   });
 }
 
-// 사망 확률 계산
 export function checkMortality(citizen: CitizenStatus, cityIndicators: CityMacroIndicators): { willDie: boolean; cause?: string } {
   if (citizen.health <= 0) {
     return { willDie: true, cause: '건강 악화 및 복합 질환' };
   }
 
-  // 기본 기대수명 (남: 80.8, 여: 86.9)
   const baseLife = citizen.gender === '남성' ? JINJU_META.lifeExpectancy.male : JINJU_META.lifeExpectancy.female;
-  
-  // 공공의료/복지 지표 보정 (-30 ~ +30): 공공복지가 높을수록 수명 연장
-  const welfareBonus = (cityIndicators.welfare * -1) * 0.05; // welfare가 마이너스(공공복지)일수록 보너스
+  const welfareBonus = (cityIndicators.welfare * -1) * 0.05;
   const effectiveExpectedAge = baseLife + welfareBonus;
 
   if (citizen.age < 50) {
-    // 50세 미만 사망 확률 극히 낮음 (0.05% ~ 0.2%)
     if (Math.random() < 0.001) {
-      return { willDie: true, cause: '불의의 불의성 외인사 및 급성 질환' };
+      return { willDie: true, cause: '불의의 외인사 및 급성 질환' };
     }
     return { willDie: false };
   }
 
   if (citizen.age >= 50 && citizen.age < 70) {
-    // 50~70세: 중증 질환 확률 (0.5% ~ 1.5%)
     const risk = 0.005 + (100 - citizen.health) * 0.0002;
     if (Math.random() < risk) {
       return { willDie: true, cause: pickDeathCause() };
@@ -179,7 +234,6 @@ export function checkMortality(citizen: CitizenStatus, cityIndicators: CityMacro
   }
 
   if (citizen.age >= 70) {
-    // 70세 이상: 나이가 기대수명을 넘을수록 기하급수 증가
     const ageDiff = citizen.age - effectiveExpectedAge;
     const baseRisk = 0.03 + Math.max(0, ageDiff * 0.035);
     const healthRisk = (100 - citizen.health) * 0.002;
@@ -204,11 +258,10 @@ function pickDeathCause(): string {
   return '노환으로 인한 평온한 영면';
 }
 
-// 개인 인카운터 추첨
 export function pickPersonalEvent(citizen: CitizenStatus, focus: YearFocus) {
   const eligible = PERSONAL_EVENTS.filter(e => {
     if (citizen.age < e.minAge || citizen.age > e.maxAge) return false;
-    if (e.focusFilter && e.focusFilter !== focus) return Math.random() < 0.35; // 초점이 맞으면 우선순위
+    if (e.focusFilter && e.focusFilter !== focus) return Math.random() < 0.35;
     return true;
   });
 
@@ -216,7 +269,6 @@ export function pickPersonalEvent(citizen: CitizenStatus, focus: YearFocus) {
   return eligible[Math.floor(Math.random() * eligible.length)];
 }
 
-// 딜레마 카드 발생 조건 검사
 export function checkDilemmaTrigger(
   citizen: CitizenStatus,
   resolvedIds: Set<string>
@@ -225,7 +277,6 @@ export function checkDilemmaTrigger(
     if (resolvedIds.has(dilemma.id)) continue;
     const [minAge, maxAge] = dilemma.triggerAgeRange;
     if (citizen.age >= minAge && citizen.age <= maxAge) {
-      // 1년에 1개 이하로 적절한 확률(약 45%)로 등장
       if (Math.random() < 0.45 || citizen.age === minAge + 2) {
         return dilemma;
       }
