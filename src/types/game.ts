@@ -39,6 +39,24 @@ export type JobType =
   | '청년 구직자'
   | '은퇴 및 프리랜서';
 
+export interface SpouseInfo {
+  name: string;
+  marriedAge: number;
+  yearsTogether: number;
+  passedAway?: boolean;
+}
+
+export interface HappiestYearInfo {
+  age: number;
+  year: number;
+  note: string;
+}
+
+export interface LifeArchetypeInfo {
+  title: string;
+  summary: string;
+}
+
 export interface CitizenStatus {
   name: string;
   age: number;
@@ -47,9 +65,23 @@ export interface CitizenStatus {
   district: DistrictInfo;
   gender: '남성' | '여성';
   job: JobType;
+  jobTitle: string; // 나이와 생애 주기에 따른 직책/직업 (예: '영유아', '초등학생', '부장 · 은퇴')
+  education: string; // 학력 (예: '미취학 (영유아)', '초등학교', '고등학교', '대학교')
   incomeDecile: number; // 1~5분위 (교육용 모드에서는 서술형 매핑)
   incomeDesc?: string; // 교육용 서술형 표현
   monthlyIncomeWon: number; // 월 소득 추정치
+  netWorthWon: number; // 누적 순자산 (원)
+  hobby: string; // 취미 (예: '노래·악기 연주')
+  
+  // 가족 및 관계망
+  spouse: SpouseInfo | null;
+  childrenCount: number;
+  farewellCompanion: string; // 마지막 길을 배웅한 사람 (또는 곁을 지키는 사람)
+  
+  // 하이라이트 & 삶의 결
+  happiestYear: HappiestYearInfo;
+  timeSpent: Record<YearFocus, number>;
+  lifeArchetype: LifeArchetypeInfo;
   
   // 4대 생애 지표 (0 ~ 100)
   health: number;

@@ -1,5 +1,5 @@
 // 진주시 시뮬레이션 엔진 및 수학적 모델 (공공데이터 및 교육용 모드 필터 지원)
-import { CitizenStatus, CohortPerson, DistrictInfo, DilemmaIssue, CityMacroIndicators, YearFocus, JobType } from '../types/game';
+import { CitizenStatus, CohortPerson, DistrictInfo, DilemmaIssue, CityMacroIndicators, YearFocus, JobType, SpouseInfo, HappiestYearInfo, LifeArchetypeInfo } from '../types/game';
 import { JINJU_DISTRICTS, JINJU_META, getEduIncomeDesc } from '../data/jinjuData';
 import { PERSONAL_EVENTS } from '../data/personalEvents';
 import { getDilemmas } from '../data/dilemmas';
@@ -104,6 +104,16 @@ export function generateRandomBirth(birthYear: number = 2026, isEduMode: boolean
   return generateBirthForDistrict(district.id, birthYear, undefined, isEduMode);
 }
 
+const HOBBIES = [
+  '노래·악기 연주',
+  '남강변 자전거 라이딩',
+  '진주성 역사 답사·기록',
+  '베란다 분재와 텃밭 가꾸기',
+  '독서와 작은 도서관 모임',
+  '사진 촬영과 남강 일몰 기록',
+  '배드민턴과 생활 체육'
+];
+
 export function generateBirthForDistrict(
   districtId: string,
   birthYear: number = 2026,
@@ -115,8 +125,10 @@ export function generateBirthForDistrict(
 
   const baseDecile = overrideDecile ?? Math.round(district.avgIncomeDecile + (Math.random() * 2 - 1));
   const incomeDecile = Math.max(1, Math.min(5, baseDecile));
-  const monthlyIncomeWon = incomeDecile * 1100000 + Math.floor(Math.random() * 600000);
+  const monthlyIncomeWon = 0; // 0세 영유아 직접 소득 0원 (가구 환경은 소득분위로)
   const incomeDesc = getEduIncomeDesc(incomeDecile);
+  const hobby = HOBBIES[Math.floor(Math.random() * HOBBIES.length)];
+  const districtName = district.name.split(' ')[0];
 
   return {
     name: isEduMode ? '진주 학생' : '진주시민',
@@ -126,9 +138,32 @@ export function generateBirthForDistrict(
     district,
     gender,
     job: '청년 구직자',
+    jobTitle: '영유아 (가정보육·어린이집)',
+    education: '미취학 (영유아)',
     incomeDecile,
     incomeDesc,
     monthlyIncomeWon,
+    netWorthWon: 500000, // 50만 원 (돌 축하금 등)
+    hobby,
+    spouse: null,
+    childrenCount: 0,
+    farewellCompanion: '사랑으로 품어준 부모님과 가족',
+    happiestYear: {
+      age: 0,
+      year: birthYear,
+      note: `${districtName}에서 따뜻한 축복 속에 태어난 해`
+    },
+    timeSpent: {
+      learning: 0,
+      work: 0,
+      relationship: 0,
+      health: 0,
+      change: 0
+    },
+    lifeArchetype: {
+      title: '새싹을 틔운 진주의 아이',
+      summary: `${districtName}에 뿌리내린 삶이었어요. 새로운 삶의 걸음을 내딛는 순간이에요.`
+    },
     health: 90 + Math.floor(Math.random() * 10),
     happiness: 80 + Math.floor(Math.random() * 15),
     learning: 10 + Math.floor(Math.random() * 10),
@@ -143,6 +178,225 @@ export function generateBirthForDistrict(
     flags: new Set<string>(),
     choicesHistory: [],
     pausedQuestionAnswers: []
+  };
+}
+
+export function advanceCitizenProfile(
+  prev: CitizenStatus,
+  nextAge: number,
+  nextYear: number,
+  focus: YearFocus
+): {
+  job: JobType;
+  jobTitle: string;
+  education: string;
+  monthlyIncomeWon: number;
+  netWorthWon: number;
+  spouse: SpouseInfo | null;
+  childrenCount: number;
+  farewellCompanion: string;
+  happiestYear: HappiestYearInfo;
+  timeSpent: Record<YearFocus, number>;
+  lifeArchetype: LifeArchetypeInfo;
+} {
+  // 1. 시간을 쓴 곳 누적
+  const prevTimeSpent = prev.timeSpent || { learning: 0, work: 0, relationship: 0, health: 0, change: 0 };
+  const timeSpent: Record<YearFocus, number> = {
+    learning: prevTimeSpent.learning || 0,
+    work: prevTimeSpent.work || 0,
+    relationship: prevTimeSpent.relationship || 0,
+    health: prevTimeSpent.health || 0,
+    change: prevTimeSpent.change || 0,
+    [focus]: (prevTimeSpent[focus] || 0) + 1
+  };
+
+  // 2. 학력 발전
+  let education = prev.education || '미취학 (영유아)';
+  if (nextAge < 8) {
+    education = '미취학 (영유아)';
+  } else if (nextAge <= 13) {
+    education = '초등학교 재학';
+  } else if (nextAge <= 16) {
+    education = '중학교 재학';
+  } else if (nextAge <= 19) {
+    education = '고등학교 재학';
+  } else if (nextAge === 20) {
+    if (prev.learning >= 65) education = '대학교 (경상국립대 등)';
+    else if (prev.learning >= 35) education = '전문학사 (연암공대/보건대)';
+    else education = '고등학교';
+  } else if (nextAge >= 26 && education === '고등학교' && timeSpent.learning >= 10) {
+    education = '방통대·평생교육 학사';
+  }
+
+  // 3. 직업 및 직책 발전
+  let job = prev.job;
+  let jobTitle = prev.jobTitle || '영유아';
+
+  if (nextAge < 8) {
+    job = '청년 구직자';
+    jobTitle = '영유아 (어린이집·유치원)';
+  } else if (nextAge <= 13) {
+    job = '청년 구직자';
+    jobTitle = '초등학생';
+  } else if (nextAge <= 16) {
+    job = '청년 구직자';
+    jobTitle = '중학생';
+  } else if (nextAge <= 19) {
+    job = '청년 구직자';
+    jobTitle = '고등학생';
+  } else if (nextAge <= 24) {
+    if (education.includes('대학교')) {
+      job = '청년 구직자';
+      jobTitle = '대학생 (학업 및 준비)';
+    } else {
+      job = getRandomJob(prev.district.id, nextAge);
+      jobTitle = `${job} · 사회초년생`;
+    }
+  } else if (nextAge <= 34) {
+    if (job === '청년 구직자' || job === '은퇴 및 프리랜서') {
+      job = getRandomJob(prev.district.id, nextAge);
+    }
+    jobTitle = `${job} · 사원·주임`;
+  } else if (nextAge <= 44) {
+    jobTitle = `${job} · 대리·과장`;
+  } else if (nextAge <= 58) {
+    jobTitle = `${job} · 팀장·부장`;
+  } else if (nextAge <= 64) {
+    jobTitle = `${job} · 부장·책임`;
+  } else {
+    // 65세 이상 은퇴
+    job = '은퇴 및 프리랜서';
+    jobTitle = '부장 · 은퇴';
+  }
+
+  // 4. 월소득 및 순자산 (저축 누적)
+  let monthlyIncomeWon = 0;
+  if (nextAge < 8) monthlyIncomeWon = 0;
+  else if (nextAge <= 13) monthlyIncomeWon = 30000;
+  else if (nextAge <= 16) monthlyIncomeWon = 70000;
+  else if (nextAge <= 19) monthlyIncomeWon = 150000;
+  else if (nextAge <= 24) monthlyIncomeWon = education.includes('대학교') ? 450000 : 1800000;
+  else if (nextAge <= 34) monthlyIncomeWon = prev.incomeDecile * 600000 + 1800000;
+  else if (nextAge <= 44) monthlyIncomeWon = prev.incomeDecile * 850000 + 2200000;
+  else if (nextAge <= 58) monthlyIncomeWon = prev.incomeDecile * 1000000 + 2600000;
+  else if (nextAge <= 64) monthlyIncomeWon = prev.incomeDecile * 800000 + 2000000;
+  else monthlyIncomeWon = prev.incomeDecile * 250000 + 1300000; // 은퇴 연금
+
+  let netWorthWon = prev.netWorthWon || 500000;
+  if (nextAge < 20) {
+    netWorthWon += Math.floor(monthlyIncomeWon * 12 * 0.4);
+  } else if (nextAge <= 64) {
+    const saveRate = focus === 'work' ? 0.35 : 0.25;
+    netWorthWon += Math.floor(monthlyIncomeWon * 12 * saveRate);
+  } else {
+    netWorthWon = Math.max(10000000, netWorthWon - 1500000);
+  }
+
+  // 5. 배우자 및 자녀
+  let spouse: SpouseInfo | null = prev.spouse ? { ...prev.spouse } : null;
+  let childrenCount = prev.childrenCount || 0;
+
+  if (!spouse && nextAge >= 28 && nextAge <= 38 && prev.bonds >= 50) {
+    // 결혼 확률 25%
+    if (Math.random() < 0.25) {
+      const spouseNames = prev.gender === '남성'
+        ? ['지은', '서연', '민서', '수빈', '유진', '하은', '지우', '소희']
+        : ['민준', '도윤', '준서', '예준', '지훈', '서진', '현우', '동현'];
+      const chosenName = spouseNames[Math.floor(Math.random() * spouseNames.length)];
+      spouse = {
+        name: chosenName,
+        marriedAge: nextAge,
+        yearsTogether: 1,
+        passedAway: false
+      };
+    }
+  } else if (spouse) {
+    if (!spouse.passedAway) {
+      spouse.yearsTogether += 1;
+      // 78세 이상일 때 배우자 먼저 사별 확률 3%
+      if (nextAge >= 78 && Math.random() < 0.03) {
+        spouse.passedAway = true;
+      }
+    }
+  }
+
+  if (spouse && !spouse.passedAway && nextAge >= 29 && nextAge <= 39 && childrenCount < 2) {
+    if (Math.random() < 0.20) {
+      childrenCount += 1;
+    }
+  }
+
+  // 6. 곁을 지키는 사람 / 마지막 배웅
+  let farewellCompanion = '오랜 친구 한 명';
+  if (nextAge < 20) {
+    farewellCompanion = '사랑으로 품어준 부모님과 가족';
+  } else if (spouse && !spouse.passedAway) {
+    farewellCompanion = `늘 곁을 지켜준 배우자 ${spouse.name}와 가족`;
+  } else if (spouse && spouse.passedAway) {
+    farewellCompanion = childrenCount > 0 ? '든든한 자녀들과 오랜 친구' : '오랜 친구 한 명';
+  } else if (childrenCount > 0) {
+    farewellCompanion = '다정한 자녀들과 이웃들';
+  } else if (prev.bonds >= 60) {
+    farewellCompanion = '오랜 친구 한 명과 다정한 이웃들';
+  } else {
+    farewellCompanion = '조용히 곁을 지킨 이웃 복지사';
+  }
+
+  // 7. 가장 행복했던 해
+  let happiestYear = prev.happiestYear || {
+    age: 0,
+    year: prev.birthYear,
+    note: '남강의 축복 속에 태어난 해'
+  };
+  if (prev.happiness >= 80 && (nextAge === 1 || prev.happiness > (happiestYear as any).score || 0)) {
+    happiestYear = {
+      age: nextAge,
+      year: nextYear,
+      note: `${nextAge}세 (${nextYear}년)`
+    };
+    (happiestYear as any).score = prev.happiness;
+  }
+
+  // 8. 이 삶의 결 (Archetype)
+  const focusKeys: YearFocus[] = ['work', 'relationship', 'learning', 'health', 'change'];
+  focusKeys.sort((a, b) => timeSpent[b] - timeSpent[a]);
+  const topFocus = focusKeys[0];
+
+  const districtName = prev.district.name.split(' ')[0];
+  let title = '한 우물을 파는 장인';
+  let summary = `${districtName}에 뿌리내린 삶이었어요. 부장으로 일하며 보람을 찾는 날이 많았어요.`;
+
+  if (topFocus === 'work') {
+    title = '한 우물을 파는 장인';
+    summary = `${districtName}에 뿌리내린 삶이었어요. 부장으로 일하며 보람을 찾는 날이 많았어요.`;
+  } else if (topFocus === 'relationship') {
+    title = '따뜻한 이웃을 품은 정원사';
+    summary = `${districtName}에서 가족과 오랜 이웃들에게 다정한 온기를 건네며 남강처럼 넉넉하게 살아온 삶이었어요.`;
+  } else if (topFocus === 'learning') {
+    title = '배움에 진심이었던 탐구자';
+    summary = `남강의 지혜를 머금고 평생 호기심을 잃지 않으며 꾸준히 세상과 지식을 익혀온 삶이었어요.`;
+  } else if (topFocus === 'health') {
+    title = '남강의 물결을 닮은 자유인';
+    summary = `소박한 일상과 자연 속에서 마음의 평온을 찾고 몸과 마음의 조화를 소중히 여겼던 삶이었어요.`;
+  } else if (topFocus === 'change') {
+    title = '새로운 지평을 연 개척자';
+    summary = `한 자리에 안주하지 않고 삶의 크고 작은 변화를 기꺼이 받아들이며 다채로운 풍경을 걸어온 삶이었어요.`;
+  }
+
+  const lifeArchetype = { title, summary };
+
+  return {
+    job,
+    jobTitle,
+    education,
+    monthlyIncomeWon,
+    netWorthWon,
+    spouse,
+    childrenCount,
+    farewellCompanion,
+    happiestYear,
+    timeSpent,
+    lifeArchetype
   };
 }
 

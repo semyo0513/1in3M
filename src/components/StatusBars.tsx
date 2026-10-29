@@ -1,14 +1,30 @@
 import React from 'react';
-import { Heart, Smile, BookOpen, Users, Briefcase, Coins } from 'lucide-react';
+import { Heart, Smile, BookOpen, Users, Briefcase, Coins, User } from 'lucide-react';
 import { CitizenStatus, CityMacroIndicators } from '../types/game';
 
 interface StatusBarsProps {
   citizen: CitizenStatus;
   cityIndicators: CityMacroIndicators;
   isEduMode?: boolean;
+  onOpenMobileProfile?: () => void;
 }
 
-export const StatusBars: React.FC<StatusBarsProps> = ({ citizen, isEduMode = false }) => {
+function formatWealth(won: number): string {
+  if (!won || won <= 0) return '0원';
+  const manWon = Math.floor(won / 10000);
+  if (manWon >= 10000) {
+    const eok = Math.floor(manWon / 10000);
+    const rest = manWon % 10000;
+    return rest > 0 ? `${eok}억 ${rest.toLocaleString('ko-KR')}만 원` : `${eok}억 원`;
+  }
+  return `${manWon.toLocaleString('ko-KR')}만 원`;
+}
+
+export const StatusBars: React.FC<StatusBarsProps> = ({
+  citizen,
+  isEduMode = false,
+  onOpenMobileProfile
+}) => {
   const stats = [
     { label: '건강', val: citizen.health, icon: Heart, color: 'from-rose-500 to-rose-400', textColor: 'text-rose-400' },
     { label: '행복', val: citizen.happiness, icon: Smile, color: 'from-amber-400 to-amber-300', textColor: 'text-amber-400' },
@@ -18,13 +34,15 @@ export const StatusBars: React.FC<StatusBarsProps> = ({ citizen, isEduMode = fal
 
   return (
     <div className="bg-space-850/95 border-b border-space-700 px-2.5 sm:px-6 py-2 text-xs">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-2.5 md:gap-4 items-stretch md:items-center justify-between">
+      <div className="max-w-[1560px] mx-auto flex flex-col md:flex-row gap-2.5 md:gap-4 items-stretch md:items-center justify-between">
         
-        {/* 1. 개인 직업 및 소득 환경 (교육용 모드에서는 서술형 표현으로 낙인 방지) */}
+        {/* 1. 개인 직업 및 소득/재산 환경 (생애 주기에 따라 동적 갱신) */}
         <div className="flex items-center justify-between sm:justify-start gap-2 bg-space-900/90 px-2.5 py-1.5 rounded-lg border border-slate-700/80">
           <div className="flex items-center gap-1.5 truncate">
             <Briefcase className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span className="font-medium text-slate-200 truncate">{citizen.job}</span>
+            <span className="font-bold text-slate-100 truncate">
+              {citizen.jobTitle || citizen.job}
+            </span>
           </div>
           <span className="text-slate-600">|</span>
           <div className="flex items-center gap-1.5 shrink-0">
@@ -34,11 +52,26 @@ export const StatusBars: React.FC<StatusBarsProps> = ({ citizen, isEduMode = fal
                 <span className="text-emerald-300 font-medium">{citizen.incomeDesc || '성실한 일터의 가정'}</span>
               ) : (
                 <span className="font-mono">
-                  {citizen.incomeDecile}분위 (월 {(citizen.monthlyIncomeWon / 10000).toFixed(0)}만 원)
+                  {citizen.age < 20 ? (
+                    `재산 ${formatWealth(citizen.netWorthWon)}`
+                  ) : (
+                    `월 ${(citizen.monthlyIncomeWon / 10000).toLocaleString('ko-KR')}만 (재산 ${formatWealth(citizen.netWorthWon)})`
+                  )}
                 </span>
               )}
             </span>
           </div>
+
+          {/* 모바일 전용: 프로필 팝업 열기 버튼 */}
+          {onOpenMobileProfile && (
+            <button
+              onClick={onOpenMobileProfile}
+              className="lg:hidden ml-auto shrink-0 px-2 py-0.5 rounded bg-amber-500/15 border border-amber-500/40 text-amber-300 text-[10px] font-bold flex items-center gap-1 hover:bg-amber-500/25 transition"
+            >
+              <User className="w-3 h-3" />
+              <span>프로필</span>
+            </button>
+          )}
         </div>
 
         {/* 2. 4대 스탯 바 (모바일: 4열 배치) */}

@@ -17,7 +17,8 @@ import {
   pickPersonalEvent,
   checkDilemmaTrigger,
   getRandomJob,
-  PresetProfile
+  PresetProfile,
+  advanceCitizenProfile
 } from './utils/simulation';
 import { PAUSE_QUESTIONS } from './data/pauseQuestions';
 import { getEduIncomeDesc } from './data/jinjuData';
@@ -33,7 +34,8 @@ import { PauseModal } from './components/PauseModal';
 import { EndingReceipt } from './components/EndingReceipt';
 import { MemorialHall, MemorialRecord } from './components/MemorialHall';
 import { BirthModal } from './components/BirthModal';
-import { ScrollText, Scale, Users, GraduationCap } from 'lucide-react';
+import { LeftProfilePanel } from './components/LeftProfilePanel';
+import { ScrollText, Scale, Users, GraduationCap, User } from 'lucide-react';
 
 const BASE_YEAR_TICK_MS = 6000; // 1년 = 6초 (15분 내 완주 가능한 템포)
 
@@ -71,6 +73,7 @@ export const App: React.FC = () => {
   const [activePauseQuestion, setActivePauseQuestion] = useState<{ age: number; question: string } | null>(null);
   const [isEndingOpen, setIsEndingOpen] = useState<boolean>(false);
   const [isMemorialOpen, setIsMemorialOpen] = useState<boolean>(false);
+  const [isMobileProfileOpen, setIsMobileProfileOpen] = useState<boolean>(false);
 
   const resolvedDilemmaIds = useRef<Set<string>>(new Set());
   const timerRef = useRef<number | null>(null);
@@ -183,11 +186,6 @@ export const App: React.FC = () => {
       const nextAge = prevCitizen.age + 1;
       const nextYear = prevCitizen.currentYear + 1;
 
-      let nextJob = prevCitizen.job;
-      if (nextAge === 19 || nextAge === 26 || nextAge === 65) {
-        nextJob = getRandomJob(prevCitizen.district.id, nextAge);
-      }
-
       let { health, happiness, learning, bonds } = prevCitizen;
       if (focus === 'learning') learning = Math.min(100, learning + 3);
       if (focus === 'work') happiness = Math.max(0, happiness - 1);
@@ -199,15 +197,18 @@ export const App: React.FC = () => {
         health = Math.max(0, health - 1);
       }
 
+      // 프로필 발전 (학력, 직업, 소득, 재산, 배우자, 자녀, 곁을 지키는 사람, 행복한 해, 시간 누적, 삶의 결)
+      const profileUpdates = advanceCitizenProfile(prevCitizen, nextAge, nextYear, focus);
+
       const tempCitizen: CitizenStatus = {
         ...prevCitizen,
+        ...profileUpdates,
         age: nextAge,
         currentYear: nextYear,
         health,
         happiness,
         learning,
-        bonds,
-        job: nextJob
+        bonds
       };
 
       // 1. 사망 판정 (교육용 모드 필터 적용)
@@ -460,16 +461,28 @@ export const App: React.FC = () => {
         citizen={citizen}
         cityIndicators={cityIndicators}
         isEduMode={isEduMode}
+        onOpenMobileProfile={() => setIsMobileProfileOpen(true)}
       />
 
       {/* 3. 모바일 전용 뷰 전환 탭 바 (lg:hidden) */}
-      <div className="lg:hidden bg-space-950 border-b border-space-800 px-2 py-1.5 flex items-center justify-around text-xs">
+      <div className="lg:hidden bg-space-950 border-b border-space-800 px-2 py-1.5 flex items-center justify-around text-xs gap-1">
+        <button
+          onClick={() => {
+            setIsMobileProfileOpen(true);
+            audioManager.playClickSound();
+          }}
+          className="flex items-center gap-1 py-1.5 px-2.5 rounded-lg font-bold text-amber-300 bg-amber-500/15 border border-amber-500/40 text-[11px] shrink-0"
+        >
+          <User className="w-3.5 h-3.5" />
+          <span>내 프로필</span>
+        </button>
+
         <button
           onClick={() => {
             setMobileTab('timeline');
             audioManager.playClickSound();
           }}
-          className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg font-medium transition ${
+          className={`flex items-center gap-1 py-1.5 px-2.5 rounded-lg font-medium transition text-[11px] ${
             mobileTab === 'timeline'
               ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
               : 'text-slate-400'
@@ -484,16 +497,16 @@ export const App: React.FC = () => {
             setMobileTab('impact');
             audioManager.playClickSound();
           }}
-          className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg font-medium transition relative ${
+          className={`flex items-center gap-1 py-1.5 px-2.5 rounded-lg font-medium transition relative text-[11px] ${
             mobileTab === 'impact'
               ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
               : 'text-slate-400'
           }`}
         >
           <Scale className="w-3.5 h-3.5" />
-          <span>내 선택 & 도시 변화</span>
+          <span>내 선택·도시</span>
           {citizen.choicesHistory.length > 0 && (
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
           )}
         </button>
 
@@ -502,7 +515,7 @@ export const App: React.FC = () => {
             setMobileTab('cohort');
             audioManager.playClickSound();
           }}
-          className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg font-medium transition ${
+          className={`flex items-center gap-1 py-1.5 px-2.5 rounded-lg font-medium transition text-[11px] ${
             mobileTab === 'cohort'
               ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 font-bold'
               : 'text-slate-400'
@@ -513,16 +526,21 @@ export const App: React.FC = () => {
         </button>
       </div>
 
-      {/* 4. 메인 콘텐츠: 텍스트 타임라인 + 사이드 대시보드 */}
-      <main className="flex-1 max-w-7xl w-full mx-auto flex flex-col lg:flex-row overflow-hidden relative">
+      {/* 4. 메인 콘텐츠: 좌측 프로필 패널 + 텍스트 타임라인 + 사이드 대시보드 */}
+      <main className="flex-1 max-w-[1600px] w-full mx-auto flex flex-col lg:flex-row overflow-hidden relative">
         
+        {/* 데스크톱: 좌측 패널에 항상 표시되는 인물 프로필 패널 (컴퓨터 화면 전용 고정) */}
+        <aside className="hidden lg:flex w-72 xl:w-80 flex-col shrink-0 border-r border-space-800 bg-space-950/70 overflow-hidden">
+          <LeftProfilePanel citizen={citizen} isEduMode={isEduMode} />
+        </aside>
+
         {/* 데스크톱: 타임라인 항상 보임 / 모바일: mobileTab === 'timeline'일 때만 보임 */}
         <div className={`flex-1 flex flex-col overflow-hidden ${mobileTab !== 'timeline' ? 'hidden lg:flex' : 'flex'}`}>
           <TimelineLog entries={timeline} />
         </div>
 
         {/* 데스크톱: 사이드바 항상 보임 / 모바일: mobileTab이 impact 또는 cohort일 때 보임 */}
-        <div className={`w-full lg:w-84 xl:w-96 flex flex-col overflow-hidden ${mobileTab === 'timeline' ? 'hidden lg:flex' : 'flex flex-1'}`}>
+        <div className={`w-full lg:w-80 xl:w-88 flex flex-col shrink-0 overflow-hidden ${mobileTab === 'timeline' ? 'hidden lg:flex' : 'flex flex-1'}`}>
           <SideDashboard
             cohort={cohort}
             birthYear={citizen.birthYear}
@@ -615,6 +633,21 @@ export const App: React.FC = () => {
         <MemorialHall
           onClose={() => setIsMemorialOpen(false)}
         />
+      )}
+
+      {/* 모바일 전용: 프로필 팝업 모달 (별도로 열고 닫을 수 있도록 지원) */}
+      {isMobileProfileOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
+          <div className="bg-space-950 border border-slate-700/80 rounded-t-2xl sm:rounded-2xl max-w-md w-full max-h-[85vh] h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+            <div className="flex-1 overflow-hidden">
+              <LeftProfilePanel
+                citizen={citizen}
+                isEduMode={isEduMode}
+                onCloseMobile={() => setIsMobileProfileOpen(false)}
+              />
+            </div>
+          </div>
+        </div>
       )}
 
     </div>
