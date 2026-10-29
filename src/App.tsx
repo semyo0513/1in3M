@@ -256,7 +256,61 @@ export const App: React.FC = () => {
         audioManager.playChimeSound();
       }
 
-      // 4. 딜레마 체크 (교육용 모드 분기)
+      // 4. 진주시 실제 초·중·고 진학 마일스톤 로그 (8세, 14세, 17세, 19세)
+      if (nextAge === 8 && tempCitizen.elementarySchool) {
+        setTimeline(t => [
+          ...t,
+          {
+            id: `log_school_elem_${nextAge}`,
+            year: nextYear,
+            age: nextAge,
+            type: 'milestone',
+            label: 'FACT',
+            sourceNote: '진주교육지원청 초등학교 학구 배정',
+            text: `커다란 책가방을 메고 진주 ${tempCitizen.elementarySchool}에 입학했습니다. 노란 신호등 앞에서 녹색어머니회의 손을 잡고 등굣길을 걷습니다.`
+          }
+        ]);
+      } else if (nextAge === 14 && tempCitizen.middleSchool) {
+        setTimeline(t => [
+          ...t,
+          {
+            id: `log_school_mid_${nextAge}`,
+            year: nextYear,
+            age: nextAge,
+            type: 'milestone',
+            label: 'FACT',
+            sourceNote: '진주시 중학교 학교군 배정',
+            text: `단정한 새 교복을 입고 ${tempCitizen.middleSchool}에 진학했습니다. 새로운 단짝 친구들과 학업의 첫걸음을 뗍니다.`
+          }
+        ]);
+      } else if (nextAge === 17 && tempCitizen.highSchool) {
+        setTimeline(t => [
+          ...t,
+          {
+            id: `log_school_high_${nextAge}`,
+            year: nextYear,
+            age: nextAge,
+            type: 'milestone',
+            label: 'FACT',
+            sourceNote: '경상남도교육청 평준화 일반고·특목고 배정',
+            text: `진주의 고등학교인 ${tempCitizen.highSchool}에 입학했습니다. 야간 자율학습과 동아리 활동 속에서 진로를 고민합니다.`
+          }
+        ]);
+      } else if (nextAge === 19 && tempCitizen.highSchool) {
+        setTimeline(t => [
+          ...t,
+          {
+            id: `log_school_grad_${nextAge}`,
+            year: nextYear,
+            age: nextAge,
+            type: 'milestone',
+            label: 'PERSONAL',
+            text: `정들었던 ${tempCitizen.highSchool} 교정을 나서며 졸업장을 품에 안았습니다. 함께 웃고 울던 친구들과 성인의 길목에 섭니다.`
+          }
+        ]);
+      }
+
+      // 5. 딜레마 체크 (교육용 모드 분기)
       const dilemma = checkDilemmaTrigger(tempCitizen, resolvedDilemmaIds.current, isEduMode);
       if (dilemma && !pauseDef) {
         setIsPaused(true);
@@ -264,7 +318,7 @@ export const App: React.FC = () => {
         audioManager.playChimeSound();
       }
 
-      // 5. 일상 인카운터 추첨 (교육용 모드 민감소재 필터)
+      // 6. 일상 인카운터 추첨 (교육용 모드 민감소재 필터)
       const event = pickPersonalEvent(tempCitizen, focus, isEduMode);
       if (event) {
         if (event.impact.health) health = Math.max(0, Math.min(100, health + event.impact.health));

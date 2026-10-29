@@ -89,6 +89,19 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
             <span className="text-slate-500 mr-2">:</span>
             <span className="text-slate-100 font-medium">{citizen.education || '미취학 (영유아)'}</span>
           </div>
+          {citizen.age >= 8 && citizen.elementarySchool && (
+            <div className="flex items-start text-[11px] text-slate-400 pl-0.5">
+              <span className="w-16 text-slate-500 shrink-0 font-medium">모교</span>
+              <span className="text-slate-600 mr-2">:</span>
+              <span className="text-sky-300 font-medium leading-tight">
+                {citizen.age < 14
+                  ? citizen.elementarySchool
+                  : citizen.age < 17
+                  ? `${citizen.elementarySchool} → ${citizen.middleSchool}`
+                  : `${citizen.elementarySchool} → ${citizen.middleSchool} → ${citizen.highSchool}`}
+              </span>
+            </div>
+          )}
           <div className="flex items-start">
             <span className="w-16 text-slate-400 shrink-0 font-medium">직업</span>
             <span className="text-slate-500 mr-2">:</span>

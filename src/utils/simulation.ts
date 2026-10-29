@@ -3,6 +3,7 @@ import { CitizenStatus, CohortPerson, DistrictInfo, DilemmaIssue, CityMacroIndic
 import { JINJU_DISTRICTS, JINJU_META, getEduIncomeDesc } from '../data/jinjuData';
 import { PERSONAL_EVENTS } from '../data/personalEvents';
 import { getDilemmas } from '../data/dilemmas';
+import { pickElementarySchool, pickMiddleSchool, pickHighSchool } from '../data/jinjuSchools';
 
 export interface PresetProfile {
   id: string;
@@ -130,6 +131,11 @@ export function generateBirthForDistrict(
   const hobby = HOBBIES[Math.floor(Math.random() * HOBBIES.length)];
   const districtName = district.name.split(' ')[0];
 
+  // 진주시 실제 초·중·고 배정
+  const elementarySchool = pickElementarySchool(district.id);
+  const middleSchool = pickMiddleSchool(district.id, gender);
+  const highSchool = pickHighSchool(district.id, gender);
+
   return {
     name: isEduMode ? '진주 학생' : '진주시민',
     age: 0,
@@ -140,6 +146,9 @@ export function generateBirthForDistrict(
     job: '청년 구직자',
     jobTitle: '영유아 (가정보육·어린이집)',
     education: '미취학 (영유아)',
+    elementarySchool,
+    middleSchool,
+    highSchool,
     incomeDecile,
     incomeDesc,
     monthlyIncomeWon,
@@ -190,6 +199,9 @@ export function advanceCitizenProfile(
   job: JobType;
   jobTitle: string;
   education: string;
+  elementarySchool: string;
+  middleSchool: string;
+  highSchool: string;
   monthlyIncomeWon: number;
   netWorthWon: number;
   spouse: SpouseInfo | null;
@@ -199,6 +211,11 @@ export function advanceCitizenProfile(
   timeSpent: Record<YearFocus, number>;
   lifeArchetype: LifeArchetypeInfo;
 } {
+  // 진주시 실제 학교 계승/확보
+  const elementarySchool = prev.elementarySchool || pickElementarySchool(prev.district.id);
+  const middleSchool = prev.middleSchool || pickMiddleSchool(prev.district.id, prev.gender);
+  const highSchool = prev.highSchool || pickHighSchool(prev.district.id, prev.gender);
+
   // 1. 시간을 쓴 곳 누적
   const prevTimeSpent = prev.timeSpent || { learning: 0, work: 0, relationship: 0, health: 0, change: 0 };
   const timeSpent: Record<YearFocus, number> = {
@@ -210,40 +227,40 @@ export function advanceCitizenProfile(
     [focus]: (prevTimeSpent[focus] || 0) + 1
   };
 
-  // 2. 학력 발전
+  // 2. 학력 발전 (실제 진주 학교 명칭 반영)
   let education = prev.education || '미취학 (영유아)';
   if (nextAge < 8) {
     education = '미취학 (영유아)';
   } else if (nextAge <= 13) {
-    education = '초등학교 재학';
+    education = `초등학교 (${elementarySchool})`;
   } else if (nextAge <= 16) {
-    education = '중학교 재학';
+    education = `중학교 (${middleSchool})`;
   } else if (nextAge <= 19) {
-    education = '고등학교 재학';
+    education = `고등학교 (${highSchool})`;
   } else if (nextAge === 20) {
-    if (prev.learning >= 65) education = '대학교 (경상국립대 등)';
-    else if (prev.learning >= 35) education = '전문학사 (연암공대/보건대)';
-    else education = '고등학교';
-  } else if (nextAge >= 26 && education === '고등학교' && timeSpent.learning >= 10) {
-    education = '방통대·평생교육 학사';
+    if (prev.learning >= 65) education = `대학교 (경상국립대 / ${highSchool} 졸)`;
+    else if (prev.learning >= 35) education = `전문학사 (연암공대 / ${highSchool} 졸)`;
+    else education = `고등학교 (${highSchool} 졸업)`;
+  } else if (nextAge >= 26 && education.startsWith('고등학교') && timeSpent.learning >= 10) {
+    education = `방통대 학사 (${highSchool} 졸)`;
   }
 
-  // 3. 직업 및 직책 발전
+  // 3. 직업 및 직책 발전 (학교 명칭 연동)
   let job = prev.job;
   let jobTitle = prev.jobTitle || '영유아';
 
   if (nextAge < 8) {
     job = '청년 구직자';
-    jobTitle = '영유아 (어린이집·유치원)';
+    jobTitle = '영유아 (가정·어린이집)';
   } else if (nextAge <= 13) {
     job = '청년 구직자';
-    jobTitle = '초등학생';
+    jobTitle = `초등학생 (${elementarySchool})`;
   } else if (nextAge <= 16) {
     job = '청년 구직자';
-    jobTitle = '중학생';
+    jobTitle = `중학생 (${middleSchool})`;
   } else if (nextAge <= 19) {
     job = '청년 구직자';
-    jobTitle = '고등학생';
+    jobTitle = `고등학생 (${highSchool})`;
   } else if (nextAge <= 24) {
     if (education.includes('대학교')) {
       job = '청년 구직자';
@@ -389,6 +406,9 @@ export function advanceCitizenProfile(
     job,
     jobTitle,
     education,
+    elementarySchool,
+    middleSchool,
+    highSchool,
     monthlyIncomeWon,
     netWorthWon,
     spouse,
