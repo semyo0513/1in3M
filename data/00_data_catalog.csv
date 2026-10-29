@@ -1,0 +1,21 @@
+﻿file,description,key_columns,source_ids,status,plan_ref
+01_region_master.csv,읍면동 30곳 마스터와 게임 권역(GR1~GR6) 분류안,"region_id, game_region_code",D01(규칙 기반 분류),분류는 PROPOSED_NEEDS_REVIEW,4장 출생 변수
+02_region_households_housing_2024.csv,"읍면동별 일반·아파트 가구 수와 아파트 비율(합계 145,452가구 검증)","households_*, apartment_ratio",D01 표10,확인(2024 표본추출틀 가구 수),"4장, 11장 PE-060"
+03_population_yearly_2005_2024.csv,연도별 세대수·주민등록 인구·외국인(2005~2024),"year, registered_pop_total",D02,확인(남녀 합계 검증),4장
+04_health_indicators_trend_2021_2024.csv,"진주시 26개 건강지표 2021~2024 추이, 경남·전국 중앙값 비교","indicator, jinju_2021~2024",D01 표1,확인,"5.1, 14장"
+05_health_by_strata_2024.csv,"지표×성·연령·학력·직업·월 가구소득·거주유형 층별 값(n, %, SE, RSE) 약 4,100행","indicator, stratum_type, stratum, value, reliability",D01 표20~73,확인(표1과 2024 전체값 대조 일치),"5장, 14장"
+06_mortality_top10_2023.csv,10대 사망원인 연령표준화 사망률(진주·경남·전국·2013)과 비율,"cause_ko, ratio_jinju_to_national",D01 그림2·3,확인(그래프 이미지와 대조),"5.1, 15.3"
+07_life_expectancy_baseline.csv,"2024 생명표 전국 기대수명·생존확률·기대여명, 진주 기대수명 입력칸(빈칸)","metric, sex, value","D08, D07","전국값 확인, 진주값은 TO_COLLECT",17장 사망 판정
+08_sample_composition_2024.csv,조사 표본의 가구·개인 구성(비가중),"variable, category, pct",D01 표13·14,"확인(합계 검증), 모집단 추정치 아님",4장
+09_game_birth_weights.csv,"출생 추첨용 가중치 세트(region, game_region, income_tier 등)와 품질 표기","weight_set, weight, quality",D01(대체 지표),PROXY·표본 기반·가정값이 섞임,4장
+10_game_health_modifiers.csv,소득·학력·직업·거주유형·연령·성별에 따른 건강 지표 상대비(게임 변수 매핑안 포함),"indicator, stratum, ratio_to_total",D01 표20~73 가공,"확인값 가공, game_var는 제안",7.3 영향 계산
+11_indicator_dictionary.csv,57개 지표의 정의·단위·방향·대상 연령,"indicator_id, definition_ko",D01 부록 요약,확인,부록
+20_config.csv,"게임 설정값(속도, 질문 나이, 영향 상한 등)","key, value",plan.md,설계값,2·7장
+21_issues.csv,이슈 8건의 상태·공개 게이트·미확보 항목,"issue_id, status, g1_two_sided_sources",plan.md 8·9장,2026-10-28 기준,8·9·15.4장
+22_stances.csv,이슈별 이해관계자 입장 17건(미확보는 BLOCKED),"actor, evidence_status",plan.md 8장,확인/부분/미확보 구분,8장
+23_exposure.csv,이슈별 개인 노출도 매트릭스(가상 파라미터),"position_key, path, value",plan.md 8.1·8.2,VIRTUAL(밸런스용),"7.3, 8장"
+24_pause_questions.csv,5·15·30·50·70세 잠시 멈춤 질문 15개,"age, question",plan.md 12장,설계,12장
+25_personal_events.csv,개인 인카운터 12종 초안과 연결 데이터,"event_id, linked_data",plan.md 11장,DRAFT,11장
+90_sources.csv,출처 38건(주소·기준일·등급·상태),"source_id, url, status",-,-,부록 A
+91_data_gaps.csv,확보하지 못한 자료 14건과 채우는 방법,"gap_id, best_source, status",-,-,"0.3, 20장 M0"
+92_region_stats_import_template.csv,포털·공공데이터에서 받은 읍면동별 값을 붙여넣을 빈 템플릿(30행),region_id + 25개 열,-,빈칸,4장

@@ -34,11 +34,17 @@ import { MemorialHall, MemorialRecord } from './components/MemorialHall';
 import { BirthModal } from './components/BirthModal';
 import { ScrollText, Scale, Users } from 'lucide-react';
 
-const BASE_YEAR_TICK_MS = 6000; // 1년 = 6초
+const BASE_YEAR_TICK_MS = 6000; // 1년 = 6초 (15분 내 완주 가능한 템포)
 
 export const App: React.FC = () => {
+  // 교육용 모드 초기화 (?edu=1 감지)
+  const [isEduMode, setIsEduMode] = useState<boolean>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('edu') === '1';
+  });
+
   // 메인 상태
-  const [citizen, setCitizen] = useState<CitizenStatus>(() => generateRandomBirth(2026));
+  const [citizen, setCitizen] = useState<CitizenStatus>(() => generateRandomBirth(2026, isEduMode));
   const [cohort, setCohort] = useState<CohortPerson[]>(() => generateCohort(2026, citizen.district.id));
   const [cityIndicators, setCityIndicators] = useState<CityMacroIndicators>({
     space: 0,
@@ -68,23 +74,45 @@ export const App: React.FC = () => {
   const resolvedDilemmaIds = useRef<Set<string>>(new Set());
   const timerRef = useRef<number | null>(null);
 
+  // 교육용 모드 토글
+  const handleToggleEduMode = () => {
+    const nextMode = !isEduMode;
+    setIsEduMode(nextMode);
+    
+    // URL 파라미터 동기화
+    const url = new URL(window.location.href);
+    if (nextMode) {
+      url.searchParams.set('edu', '1');
+    } else {
+      url.searchParams.delete('edu');
+    }
+    window.history.replaceState({}, '', url.toString());
+
+    // 진행 중인 상태도 교육용 서술형 표현으로 즉시 보정
+    setCitizen(prev => ({
+      ...prev,
+      name: nextMode ? '진주 학생' : '진주시민',
+      incomeDesc: prev.incomeDesc
+    }));
+  };
+
   // 캐릭터 재추첨 (무작위)
   const handleRerollRandom = useCallback(() => {
-    const newCitizen = generateRandomBirth(2026);
+    const newCitizen = generateRandomBirth(2026, isEduMode);
     setCitizen(newCitizen);
     setCohort(generateCohort(2026, newCitizen.district.id));
-  }, []);
+  }, [isEduMode]);
 
   // 프리셋 인물 선택
   const handleSelectPreset = useCallback((preset: PresetProfile) => {
-    const newCitizen = generateBirthForDistrict(preset.districtId, 2026, preset.defaultDecile);
+    const newCitizen = generateBirthForDistrict(preset.districtId, 2026, preset.defaultDecile, isEduMode);
     setCitizen(newCitizen);
     setCohort(generateCohort(2026, newCitizen.district.id));
-  }, []);
+  }, [isEduMode]);
 
   // 게임 초기화 (다시 태어나기)
   const startNewLife = useCallback(() => {
-    const newCitizen = generateRandomBirth(2026);
+    const newCitizen = generateRandomBirth(2026, isEduMode);
     const newCohort = generateCohort(2026, newCitizen.district.id);
     setCitizen(newCitizen);
     setCohort(newCohort);
@@ -103,14 +131,14 @@ export const App: React.FC = () => {
         age: 0,
         type: 'birth',
         label: 'FACT',
-        sourceNote: '2026 진주시 출생통계 (연 1,855명)',
+        sourceNote: isEduMode ? '진주시 공공통계 표본틀 (n=905)' : '2026 진주시 출생통계 (연 1,855명)',
         text: `2026년, 진주시 ${newCitizen.district.name}에서 태어났습니다. ${newCitizen.district.description}`
       }
     ]);
 
     setIsBirthModalOpen(true);
     setIsPaused(true);
-  }, []);
+  }, [isEduMode]);
 
   // 최초 로드 시 초기 로그 세팅
   useEffect(() => {
@@ -121,11 +149,11 @@ export const App: React.FC = () => {
         age: 0,
         type: 'birth',
         label: 'FACT',
-        sourceNote: '진주시 출생통계',
+        sourceNote: isEduMode ? '진주시 공공통계 표본틀 (n=905)' : '진주시 출생통계',
         text: `2026년, 진주시 ${citizen.district.name}에서 태어났습니다. ${citizen.district.description}`
       }
     ]);
-  }, [citizen.district.name, citizen.district.description, citizen.birthYear]);
+  }, [citizen.district.name, citizen.district.description, citizen.birthYear, isEduMode]);
 
   // 오디오 토글
   const handleToggleMute = () => {
@@ -181,8 +209,8 @@ export const App: React.FC = () => {
         job: nextJob
       };
 
-      // 1. 사망 판정
-      const mortality = checkMortality(tempCitizen, cityIndicators);
+      // 1. 사망 판정 (교육용 모드 필터 적용)
+      const mortality = checkMortality(tempCitizen, cityIndicators, isEduMode);
       if (mortality.willDie) {
         setIsPaused(true);
         setIsEndingOpen(true);
@@ -196,8 +224,10 @@ export const App: React.FC = () => {
             age: nextAge,
             type: 'death',
             label: 'FACT',
-            sourceNote: '통계청 생명표 및 사망원인통계',
-            text: `${nextAge}세의 나이로 남강의 곁에서 영면하였습니다. (사유: ${mortality.cause})`
+            sourceNote: isEduMode ? '통계청 생명표' : '통계청 2023 사망원인통계',
+            text: isEduMode
+              ? `${nextAge}세의 나이로 가족과 이웃들의 따뜻한 배웅 속에 평온하게 삶을 마감하였습니다.`
+              : `${nextAge}세의 나이로 남강의 곁에서 영면하였습니다. (사유: ${mortality.cause})`
           }
         ]);
 
@@ -220,16 +250,16 @@ export const App: React.FC = () => {
         audioManager.playChimeSound();
       }
 
-      // 4. 딜레마 체크
-      const dilemma = checkDilemmaTrigger(tempCitizen, resolvedDilemmaIds.current);
+      // 4. 딜레마 체크 (교육용 모드 분기)
+      const dilemma = checkDilemmaTrigger(tempCitizen, resolvedDilemmaIds.current, isEduMode);
       if (dilemma && !pauseDef) {
         setIsPaused(true);
         setActiveDilemma(dilemma);
         audioManager.playChimeSound();
       }
 
-      // 5. 일상 인카운터 추첨
-      const event = pickPersonalEvent(tempCitizen, focus);
+      // 5. 일상 인카운터 추첨 (교육용 모드 민감소재 필터)
+      const event = pickPersonalEvent(tempCitizen, focus, isEduMode);
       if (event) {
         if (event.impact.health) health = Math.max(0, Math.min(100, health + event.impact.health));
         if (event.impact.happiness) happiness = Math.max(0, Math.min(100, happiness + event.impact.happiness));
@@ -258,7 +288,7 @@ export const App: React.FC = () => {
         bonds
       };
     });
-  }, [focus, cityIndicators]);
+  }, [focus, cityIndicators, isEduMode]);
 
   // 메인 타이머 루프
   useEffect(() => {
@@ -338,7 +368,7 @@ export const App: React.FC = () => {
         type: 'dilemma',
         label: 'STANCE',
         sourceNote: activeDilemma.factSource,
-        text: `[진주의 선택] "${activeDilemma.title}"에서 당신은 [${option.stance}]을(를) 택했습니다. (이유: "${reason}" / 참여: ${participation})`
+        text: `[진주의 선택] "${activeDilemma.title}"에서 [${option.stance}]을(를) 택했습니다. (이유: "${reason}" / 참여: ${participation})`
       },
       {
         id: `dilemma_whatif_${Date.now()}`,
@@ -384,7 +414,7 @@ export const App: React.FC = () => {
     setIsPaused(false);
   };
 
-  // 유등 추모관에 저장
+  // 유등 추모관에 저장 (외부 전송 없이 로컬 브라우저에만 보관)
   const handleSendToMemorial = (words: string) => {
     const record: MemorialRecord = {
       id: `memorial_${Date.now()}`,
@@ -410,22 +440,25 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col select-none">
       
-      {/* 1. 상단 바 (헤더) */}
+      {/* 1. 상단 바 (헤더 - 교육용 모드 토글 지원) */}
       <Header
         citizen={citizen}
         isPaused={isPaused}
         speed={speed}
+        isEduMode={isEduMode}
         onTogglePause={() => setIsPaused(p => !p)}
         onChangeSpeed={setSpeed}
+        onToggleEduMode={handleToggleEduMode}
         onOpenMemorial={() => setIsMemorialOpen(true)}
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
       />
 
-      {/* 2. 상태 게이지 (개인 4대 지표) */}
+      {/* 2. 상태 게이지 (개인 4대 지표 - 교육용 서술형 지원) */}
       <StatusBars
         citizen={citizen}
         cityIndicators={cityIndicators}
+        isEduMode={isEduMode}
       />
 
       {/* 3. 모바일 전용 뷰 전환 탭 바 (lg:hidden) */}
@@ -515,36 +548,40 @@ export const App: React.FC = () => {
       {isBirthModalOpen && (
         <BirthModal
           citizen={citizen}
+          isEduMode={isEduMode}
           onStartLife={handleStartLife}
           onRerollRandom={handleRerollRandom}
           onSelectPreset={handleSelectPreset}
         />
       )}
 
-      {/* 모달 2: 4막 딜레마 선택 모달 */}
+      {/* 모달 2: 4막 딜레마 선택 모달 (보이텔스바흐 원칙 적용) */}
       {activeDilemma && (
         <DilemmaCard
           dilemma={activeDilemma}
           age={citizen.age}
           year={citizen.currentYear}
+          isEduMode={isEduMode}
           onSelectOption={handleResolveDilemma}
         />
       )}
 
-      {/* 모달 3: 5대 성찰 질문 잠시 멈춤 모달 */}
+      {/* 모달 3: 5대 성찰 질문 잠시 멈춤 모달 (교육용 생각 카드 지원) */}
       {activePauseQuestion && (
         <PauseModal
           age={activePauseQuestion.age}
           question={activePauseQuestion.question}
+          isEduMode={isEduMode}
           onConfirm={handleResolvePause}
         />
       )}
 
-      {/* 모달 4: 생애 영수증 및 엔딩 */}
+      {/* 모달 4: 생애 영수증 및 엔딩 (출생은 운 디브리핑) */}
       {isEndingOpen && (
         <EndingReceipt
           citizen={citizen}
           cityIndicators={cityIndicators}
+          isEduMode={isEduMode}
           onRestart={startNewLife}
           onSendToMemorial={handleSendToMemorial}
         />

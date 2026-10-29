@@ -1,0 +1,9 @@
+﻿issue_id,title,mode,status,summary,latest_report_date,source_ids,g1_two_sided_sources,g2_recheck_14d,g3_legal_review,g4_archive_rule,g5_neutrality_review,blocked_or_open_items,plan_ref
+ISSUE-01,혁신도시 공공기관 개편(LH 기능 분리·발전공기업 통합본사·2차 이전),NOW,LIVE_PENDING_GATE,2026-09 정부 기능개혁 추진방안 발표 후 진주시·시의회·시민사회가 유치·분리 재검토를 요구하며 서명·릴레이 시위·결의대회 진행,2026-09-22,S10;S11;S12;S13,NO(정부 측 취지 미확보),PENDING,PENDING,생성 시 ARCHIVE 전환,PENDING,"정부 측 공식 설명, 입주 기관 노동자 입장 미확보",8.1
+ISSUE-02,"생활폐기물 소각시설(단독 vs 진주·사천 광역화, 내동면)",NOW,LIVE_PENDING_GATE,"2030 직매립 금지에 대비해 단독(1,394억·280t/일)·광역화안이 병행 논의되며 내동면 주민이 설명 부족과 누적 부담을 제기, 입지·광역 여부 미결정",2026-09-14,S20;S21;S22;S23;S24;S25,YES,PENDING,PENDING,생성 시 ARCHIVE 전환,PENDING,2026-09 이후 최신 경과 재확인 필요,8.2
+ISSUE-03,이누스 진주공장 매각·회생,NOW,BLOCKED_GENERALIZED,시민대책위가 공장 매각 철회와 총 고용 보장을 요구(단일 출처),2026-10-24,S30,NO(회사·채권자·법원 측 미확보),PENDING,REQUIRED,생성 시 ARCHIVE 전환,PENDING,회사 측 설명 확보 전에는 기업명 없는 일반화 사례(JN-FAC)만 사용,8.3
+ISSUE-04,인재개발원 이전 검토·학교 재배치,NOW,PENDING,"2025-03 시의회 반발, 중앙중 재배치·초전동 중학교 신설 연계 제안; 이후 경과 미확인",2025-03-13,S40;S41,PARTIAL,PENDING,PENDING,-,PENDING,2025-03 이후 경과 미확인,8.4
+ISSUE-05,"원도심 중학교 통폐합(진주봉원중, 후보)",NOW,CANDIDATE_UNVERIFIED,진주봉원중이 2029-03-01 통폐합으로 확정 공고되었다는 소셜 게시글 정보(교육지원청 원문 미확인),2026-06-30(게시글 기재),L01,NO,PENDING,PENDING,-,PENDING,교육지원청 공고 원문 확인 전 게임 노출 금지,8.4·11
+PAST-01,진주의료원 폐업과 공공병원(2013~),PAST,READY_FOR_REVIEW,"부채·적자를 이유로 한 폐업 결정과 공공의료 역할 논쟁, 소송·공론화 경과",2013~2020,S80,YES,N/A,N/A,-,PENDING,현재 서부경남 공공병원 논의 상황 미확인(지난 진주 전용),9.2
+PAST-02,남강유등축제 유료화(2015~2016),PAST,READY_FOR_REVIEW,"재정 자립을 위한 입장 유료화, 경남도 무료 권고, 관람객·상권 평가",2015~2016,S70,YES,N/A,N/A,-,PENDING,2026 현황은 민간 안내 글 기준(공식 확인 필요),9.3
+PAST-03,남강댐 물 갈등(2008~)·낙동강 취수원 다변화,PAST,READY_FOR_REVIEW,"남강댐 수위 상향·부산 공급 계획 반대(과거), 2026 취수원 다변화는 창녕·의령 등 취수 지역 중심",2008~2026,S50;S60,PARTIAL,N/A,N/A,-,PENDING,진주 직접 당사자 여부 미확인,9.4

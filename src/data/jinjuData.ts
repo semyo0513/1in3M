@@ -1,93 +1,200 @@
-// 진주시 30개 읍·면·동 실제 공공통계 기반 데이터 (2025~2026 기준 인구 약 33.4만 명)
-import { DistrictInfo } from '../types/game';
+// 진주시 30개 읍·면·동 실제 공공통계 기반 데이터 (2024~2026 검증 데이터셋)
+// 근거: 2024 진주시 지역사회 건강통계 표본틀 가구수(145,452가구) & 통계청 사망원인통계 2023
+import { DistrictInfo, DeathCauseStat } from '../types/game';
 
 export const JINJU_DISTRICTS: DistrictInfo[] = [
-  // --- 신도심 및 핵심 성장 권역 ---
+  // --- GR1: 혁신도시권 ---
   {
     id: 'chungmugong',
+    code: 'D11',
     name: '충무공동 (진주혁신도시)',
     type: 'new_town',
+    gameRegionCode: 'GR1',
+    gameRegionName: '혁신도시권',
     population: 34250,
-    birthWeight: 0.22, // 신생아 5명 중 1명 이상 스폰
-    avgIncomeDecile: 4.5,
+    households: 11582,
+    apartmentRatio: 0.859,
+    birthWeight: 0.079628,
+    avgIncomeDecile: 4.8,
     agingRate: 0.065,
-    description: '11개 공공기관과 영유아·학부모 비중이 압도적인 진주에서 가장 젊은 혁신도시.',
+    description: '11개 공공기관 이전 본사와 아파트(85.9%)가 밀집한 진주에서 가장 젊은 혁신도시.',
     tags: ['LH본사', '공공기관', '과밀학급', '신도시']
   },
+
+  // --- GR2: 아파트 밀집 신도심 ---
   {
-    id: 'pyeonggeo',
-    name: '평거동',
+    id: 'gaho',
+    code: 'D01',
+    name: '가호동 (가좌·호탄·개양)',
     type: 'new_town',
-    population: 28400,
-    birthWeight: 0.14,
-    avgIncomeDecile: 4.2,
-    agingRate: 0.12,
-    description: '남강변 대규모 아파트 단지와 10호광장 대형 학원가가 밀집한 진주의 전통적 명문 학군.',
-    tags: ['학원가', '10호광장', '남강변', '아파트단지']
+    gameRegionCode: 'GR2',
+    gameRegionName: '아파트 밀집 신도심',
+    population: 26800,
+    households: 12888,
+    apartmentRatio: 0.668,
+    birthWeight: 0.088607,
+    avgIncomeDecile: 3.4,
+    agingRate: 0.14,
+    description: '경상국립대 가좌캠퍼스와 고속·시외버스 복합터미널이 위치한 청년·대학 문화의 심장부.',
+    tags: ['경상국립대', '대학가', '청년밀집', '신도심']
   },
   {
     id: 'chojang',
+    code: 'D10',
     name: '초장동 (초전신도심)',
     type: 'new_town',
+    gameRegionCode: 'GR2',
+    gameRegionName: '아파트 밀집 신도심',
     population: 31200,
-    birthWeight: 0.15,
-    avgIncomeDecile: 4.1,
+    households: 8675,
+    apartmentRatio: 0.870,
+    birthWeight: 0.059642,
+    avgIncomeDecile: 4.2,
     agingRate: 0.09,
-    description: '초전공원과 신축 주거단지가 들어서며 젊은 맞벌이 가구가 폭발적으로 늘어난 주거 권역.',
+    description: '초전공원과 신축 주거단지가 들어서며 아파트 비율이 87%에 달하는 젊은 주거 권역.',
     tags: ['초전공원', '신축아파트', '어린이', '동부권거점']
   },
   {
-    id: 'gaho',
-    name: '가호동 (가좌·호탄·개양)',
-    type: 'new_town',
-    population: 26800,
-    birthWeight: 0.11,
-    avgIncomeDecile: 3.3,
-    agingRate: 0.14,
-    description: '경상국립대 가좌캠퍼스와 고속버스터미널(복합터미널 이전)이 위치한 청년·대학 문화의 심장부.',
-    tags: ['경상국립대', '대학가', '청년밀집', '남사진주IC']
-  },
-  {
     id: 'panmun',
+    code: 'D12',
     name: '판문동',
     type: 'new_town',
+    gameRegionCode: 'GR2',
+    gameRegionName: '아파트 밀집 신도심',
     population: 23100,
-    birthWeight: 0.08,
-    avgIncomeDecile: 3.7,
+    households: 7718,
+    apartmentRatio: 0.686,
+    birthWeight: 0.053062,
+    avgIncomeDecile: 3.8,
     agingRate: 0.15,
     description: '진양호와 평거 택지지구의 연장선에 위치하여 생태 관광과 쾌적한 주거가 공존하는 곳.',
     tags: ['진양호', '전원주택', '생태휴식']
   },
   {
-    id: 'sinan',
-    name: '신안동',
+    id: 'pyeonggeo',
+    code: 'D13',
+    name: '평거동',
     type: 'new_town',
-    population: 11200,
-    birthWeight: 0.04,
-    avgIncomeDecile: 3.6,
-    agingRate: 0.19,
-    description: '공설운동장과 음악분수대, 신안천을 낀 안정된 1기 주거 타운.',
-    tags: ['공설운동장', '음악분수', '생활체육']
+    gameRegionCode: 'GR2',
+    gameRegionName: '아파트 밀집 신도심',
+    population: 28400,
+    households: 10882,
+    apartmentRatio: 0.757,
+    birthWeight: 0.074815,
+    avgIncomeDecile: 4.3,
+    agingRate: 0.12,
+    description: '남강변 대규모 아파트 단지와 10호광장 대형 학원가가 밀집한 진주의 전통적 명문 학군.',
+    tags: ['학원가', '10호광장', '남강변', '아파트단지']
   },
 
-  // --- 역사와 전통의 원도심 권역 ---
+  // --- GR3: 도심 혼합·주택형 (원도심 및 주거지역) ---
+  {
+    id: 'sangdae',
+    code: 'D02',
+    name: '상대동',
+    type: 'old_downtown',
+    gameRegionCode: 'GR3',
+    gameRegionName: '도심 혼합·주택형',
+    population: 19800,
+    households: 9164,
+    apartmentRatio: 0.479,
+    birthWeight: 0.063004,
+    avgIncomeDecile: 3.1,
+    agingRate: 0.24,
+    description: '진주시청이 위치한 행정 중심지이자 옛 법원 이전 이후 골목상권 활성화를 꾀하는 곳.',
+    tags: ['진주시청', '행정타운', '골목상권']
+  },
+  {
+    id: 'sangbong',
+    code: 'D03',
+    name: '상봉동',
+    type: 'old_downtown',
+    gameRegionCode: 'GR3',
+    gameRegionName: '도심 혼합·주택형',
+    population: 13500,
+    households: 6948,
+    apartmentRatio: 0.336,
+    birthWeight: 0.047768,
+    avgIncomeDecile: 2.7,
+    agingRate: 0.33,
+    description: '비봉산 아래 노후 단독주택 비중이 높은 고령 주거지이자 진주고등학교 등 교육 역사의 장소.',
+    tags: ['비봉산', '노후주거', '고령화']
+  },
+  {
+    id: 'sangpyeong',
+    code: 'D04',
+    name: '상평동',
+    type: 'old_downtown',
+    gameRegionCode: 'GR3',
+    gameRegionName: '도심 혼합·주택형',
+    population: 10800,
+    households: 5033,
+    apartmentRatio: 0.508,
+    birthWeight: 0.034602,
+    avgIncomeDecile: 3.0,
+    agingRate: 0.26,
+    description: '진주 제1의 노후 산업단지(상평일반산단)로 기계·실크 산업의 현대화 혁신이 진행되는 곳.',
+    tags: ['상평산단', '제조업', '실크산업']
+  },
   {
     id: 'seongbuk',
+    code: 'D05',
     name: '성북동',
     type: 'old_downtown',
+    gameRegionCode: 'GR3',
+    gameRegionName: '도심 혼합·주택형',
     population: 10400,
-    birthWeight: 0.02,
+    households: 5132,
+    apartmentRatio: 0.193,
+    birthWeight: 0.035283,
     avgIncomeDecile: 2.8,
     agingRate: 0.32,
     description: '촉석루와 진주성, 진주대첩 역사공원을 품은 진주의 뿌리이자 인구 감소와 고령화에 직면한 구도심.',
     tags: ['진주성', '촉석루', '대첩광장', '원도심재생']
   },
   {
+    id: 'sinan',
+    code: 'D06',
+    name: '신안동',
+    type: 'old_downtown',
+    gameRegionCode: 'GR3',
+    gameRegionName: '도심 혼합·주택형',
+    population: 11200,
+    households: 5208,
+    apartmentRatio: 0.598,
+    birthWeight: 0.035806,
+    avgIncomeDecile: 3.6,
+    agingRate: 0.19,
+    description: '공설운동장과 음악분수대, 신안천을 낀 안정된 1기 주거 타운.',
+    tags: ['공설운동장', '생활체육']
+  },
+  {
+    id: 'ihyeon',
+    code: 'D07',
+    name: '이현동',
+    type: 'old_downtown',
+    gameRegionCode: 'GR3',
+    gameRegionName: '도심 혼합·주택형',
+    population: 10100,
+    households: 5170,
+    apartmentRatio: 0.462,
+    birthWeight: 0.035544,
+    avgIncomeDecile: 3.0,
+    agingRate: 0.25,
+    description: '원도심과 서부 농촌 권역을 잇는 관문 주거지역.',
+    tags: ['나불천', '서부관문']
+  },
+  {
     id: 'jungang',
+    code: 'D08',
     name: '중앙동',
     type: 'old_downtown',
+    gameRegionCode: 'GR3',
+    gameRegionName: '도심 혼합·주택형',
     population: 12100,
-    birthWeight: 0.025,
+    households: 5545,
+    apartmentRatio: 0.243,
+    birthWeight: 0.038123,
     avgIncomeDecile: 2.9,
     agingRate: 0.30,
     description: '진주중앙시장, 논개시장, 지하도상가가 모여 있는 역사 깊은 상업 1번지.',
@@ -95,155 +202,165 @@ export const JINJU_DISTRICTS: DistrictInfo[] = [
   },
   {
     id: 'cheonjeon',
+    code: 'D09',
     name: '천전동 (칠암·망경·주약)',
     type: 'old_downtown',
+    gameRegionCode: 'GR3',
+    gameRegionName: '도심 혼합·주택형',
     population: 28500,
-    birthWeight: 0.06,
+    households: 12747,
+    apartmentRatio: 0.480,
+    birthWeight: 0.087637,
     avgIncomeDecile: 3.4,
     agingRate: 0.22,
     description: '경상국립대 칠암캠퍼스(의대/간호대), 구 진주역 철도 재생 부지, 망진산 유등테마공원이 공존.',
     tags: ['구진주역', '칠암캠퍼스', '망진산', '의료복합']
   },
   {
-    id: 'sangdae',
-    name: '상대동',
-    type: 'old_downtown',
-    population: 19800,
-    birthWeight: 0.035,
-    avgIncomeDecile: 3.1,
-    agingRate: 0.24,
-    description: '진주시청이 위치한 행정 중심지이자 옛 법원 이전 이후 골목상권 활성화를 꾀하는 곳.',
-    tags: ['진주시청', '행정타운', '골목상권']
-  },
-  {
     id: 'hadae',
+    code: 'D14',
     name: '하대동',
     type: 'old_downtown',
+    gameRegionCode: 'GR3',
+    gameRegionName: '도심 혼합·주택형',
     population: 22400,
-    birthWeight: 0.045,
+    households: 10592,
+    apartmentRatio: 0.489,
+    birthWeight: 0.072821,
     avgIncomeDecile: 3.2,
     agingRate: 0.20,
     description: '원도심 동부 상권의 최대 요충지로 젊은 층의 먹자골목과 주거 단지가 조화를 이룸.',
     tags: ['하대먹자골목', '청년상권', '주택가']
   },
-  {
-    id: 'sangpyeong',
-    name: '상평동',
-    type: 'old_downtown',
-    population: 10800,
-    birthWeight: 0.015,
-    avgIncomeDecile: 3.0,
-    agingRate: 0.26,
-    description: '진주 제1의 노후 산업단지(상평일반산단)로 전통 기계·실크 산업의 재생 혁신이 진행되는 곳.',
-    tags: ['상평산단', '제조업', '실크산업', '노후산단재생']
-  },
-  {
-    id: 'sangbong',
-    name: '상봉동',
-    type: 'old_downtown',
-    population: 13500,
-    birthWeight: 0.015,
-    avgIncomeDecile: 2.7,
-    agingRate: 0.33,
-    description: '진주고등학교 등 교육 역사가 깊으나 비봉산 아래 노후 단독주택 비중이 높은 고령 주거지.',
-    tags: ['진주고', '비봉산', '노후주거', '고령화']
-  },
-  {
-    id: 'ihyeon',
-    name: '이현동',
-    type: 'old_downtown',
-    population: 10100,
-    birthWeight: 0.015,
-    avgIncomeDecile: 3.0,
-    agingRate: 0.25,
-    description: '원도심과 서부 서하농촌 권역을 잇는 관문 주거지역.',
-    tags: ['나불천', '서부관문']
-  },
 
-  // --- 배후 읍·면 및 농촌·특화 권역 ---
-  {
-    id: 'munsan',
-    name: '문산읍',
-    type: 'rural',
-    population: 8600,
-    birthWeight: 0.02,
-    avgIncomeDecile: 3.3,
-    agingRate: 0.28,
-    description: '혁신도시 배후 주거지와 문산 공공주택지구 계획, 문산 단감·배 특화 과수원이 공존.',
-    tags: ['문산단감', '배후도시', '제2혁신후보']
-  },
+  // --- GR4: 도시근교 읍·면 ---
   {
     id: 'geumsan',
+    code: 'U02',
     name: '금산면',
     type: 'rural',
+    gameRegionCode: 'GR4',
+    gameRegionName: '도시근교 읍·면',
     population: 19500,
-    birthWeight: 0.04,
+    households: 7401,
+    apartmentRatio: 0.58,
+    birthWeight: 0.050883,
     avgIncomeDecile: 3.5,
     agingRate: 0.18,
     description: '공군교육사령부와 아름다운 금호지 유원지, 전국 유명 풋고추 시설하우스 주산지.',
     tags: ['금호지', '공군교사', '풋고추', '도농복합']
   },
   {
-    id: 'naedong',
-    name: '내동면',
+    id: 'munsan',
+    code: 'U07',
+    name: '문산읍',
     type: 'rural',
-    population: 5400,
-    birthWeight: 0.008,
-    avgIncomeDecile: 3.2,
-    agingRate: 0.31,
-    description: '남강댐 하류와 내동 쓰레기매립장 사업소가 위치하여 2030 소각장 입지 갈등의 최전선인 곳.',
-    tags: ['쓰레기매립장', '소각장갈등', '남강댐하류', '환경시설누적']
-  },
-  {
-    id: 'sugok',
-    name: '수곡면',
-    type: 'rural',
-    population: 2150,
-    birthWeight: 0.003,
-    avgIncomeDecile: 3.8, // 수출 딸기 고소득 농가
-    agingRate: 0.49,
-    description: '전국 최고 품질을 자랑하는 수출 딸기 비닐하우스 스마트팜의 성지이자 초고령 농촌.',
-    tags: ['수곡딸기', '수출농업', '스마트팜', '초고령화']
+    gameRegionCode: 'GR4',
+    gameRegionName: '도시근교 읍·면',
+    population: 8600,
+    households: 3168,
+    apartmentRatio: 0.42,
+    birthWeight: 0.021780,
+    avgIncomeDecile: 3.3,
+    agingRate: 0.28,
+    description: '혁신도시 배후 주거지와 문산 공공주택지구 계획, 단감·배 특화 과수원이 공존.',
+    tags: ['문산단감', '배후도시', '제2혁신후보']
   },
   {
     id: 'jeongchon',
+    code: 'U13',
     name: '정촌면',
     type: 'rural',
+    gameRegionCode: 'GR4',
+    gameRegionName: '도시근교 읍·면',
     population: 8100,
-    birthWeight: 0.015,
+    households: 3300,
+    apartmentRatio: 0.45,
+    birthWeight: 0.022688,
     avgIncomeDecile: 3.6,
     agingRate: 0.21,
     description: '우주항공국가산단 배후이자 정촌일반산단, 강주연못이 있는 서남부 산업 거점.',
     tags: ['우주항공산단', '강주연못', '공룡화석지']
   },
+
+  // --- GR6: 환경시설 인접 지역 (내동면) ---
+  {
+    id: 'naedong',
+    code: 'U03',
+    name: '내동면',
+    type: 'rural',
+    gameRegionCode: 'GR6',
+    gameRegionName: '시설 인접(내동)',
+    population: 5400,
+    households: 1488,
+    apartmentRatio: 0.25,
+    birthWeight: 0.010230,
+    avgIncomeDecile: 3.2,
+    agingRate: 0.31,
+    description: '남강댐 하류와 내동 쓰레기매립장 사업소가 위치하여 2030 자원회수시설 갈등의 최전선인 곳.',
+    tags: ['쓰레기매립장', '자원회수시설', '남강댐하류']
+  },
+
+  // --- GR5: 농촌 면 지역 (12개 면) ---
+  {
+    id: 'sugok',
+    code: 'U10',
+    name: '수곡면',
+    type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
+    population: 2150,
+    households: 1105,
+    apartmentRatio: 0.05,
+    birthWeight: 0.007597,
+    avgIncomeDecile: 3.8,
+    agingRate: 0.49,
+    description: '전국 최고 품질을 자랑하는 수출 딸기 비닐하우스 스마트팜의 성지이자 초고령 농촌.',
+    tags: ['수곡딸기', '수출농업', '스마트팜']
+  },
   {
     id: 'daegok',
+    code: 'U04',
     name: '대곡면',
     type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
     population: 3600,
-    birthWeight: 0.004,
+    households: 1569,
+    apartmentRatio: 0.06,
+    birthWeight: 0.010787,
     avgIncomeDecile: 3.6,
     agingRate: 0.46,
     description: '파프리카, 방울토마토 시설원예 농업의 중심지.',
-    tags: ['파프리카', '시설원예', '고령화']
+    tags: ['파프리카', '시설원예']
   },
   {
     id: 'jisu',
+    code: 'U14',
     name: '지수면',
     type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
     population: 1550,
-    birthWeight: 0.001,
+    households: 707,
+    apartmentRatio: 0.04,
+    birthWeight: 0.004861,
     avgIncomeDecile: 3.0,
     agingRate: 0.52,
     description: '삼성·LG·효성 등 글로벌 기업 창업주들을 배출한 승산마을과 K-기업가정신 교육 메카.',
-    tags: ['K기업가정신', '승산마을', '초고령화']
+    tags: ['K기업가정신', '승산마을']
   },
   {
     id: 'jinseong',
+    code: 'U15',
     name: '진성면',
     type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
     population: 2200,
-    birthWeight: 0.002,
+    households: 851,
+    apartmentRatio: 0.05,
+    birthWeight: 0.005851,
     avgIncomeDecile: 2.9,
     agingRate: 0.48,
     description: '동부 5개 면의 중심이자 경남과학교육원이 있는 전형적인 농촌 마을.',
@@ -251,10 +368,15 @@ export const JINJU_DISTRICTS: DistrictInfo[] = [
   },
   {
     id: 'ilbanseong',
+    code: 'U12',
     name: '일반성면',
     type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
     population: 2700,
-    birthWeight: 0.002,
+    households: 1152,
+    apartmentRatio: 0.08,
+    birthWeight: 0.007920,
     avgIncomeDecile: 2.8,
     agingRate: 0.47,
     description: '반성역과 5일장 반성시장의 전통이 살아있는 동부 거점 시장 마을.',
@@ -262,43 +384,63 @@ export const JINJU_DISTRICTS: DistrictInfo[] = [
   },
   {
     id: 'ibanseong',
+    code: 'U11',
     name: '이반성면',
     type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
     population: 1600,
-    birthWeight: 0.001,
+    households: 846,
+    apartmentRatio: 0.04,
+    birthWeight: 0.005816,
     avgIncomeDecile: 2.7,
     agingRate: 0.53,
-    description: '사계절 아름다운 경상남도수목원과 가산일반산단이 인접한 청정 자연 농촌.',
+    description: '사계절 아름다운 경상남도수목원이 인접한 청정 자연 농촌.',
     tags: ['경남도수목원', '자연청정']
   },
   {
     id: 'sabong',
+    code: 'U09',
     name: '사봉면',
     type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
     population: 1500,
-    birthWeight: 0.001,
+    households: 730,
+    apartmentRatio: 0.05,
+    birthWeight: 0.005019,
     avgIncomeDecile: 2.8,
     agingRate: 0.51,
-    description: '사봉일반산단과 논농사가 어우러진 동부 끝자락 마을.',
+    description: '사봉일반산단과 평야 농업이 어우러진 동부 끝자락 마을.',
     tags: ['사봉산단', '평야농촌']
   },
   {
     id: 'geumgok',
+    code: 'U01',
     name: '금곡면',
     type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
     population: 2300,
-    birthWeight: 0.002,
+    households: 1030,
+    apartmentRatio: 0.03,
+    birthWeight: 0.007081,
     avgIncomeDecile: 2.9,
     agingRate: 0.47,
     description: '고성군과 경계를 이루며 친환경 쌀과 미나리를 재배하는 평화로운 마을.',
-    tags: ['남부경계', '친환경농업']
+    tags: ['친환경농업']
   },
   {
     id: 'jiphyeon',
+    code: 'U16',
     name: '집현면',
     type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
     population: 4800,
-    birthWeight: 0.006,
+    households: 1909,
+    apartmentRatio: 0.12,
+    birthWeight: 0.013125,
     avgIncomeDecile: 3.1,
     agingRate: 0.36,
     description: '시내와 인접한 전원주택단지와 오이·호박 시설재배지가 형성된 도농 연결지.',
@@ -306,21 +448,31 @@ export const JINJU_DISTRICTS: DistrictInfo[] = [
   },
   {
     id: 'micheon',
+    code: 'U08',
     name: '미천면',
     type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
     population: 1800,
-    birthWeight: 0.001,
+    households: 714,
+    apartmentRatio: 0.02,
+    birthWeight: 0.004909,
     avgIncomeDecile: 2.8,
     agingRate: 0.54,
     description: '진주의 가장 북쪽 끝, 맑은 자연 속 곶감과 한우 축산이 발달한 산골 마을.',
-    tags: ['최북단', '미천곶감', '축산']
+    tags: ['최북단', '미천곶감']
   },
   {
     id: 'myeongseok',
+    code: 'U06',
     name: '명석면',
     type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
     population: 4100,
-    birthWeight: 0.005,
+    households: 1848,
+    apartmentRatio: 0.10,
+    birthWeight: 0.012705,
     avgIncomeDecile: 3.0,
     agingRate: 0.39,
     description: '산청·함양으로 향하는 길목, 비봉산 둘레길과 친환경 농업이 자리잡은 곳.',
@@ -328,34 +480,61 @@ export const JINJU_DISTRICTS: DistrictInfo[] = [
   },
   {
     id: 'daepyeong',
+    code: 'U05',
     name: '대평면',
     type: 'rural',
+    gameRegionCode: 'GR5',
+    gameRegionName: '농촌 면',
     population: 1050,
-    birthWeight: 0.001,
+    households: 350,
+    apartmentRatio: 0.01,
+    birthWeight: 0.002406,
     avgIncomeDecile: 3.0,
     agingRate: 0.48,
-    description: '남강댐 진양호 상수원보호구역으로 코스모스 축제와 친환경 딸기·토마토를 키우는 아름다운 수변 마을.',
-    tags: ['상수원보호구역', '코스모스', '수변마을']
+    description: '남강댐 진양호 상수원보호구역으로 코스모스 축제와 친환경 딸기를 키우는 아름다운 수변 마을.',
+    tags: ['상수원보호구역', '코스모스']
   }
+];
+
+export const JINJU_DEATH_CAUSES: DeathCauseStat[] = [
+  { code: 'C01', cause: '악성신생물 (암)', ratePer100k: 82.3, weight: 0.368, sensitiveFlag: false, eduModeExclude: false },
+  { code: 'C02', cause: '심장 질환', ratePer100k: 24.1, weight: 0.108, sensitiveFlag: false, eduModeExclude: false },
+  { code: 'C03', cause: '뇌혈관 질환 (뇌졸중)', ratePer100k: 20.7, weight: 0.093, sensitiveFlag: false, eduModeExclude: false },
+  { code: 'C04', cause: '고의적 자해 (자살)', ratePer100k: 19.4, weight: 0.087, sensitiveFlag: true, eduModeExclude: true }, // 교육용 모드 100% 제외
+  { code: 'C05', cause: '폐렴 및 호흡기 질환', ratePer100k: 16.8, weight: 0.075, sensitiveFlag: false, eduModeExclude: false },
+  { code: 'C06', cause: '당뇨병성 합병증', ratePer100k: 16.7, weight: 0.075, sensitiveFlag: false, eduModeExclude: false },
+  { code: 'C07', cause: '알츠하이머병 (치매)', ratePer100k: 16.4, weight: 0.073, sensitiveFlag: false, eduModeExclude: false },
+  { code: 'C08', cause: '간 질환', ratePer100k: 14.1, weight: 0.063, sensitiveFlag: false, eduModeExclude: false },
+  { code: 'C09', cause: '고혈압성 질환', ratePer100k: 11.5, weight: 0.051, sensitiveFlag: false, eduModeExclude: false },
+  { code: 'C10', cause: '만성 하기도 질환', ratePer100k: 6.4, weight: 0.029, sensitiveFlag: false, eduModeExclude: false },
+  { code: 'C99', cause: '노환으로 인한 평온한 수명 마감', ratePer100k: 0, weight: 0.120, sensitiveFlag: false, eduModeExclude: false }
 ];
 
 export const JINJU_META = {
   totalPopulation: 334360,
-  youthRatio: 0.2482, // 청년 비율 24.82% (경남 시부 1위)
+  totalHouseholds: 145452,
+  sampleSize: 905, // 2024 지역사회건강조사 표본 수 (n=905)
+  youthRatio: 0.2482,
   annualBirths: 1855,
   totalFertilityRate: 1.005,
   lifeExpectancy: {
     male: 80.8,
     female: 86.9,
   },
-  // 연령대별 주요 사망 원인 확률 가중치
-  deathCauses: [
-    { cause: '악성신생물 (암)', weight: 0.28 },
-    { cause: '심장 질환', weight: 0.16 },
-    { cause: '폐렴 및 호흡기 질환', weight: 0.13 },
-    { cause: '뇌혈관 질환 (뇌졸중)', weight: 0.11 },
-    { cause: '노환 및 복합성 쇠약', weight: 0.18 },
-    { cause: '외인사 (불의의 사고 등)', weight: 0.07 },
-    { cause: '기타 내과 질환', weight: 0.07 }
-  ]
+  deathCauses: JINJU_DEATH_CAUSES
 };
+
+// 소득 분위 숫자 대신 교육용 서술형 표현 변환 함수 (낙인 방지)
+export function getEduIncomeDesc(decile: number): string {
+  switch (decile) {
+    case 1:
+    case 2:
+      return '근검절약하며 서로를 따뜻하게 챙기는 소박한 가정';
+    case 3:
+      return '성실한 일터에서 땀 흘리며 살아가는 평범한 가정';
+    case 4:
+    case 5:
+    default:
+      return '비교적 안정된 환경에서 배움의 기회를 응원받는 가정';
+  }
+}

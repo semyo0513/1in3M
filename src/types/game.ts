@@ -1,13 +1,26 @@
-// 34만 분의 1 : 진주 - 타입 정의
+// 34만 분의 1 : 진주 - 타입 정의 (공공데이터 및 교육용 모드 지원)
 
 export type DistrictType = 'new_town' | 'old_downtown' | 'rural';
 
+export type GameRegionCode = 
+  | 'GR1' // 혁신도시권
+  | 'GR2' // 아파트 밀집 신도심
+  | 'GR3' // 도심 혼합·주택형
+  | 'GR4' // 도시근교 읍·면
+  | 'GR5' // 농촌 면
+  | 'GR6'; // 시설 인접(내동)
+
 export interface DistrictInfo {
   id: string;
+  code: string; // D01 ~ U16
   name: string;
   type: DistrictType;
+  gameRegionCode: GameRegionCode;
+  gameRegionName: string;
   population: number;
-  birthWeight: number; // 1855명 중 출생 비중
+  households: number;
+  apartmentRatio: number; // 아파트 가구 비율 (0~1)
+  birthWeight: number; // 1855명 중 출생 비중 (가구 수 비례 PROXY)
   avgIncomeDecile: number; // 평균 소득분위 (1~5)
   agingRate: number; // 고령화율 (0~1)
   description: string;
@@ -34,7 +47,8 @@ export interface CitizenStatus {
   district: DistrictInfo;
   gender: '남성' | '여성';
   job: JobType;
-  incomeDecile: number; // 1~5분위
+  incomeDecile: number; // 1~5분위 (교육용 모드에서는 서술형 매핑)
+  incomeDesc?: string; // 교육용 서술형 표현
   monthlyIncomeWon: number; // 월 소득 추정치
   
   // 4대 생애 지표 (0 ~ 100)
@@ -126,7 +140,11 @@ export interface DilemmaIssue {
     actor: string;
     summary: string;
   };
+  // 보이텔스바흐 원칙: 학생이 찬성/반대를 고를 때 읽어봐야 할 상대방의 이유
+  counterArgumentForPro: string; // 찬성 지지 학생이 먼저 읽어야 할 반대측의 합리적 이유
+  counterArgumentForCon: string; // 반대 지지 학생이 먼저 읽어야 할 찬성측의 합리적 이유
   options: StanceOption[];
+  isEduModeSafe?: boolean; // 교육용 모드 지원 여부 (실제 지명/기업 노출 제외 또는 가명화)
 }
 
 export interface CityMacroIndicators {
@@ -138,3 +156,12 @@ export interface CityMacroIndicators {
 }
 
 export type YearFocus = 'learning' | 'work' | 'relationship' | 'health' | 'change';
+
+export interface DeathCauseStat {
+  code: string;
+  cause: string;
+  ratePer100k: number; // 인구 10만 명당 연령표준화 사망률 (2023 진주시)
+  weight: number; // 사인 구성 가중치
+  sensitiveFlag: boolean;
+  eduModeExclude: boolean;
+}

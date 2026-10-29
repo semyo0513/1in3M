@@ -1,0 +1,39 @@
+﻿source_id,title,url,outlet,published_or_reference_date,verified_on,grade,status,note
+S01,원작 공식 랜딩(1in8b.life/ko),https://1in8b.life/ko/,공식,2026-10-28,2026-10-28,공식,CONFIRMED,
+S02,원작 개발·공개 경위,https://www.nownews.com/news/6883668,nownews,2026-10,2026-10-28,보도,CONFIRMED,
+S03,원작 해설(승패·고정 결말 없음),https://www.marieclaire.com.tw/lifestyle/whats-hot/96551,marieclaire,2026-10,2026-10-28,보도,CONFIRMED,
+S04,원작 해설(텍스트 기반·세 가지 세상),https://realsound.jp/tech/2026/10/post-2558126.html,realsound,2026-10,2026-10-28,보도,CONFIRMED,
+S05,원작 후기(지표 구성),https://library.libecity.com/articles/01M50WDPK21791AV1KJS79PKBS,libecity,2026-10-16,2026-10-28,개인 후기,PARTIAL,요약 부분만 열람
+S10,혁신도시 긴급 대책회의,https://v.daum.net/v/20260907195837577,경남일보(다음),2026-09-07,2026-10-28,보도,CONFIRMED,
+S11,혁신도시 릴레이 시위·결의대회,https://www.kpinews.kr/newsView/1065588503067746,KPI뉴스,2026-09-22,2026-10-28,보도,CONFIRMED,
+S12,혁신도시 3대 과제,https://www.naewoeilbo.com/news/articleView.html?idxno=2421506,내외일보,2026-09-22,2026-10-28,보도,CONFIRMED,
+S13,전북 제2혁신도시 갈등 우려,https://jjan.kr/article/20250217580230,전북일보,2025-02-17,2026-10-28,보도,PARTIAL,타 지역 맥락
+S20,소각시설 시정질문 자료,https://jinjucl.com/member/09070/qnaBBSview.do?flag=all&list_style=&mem_sch=&page=1&schwrd=&th_sch=&uid=F9805CFA281105BD7D63F9A6B6EDD64A,진주시의회,미확인,2026-10-28,공공,CONFIRMED,시점 미확인
+S21,소각장 단독 추진 가능성·내동면 반발,https://www.gnnews.co.kr/news/articleView.html?idxno=620384,경남일보,2025년 하반기 추정,2026-10-28,보도,CONFIRMED,
+S22,광역 협의체 합의·내동면 천막 농성,https://www.gnnews.co.kr/news/articleView.html?idxno=641625,경남일보,2026-07경,2026-10-28,보도,CONFIRMED,
+S23,시의회 행정사무감사(미결정·2030 시한),https://www.gnnews.co.kr/news/articleView.html?idxno=645397,경남일보,2026-09경,2026-10-28,보도,CONFIRMED,
+S24,광역화 국고 보조율·합의 지연,https://www.todayscs.com/news/articleView.html?idxno=18853,투데이서경,2026-09경,2026-10-28,보도,CONFIRMED,
+S25,내동매립장 지분·반대·등량교환,http://www.knnews.co.kr/news/articleView.php?idxno=1539729,경남신문,2026-04경,2026-10-28,보도,CONFIRMED,
+S30,이누스 진주공장 시민대책위,https://www.pointe.co.kr/news/articleView.html?idxno=86556,포인트경제,2026-10-24경,2026-10-28,보도,PARTIAL,단일 출처
+S40,인재개발원·중앙중·초전동 중학교,https://www.kukinews.com/article/view/kuk202503130173,쿠키뉴스,2025-03-13,2026-10-28,보도,PARTIAL,
+S41,진주시의회 2025년 3월 소식,https://www.youtube.com/watch?v=I_0RKKRKRbA,진주시의회(영상),2025-03,2026-10-28,영상 설명,PARTIAL,
+S50,낙동강 취수원 다변화,https://m.news.nate.com/view/20260220n31333;https://m.news.nate.com/view/20260824n28341;https://www.busan.com/view/busan/view.php?code=2026081818451825056,보도,2026-02;2026-08,2026-10-28,보도,CONFIRMED,진주 직접 당사자 여부 미확인
+S60,남강댐 물 갈등(과거),https://www.khan.co.kr/article/201102152230225/amp;https://m.go.seoul.co.kr/news/2014/09/02/20140902500015,보도,2011;2014,2026-10-28,보도,CONFIRMED,
+S70,유등축제 유료화,https://m.go.seoul.co.kr/news/2015/09/01/20150901014004;https://m.go.seoul.co.kr/news/2016/05/24/20160524014025;https://m.go.seoul.co.kr/news/2016/04/01/20160401017015;https://patadepato.com/jinju-namgang-yudeung-festival-2026/,보도·민간,2015~2016;2026,2026-10-28,보도·민간,PARTIAL,2026 현황은 민간 안내 글
+S80,진주의료원,https://www.medicaltimes.com/Main/view.html?ID=1081180;https://pressian.com/pages/articles/159650;https://medigatenews.com/news/277309403;https://medigatenews.com/topiccuration/view/7,보도,2013~2020,2026-10-28,보도,CONFIRMED,
+S90,진주시 행정동별 65세 이상 인구(공공데이터),https://www.data.go.kr/biz/dcat/metadata/15160481.do,공공데이터포털,2026-07-23 갱신,2026-10-28,공공데이터,NOT_DOWNLOADED,"목록만 확인, 내려받지 못함"
+S91,진주대첩광장·복합터미널·민간공원,https://pressian.com/pages/articles/222742,프레시안,2019경,2026-10-28,보도,PARTIAL,현황 미확인
+D01,2024 진주시 지역사회 건강통계(2024 지역사회건강조사),(사용자 업로드 PDF 210쪽; 지역사회건강조사 누리집 https://chs.kdca.go.kr),진주시 보건소·경상국립대 의과대학 예방의학교실,2025-02,2026-10-28,공공통계,CONFIRMED,"조사 2024-05-16~07-31, 표본 905명(가구 552). 원자료는 비가중 표본 표기와 가중 추정치가 섞여 있음"
+D02,진주시청 연도별 주민등록인구통계,https://www.jinju.go.kr/00135/01109/06556.web;https://www.jinju.go.kr/00133/00448/00588.web,진주시청,2024-12-31 기준,2026-10-28,공공통계,CONFIRMED,검색 결과 본문 기준(사이트는 자동 접근 차단)
+D03,진주시 인구통계정보(읍면동별 세대·인구 2021~2025),https://www.data.go.kr/data/3035977/fileData.do,공공데이터포털,2026-05-20 갱신,2026-10-28,공공데이터,NOT_DOWNLOADED,내려받기 필요
+D05,읍면 행정리별 세대수·인구수,https://www.data.go.kr/data/15093769/fileData.do,공공데이터포털,2026-07-08,2026-10-28,공공데이터,NOT_DOWNLOADED,
+D06,읍면동별 사업체 및 종사자수 20241231,https://www.data.go.kr/data/15116901/fileData.do,공공데이터포털,2024-12-31,2026-10-28,공공데이터,NOT_DOWNLOADED,
+D07,"국민건강보험공단 지역별 기대수명지표(시군구, 보험료 분위별)",https://www.data.go.kr/dataset/15039778/fileData.do,공공데이터포털,2023-12-31,2026-10-28,공공데이터,NOT_DOWNLOADED,진주시 기대수명 확보용
+D08,"2024년 생명표(국가데이터처, 2025-12-03 발표)",https://www.heraldk.com/article/2025120220435350420;https://bravo.etoday.co.kr/view/atc_view/17984;https://www.nocutnews.co.kr/news/6437510,보도,2025-12-03,2026-10-28,보도(공식통계 인용),CONFIRMED,건강수명 수치는 기사별로 달라 제외
+D09,"진주 초등학교 현황(46개교, 2024)",https://www.gnnews24.kr/news/articleView.html?idxno=24240,경남뉴스,2024경,2026-10-28,보도,PARTIAL,충무공동·혁신도시 학생 증가 서술 근거
+D10,학교알리미(학교별 공시),https://www.schoolinfo.go.kr,교육부·KERIS,-,2026-10-28,공공,NOT_DOWNLOADED,읍면동별 학교 목록 구성에 사용
+D11,국민건강증진종합계획2030 지역별 건강수명,https://khepi.or.kr/menu?menuId=MENU01311,KHEPI,기준연도 미확인,2026-10-28,공공,REFERENCE_ONLY,진주시 값이 여러 형태로 노출되어 기준연도 확인 전 제외
+D12,KOSIS 주택총조사(주택의 종류별 주택),https://kosis.kr/visual/nsportalStats/detailContents.do?statJipyoId=3714&listId=L&vStatJipyoId=4834,KOSIS,-,2026-10-28,공공,REFERENCE_ONLY,읍면동 단위는 5년 주기(연도 끝자리 0·5)
+D14,경남권 지역사회 건강통계 2024(PHWR),https://www.phwr.org/journal/view.html?doi=10.56786%2FPHWR.2025.18.26.2,질병관리청 PHWR,2025,2026-10-28,공공,REFERENCE_ONLY,
+D15,진주시 통계데이터 포털,https://statdata.jinju.go.kr/html/,진주시,-,2026-10-28,공공,NOT_ACCESSIBLE,사용자 제공 주소. 도구로 열람되지 않아 내용을 반영하지 못함
+L01,"진주 초·중·고 학생 수 정리(스레드 게시글, 진주봉원중 통폐합 언급)",https://www.threads.com/@pillsu_jungbo/post/Dac8PgQEkJz/,Threads 게시글,2026-06 기준,2026-10-28,낮음(2차),UNVERIFIED,교육지원청 공고 원문 확인 필요

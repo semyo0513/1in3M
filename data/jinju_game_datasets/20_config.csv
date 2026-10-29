@@ -1,0 +1,20 @@
+﻿key,value,description,plan_ref
+data_version,v0.1-2026-10-28,데이터셋 버전,-
+time_seconds_per_year,45,기본 1년당 진행 시간(초); 플레이테스트로 확정(원작 1시간 기준 40~60초 참고),2.5
+speed_options,1;2;4,배속 선택지,2.5
+life_length_minutes_options,30;60;90,인생 길이 선택지(분),2.1
+pause_ages,5;15;30;50;70,잠시 멈춤 질문 나이,12
+issue_cards_per_year_max,1,연간 이슈 카드 상한(피로 방지),7.1·6
+influence_cap_city_min,0.25,도시 서사 갈래 확률에 대한 개인 선택 영향 상한(하한값),7.5
+influence_cap_city_max,0.40,도시 서사 갈래 확률에 대한 개인 선택 영향 상한(상한값),7.5
+collective_narrative_cap,0.10,집단 서사 모드 반영 상한(±),7.5
+modifier_cap,0.30,건강 보정치(10번 파일) 적용 상한 ±30% 권장,5.1
+modifier_use_low_reliability,false,reliability=LOW 보정치 사용 여부,10
+edu_mode_query,edu=1,교육용 모드 URL 파라미터,15.5
+recommended_age_general,15+,"일반 모드 권장 연령(원작 기준 참고, 최종은 D2 결정)",15.5·21
+live_issue_recheck_days,14,LIVE 이슈 재확인 주기(일),15.4
+stance_length_tolerance,0.15,입장 카드 분량 편차 허용 비율,15.1
+rng,mulberry32,시드 고정 난수 생성기,17
+city_vars,C_jobs;C_pop;C_env;C_fiscal;C_trust;C_health;C_edu;C_culture,도시 변수(점수로 노출하지 않음),5.2
+person_vars,health;happiness;learning;bonds;civic,개인 지표,5.1
+data_policy_missing,blank_not_zero,미확보 수치는 0이 아니라 빈칸으로 두고 status로 표시,0.2

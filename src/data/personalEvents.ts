@@ -1,4 +1,5 @@
 // 개인 생애주기별 일상 인카운터 풀 (0세 ~ 85세)
+// 교육용 모드 필터링(음주, 흡연, 가계 위기 등 민감 소재 분리) 적용
 import { CardLabel, YearFocus } from '../types/game';
 
 export interface PersonalEventDef {
@@ -9,6 +10,7 @@ export interface PersonalEventDef {
   text: string;
   label: CardLabel;
   sourceNote?: string;
+  isSensitive?: boolean; // 음주, 극심한 가계 위기 등 15세 미만 교육용 모드 제외 플래그
   impact: {
     health?: number;
     happiness?: number;
@@ -89,16 +91,46 @@ export const PERSONAL_EVENTS: PersonalEventDef[] = [
     label: 'PERSONAL',
     impact: { learning: 10, health: -4, happiness: -5 }
   },
+  {
+    id: 'pe_edu_k_entrepreneur',
+    minAge: 12,
+    maxAge: 16,
+    focusFilter: 'learning',
+    text: '학교 현장체험학습으로 지수면 승산마을 K-기업가정신센터를 탐방했습니다. 나눔과 개척의 기업가정신을 배웁니다.',
+    label: 'FACT',
+    sourceNote: '진주시 K-기업가정신 교육센터',
+    impact: { learning: 8, happiness: 5 }
+  },
+  {
+    id: 'pe_edu_namgang_plogging',
+    minAge: 14,
+    maxAge: 18,
+    focusFilter: 'relationship',
+    text: '동아리 친구들과 함께 남강 수변공원에서 플로깅(쓰레기 줍기) 봉사활동을 하며 깨끗한 환경의 소중함을 느꼈습니다.',
+    label: 'PERSONAL',
+    impact: { bonds: 7, happiness: 6, health: 4 }
+  },
 
   // --- 청년기 (19~29세) ---
   {
-    id: 'pe_univ_gnu_festival',
+    id: 'pe_univ_gnu_festival_normal',
     minAge: 20,
     maxAge: 23,
     focusFilter: 'relationship',
     text: '경상국립대 대동제 주막에서 동기들과 밤새 잔을 부딪쳤습니다. "졸업하고 어디서 일할 거냐"는 물음이 오고 갑니다.',
     label: 'PERSONAL',
+    isSensitive: true, // 음주 연상 소재 -> 교육용 제외
     impact: { bonds: 7, happiness: 6 }
+  },
+  {
+    id: 'pe_univ_gnu_festival_edu',
+    minAge: 20,
+    maxAge: 23,
+    focusFilter: 'relationship',
+    text: '경상국립대 캠퍼스 잔디광장에서 동기들과 동아리 밴드 공연을 함께 관람하며 젊은 날의 우정을 나눴습니다.',
+    label: 'PERSONAL',
+    isSensitive: false,
+    impact: { bonds: 8, happiness: 7 }
   },
   {
     id: 'pe_jinju_youth_pass',

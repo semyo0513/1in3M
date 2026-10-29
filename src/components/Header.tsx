@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Pause, Volume2, VolumeX, Flame } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Flame, GraduationCap } from 'lucide-react';
 import { CitizenStatus } from '../types/game';
 import { audioManager } from '../utils/audio';
 
@@ -7,8 +7,10 @@ interface HeaderProps {
   citizen: CitizenStatus;
   isPaused: boolean;
   speed: number;
+  isEduMode: boolean;
   onTogglePause: () => void;
   onChangeSpeed: (newSpeed: number) => void;
+  onToggleEduMode: () => void;
   onOpenMemorial: () => void;
   isMuted: boolean;
   onToggleMute: () => void;
@@ -18,8 +20,10 @@ export const Header: React.FC<HeaderProps> = ({
   citizen,
   isPaused,
   speed,
+  isEduMode,
   onTogglePause,
   onChangeSpeed,
+  onToggleEduMode,
   onOpenMemorial,
   isMuted,
   onToggleMute
@@ -28,16 +32,24 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="border-b border-space-700 bg-space-900/95 backdrop-blur-md sticky top-0 z-30 px-2.5 sm:px-6 py-2">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
         
-        {/* 상단 1줄 (모바일: 로고 + 나이 + 위치) */}
+        {/* 상단 1줄 (모바일: 로고 + 나이 + 위치 + 교육모드 배지) */}
         <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-3">
           <div className="flex items-center gap-1.5 sm:gap-2">
             <span className="text-lg sm:text-2xl">🏮</span>
             <div>
-              <h1 className="text-xs sm:text-base font-bold tracking-tight text-amber-300">
-                34만 분의 1 : 진주
-              </h1>
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-xs sm:text-base font-bold tracking-tight text-amber-300">
+                  34만 분의 1 : 진주
+                </h1>
+                {isEduMode && (
+                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500/50 font-bold flex items-center gap-0.5">
+                    <GraduationCap className="w-3 h-3 text-emerald-400" />
+                    <span>교육용</span>
+                  </span>
+                )}
+              </div>
               <p className="text-[10px] text-slate-400 font-mono hidden md:block">
-                1 in 340,000 : JINJU
+                1 in 340,000 : JINJU {isEduMode && '(수업용 축약 & 민감정보 보호 모드)'}
               </p>
             </div>
           </div>
@@ -60,9 +72,27 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* 상단 2줄 (모바일) / 우측 (데스크톱): 컨트롤러 */}
+        {/* 상단 2줄 (모바일) / 우측 (데스크톱): 교육용 모드 토글 + 컨트롤러 */}
         <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 pt-1 sm:pt-0 border-t border-slate-800/60 sm:border-t-0">
-          {/* 배속 조절 */}
+          
+          {/* 학생 교육용 모드 전환 버튼 */}
+          <button
+            onClick={() => {
+              onToggleEduMode();
+              audioManager.playClickSound();
+            }}
+            title={isEduMode ? "일반 모드로 전환" : "학생 교육용 모드 (민감소재 제외, 가명화 사례) 실행"}
+            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-semibold transition border ${
+              isEduMode
+                ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-sm shadow-emerald-500/20'
+                : 'bg-space-850 border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600'
+            }`}
+          >
+            <GraduationCap className={`w-3.5 h-3.5 ${isEduMode ? 'text-emerald-400' : 'text-slate-400'}`} />
+            <span className="text-[11px] sm:text-xs">{isEduMode ? '수업모드 ON' : '교육용 모드'}</span>
+          </button>
+
+          {/* 배속 조절 (교육용 모드에서는 15분 수업 완주를 위해 1x, 2x, 3x 지원) */}
           <div className="flex items-center rounded-lg bg-space-850 p-0.5 border border-slate-700 text-[11px] sm:text-xs font-mono">
             {[0.5, 1, 2].map((s) => (
               <button

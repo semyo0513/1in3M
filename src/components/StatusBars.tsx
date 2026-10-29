@@ -5,9 +5,10 @@ import { CitizenStatus, CityMacroIndicators } from '../types/game';
 interface StatusBarsProps {
   citizen: CitizenStatus;
   cityIndicators: CityMacroIndicators;
+  isEduMode?: boolean;
 }
 
-export const StatusBars: React.FC<StatusBarsProps> = ({ citizen, cityIndicators }) => {
+export const StatusBars: React.FC<StatusBarsProps> = ({ citizen, isEduMode = false }) => {
   const stats = [
     { label: '건강', val: citizen.health, icon: Heart, color: 'from-rose-500 to-rose-400', textColor: 'text-rose-400' },
     { label: '행복', val: citizen.happiness, icon: Smile, color: 'from-amber-400 to-amber-300', textColor: 'text-amber-400' },
@@ -19,7 +20,7 @@ export const StatusBars: React.FC<StatusBarsProps> = ({ citizen, cityIndicators 
     <div className="bg-space-850/95 border-b border-space-700 px-2.5 sm:px-6 py-2 text-xs">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-2.5 md:gap-4 items-stretch md:items-center justify-between">
         
-        {/* 1. 개인 직업 및 소득 */}
+        {/* 1. 개인 직업 및 소득 환경 (교육용 모드에서는 서술형 표현으로 낙인 방지) */}
         <div className="flex items-center justify-between sm:justify-start gap-2 bg-space-900/90 px-2.5 py-1.5 rounded-lg border border-slate-700/80">
           <div className="flex items-center gap-1.5 truncate">
             <Briefcase className="w-3.5 h-3.5 text-amber-400 shrink-0" />
@@ -28,8 +29,14 @@ export const StatusBars: React.FC<StatusBarsProps> = ({ citizen, cityIndicators 
           <span className="text-slate-600">|</span>
           <div className="flex items-center gap-1.5 shrink-0">
             <Coins className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
-            <span className="text-slate-300 font-mono text-[11px] sm:text-xs">
-              {citizen.incomeDecile}분위 (월 {(citizen.monthlyIncomeWon / 10000).toFixed(0)}만)
+            <span className="text-slate-300 font-sans text-[11px] sm:text-xs">
+              {isEduMode ? (
+                <span className="text-emerald-300 font-medium">{citizen.incomeDesc || '성실한 일터의 가정'}</span>
+              ) : (
+                <span className="font-mono">
+                  {citizen.incomeDecile}분위 (월 {(citizen.monthlyIncomeWon / 10000).toFixed(0)}만 원)
+                </span>
+              )}
             </span>
           </div>
         </div>

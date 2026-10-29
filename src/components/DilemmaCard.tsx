@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { DilemmaIssue, StanceOption } from '../types/game';
-import { Scale, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Scale, CheckCircle2, AlertCircle, HelpCircle, Eye } from 'lucide-react';
 import { audioManager } from '../utils/audio';
 
 interface DilemmaCardProps {
   dilemma: DilemmaIssue;
   age: number;
   year: number;
+  isEduMode?: boolean;
   onSelectOption: (option: StanceOption, reason: string, participation: string) => void;
 }
 
@@ -14,11 +15,13 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
   dilemma,
   age,
   year,
+  isEduMode = false,
   onSelectOption
 }) => {
   const [selectedStance, setSelectedStance] = useState<StanceOption['stance']>(dilemma.options[0].stance);
   const [selectedReason, setSelectedReason] = useState<string>(dilemma.options[0].reasons[0]);
   const [participation, setParticipation] = useState<string>('시민 공청회에 참석하여 의견을 낸다');
+  const [hasReviewedCounterArg, setHasReviewedCounterArg] = useState<boolean>(!isEduMode);
 
   const currentOption = dilemma.options.find(o => o.stance === selectedStance) || dilemma.options[0];
 
@@ -27,6 +30,10 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
     const opt = dilemma.options.find(o => o.stance === stance);
     if (opt && opt.reasons.length > 0) {
       setSelectedReason(opt.reasons[0]);
+    }
+    // 교육용 모드에서는 입장을 바꿀 때마다 반대 의견 검토 체크를 리셋하여 성찰 유도
+    if (isEduMode) {
+      setHasReviewedCounterArg(false);
     }
     audioManager.playClickSound();
   };
@@ -44,6 +51,17 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
     onSelectOption(currentOption, selectedReason, participation);
   };
 
+  // 보이텔스바흐 원칙: 학생이 택한 입장에 따라 고려해야 할 상대측 논거 추출
+  const getCounterArgument = () => {
+    if (selectedStance === '찬성' || selectedStance === '조건부 찬성') {
+      return dilemma.counterArgumentForPro;
+    }
+    if (selectedStance === '반대' || selectedStance === '대안 제시') {
+      return dilemma.counterArgumentForCon;
+    }
+    return '모든 사회적 결정에는 다양한 이해관계자의 상반된 가치가 충돌합니다. 양측의 근거를 균형 있게 검토하는 것이 중요합니다.';
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-5 overflow-y-auto animate-fadeIn">
       <div className="bg-space-900 border border-amber-500/40 rounded-2xl max-w-2xl w-full my-auto shadow-2xl shadow-amber-950/40 overflow-hidden flex flex-col max-h-[92vh]">
@@ -55,9 +73,16 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
               <Scale className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <span className="text-[10px] sm:text-xs font-mono font-semibold text-amber-400/90 block">
-                {age}세 ({year}년) · 진주의 갈림길
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] sm:text-xs font-mono font-semibold text-amber-400/90 block">
+                  {age}세 ({year}년) · 진주의 갈림길
+                </span>
+                {isEduMode && (
+                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-600/40 font-bold">
+                    🎓 학생 수업용 사례
+                  </span>
+                )}
+              </div>
               <h2 className="text-sm sm:text-base font-bold text-white tracking-tight leading-tight">
                 {dilemma.title}
               </h2>
@@ -117,7 +142,7 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
                   onClick={() => handleStanceChange(opt.stance)}
                   className={`p-2 rounded-lg border text-xs font-medium text-left transition-all ${
                     selectedStance === opt.stance
-                      ? 'bg-amber-500/20 border-amber-400 text-amber-200 ring-1 ring-amber-400/50'
+                      ? 'bg-amber-500/20 border-amber-400 text-amber-200 ring-1 ring-amber-400/50 font-bold'
                       : 'bg-space-850 border-slate-700 text-slate-400 hover:text-slate-200 hover:bg-space-800'
                   }`}
                 >
@@ -145,7 +170,7 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
                     onClick={() => audioManager.playClickSound()}
                     className={`flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer transition ${
                       selectedReason === r
-                        ? 'bg-amber-950/40 border-amber-500/60 text-amber-200'
+                        ? 'bg-amber-950/40 border-amber-500/60 text-amber-200 font-medium'
                         : 'bg-space-850 border-slate-700/60 text-slate-400 hover:bg-space-800 hover:text-slate-200'
                     }`}
                   >
@@ -160,6 +185,28 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
                   </label>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* 3막: [보이텔스바흐 원칙 특별 단계 - 학생 교육용 모드 전용] 반대 입장의 이유 먼저 살펴보기 */}
+          {isEduMode && (
+            <div className="bg-emerald-950/30 border border-emerald-500/50 rounded-xl p-3 space-y-2 animate-fadeIn">
+              <div className="flex items-center gap-1.5 text-emerald-300 font-bold text-xs">
+                <Eye className="w-4 h-4 text-emerald-400" />
+                <span>💡 [보이텔스바흐 성찰] 반대 입장의 이유를 먼저 읽어보세요</span>
+              </div>
+              <p className="text-xs text-slate-200 leading-relaxed font-sans bg-space-900/80 p-2.5 rounded-lg border border-emerald-800/40">
+                {getCounterArgument()}
+              </p>
+              <label className="flex items-center gap-2 text-[11px] text-emerald-300 cursor-pointer pt-1">
+                <input
+                  type="checkbox"
+                  checked={hasReviewedCounterArg}
+                  onChange={(e) => setHasReviewedCounterArg(e.target.checked)}
+                  className="accent-emerald-500 w-4 h-4"
+                />
+                <span className="font-medium">상대방의 이유와 고민을 충분히 읽고 이해했습니다.</span>
+              </label>
             </div>
           )}
 
@@ -184,12 +231,21 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
         </div>
 
         {/* 하단 확정 버튼 */}
-        <div className="p-3 sm:p-4 bg-space-950 border-t border-slate-800 flex items-center justify-end">
+        <div className="p-3 sm:p-4 bg-space-950 border-t border-slate-800 flex items-center justify-between">
+          <div className="text-[10px] text-slate-500 flex items-center gap-1">
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>이 선택에는 정답이 없으며 공익과 비용이 공존합니다.</span>
+          </div>
           <button
             onClick={handleSubmit}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-amber-500 to-amber-600 text-space-950 hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20 transition-all transform active:scale-95"
+            disabled={isEduMode && !hasReviewedCounterArg}
+            className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all transform active:scale-95 ${
+              isEduMode && !hasReviewedCounterArg
+                ? 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-60'
+                : 'bg-gradient-to-r from-amber-500 to-amber-600 text-space-950 hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20'
+            }`}
           >
-            이 결정으로 살아가기
+            {isEduMode && !hasReviewedCounterArg ? '반대 의견 검토 필요' : '이 결정으로 살아가기'}
           </button>
         </div>
 

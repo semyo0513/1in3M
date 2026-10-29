@@ -1,0 +1,35 @@
+﻿issue_id,position_key,position_label,path,level,value,param_type,note
+ISSUE-01,JOB_PUBINST_HH,혁신도시 입주 기관 직원 가구,jobs,높음,0.8,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,JOB_PUBINST_HH,혁신도시 입주 기관 직원 가구,housing_commerce,높음,0.8,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,JOB_PUBINST_HH,혁신도시 입주 기관 직원 가구,child_education,중,0.5,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,JOB_PUBINST_COMMERCE,혁신도시 상권 자영업,jobs,중,0.5,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,JOB_PUBINST_COMMERCE,혁신도시 상권 자영업,housing_commerce,높음,0.8,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,JOB_PUBINST_COMMERCE,혁신도시 상권 자영업,child_education,낮음,0.2,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,OLDTOWN_MERCHANT,원도심 상인,jobs,낮음,0.2,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,OLDTOWN_MERCHANT,원도심 상인,housing_commerce,중,0.5,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,OLDTOWN_MERCHANT,원도심 상인,child_education,낮음,0.2,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,YOUTH_SEEKER,청년 구직자,jobs,중,0.5,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,YOUTH_SEEKER,청년 구직자,housing_commerce,중,0.5,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,RURAL_RESIDENT,농촌 면 지역 거주,jobs,낮음,0.2,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,RURAL_RESIDENT,농촌 면 지역 거주,housing_commerce,낮음,0.2,VIRTUAL,plan 8.1 표 변환
+ISSUE-01,RURAL_RESIDENT,농촌 면 지역 거주,child_education,낮음,0.2,VIRTUAL,plan 8.1 표 변환
+ISSUE-02,NAEDONG_NEAR,내동면 후보지 인접 마을,procedure_burden,높음,0.8,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,NAEDONG_NEAR,내동면 후보지 인접 마을,proximity_burden_anxiety,높음,0.8,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,NAEDONG_NEAR,내동면 후보지 인접 마을,fiscal_burden,중,0.5,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,NAEDONG_NEAR,내동면 후보지 인접 마을,waste_service_stability,중,0.5,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,NAEDONG_OTHER,내동면 기타·인접 면,procedure_burden,중,0.5,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,NAEDONG_OTHER,내동면 기타·인접 면,proximity_burden_anxiety,중,0.5,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,NAEDONG_OTHER,내동면 기타·인접 면,fiscal_burden,중,0.5,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,NAEDONG_OTHER,내동면 기타·인접 면,waste_service_stability,중,0.5,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,GR2_NEWTOWN,아파트 밀집 신도심,procedure_burden,낮음,0.2,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,GR2_NEWTOWN,아파트 밀집 신도심,proximity_burden_anxiety,낮음,0.2,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,GR2_NEWTOWN,아파트 밀집 신도심,fiscal_burden,중,0.5,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,GR2_NEWTOWN,아파트 밀집 신도심,waste_service_stability,높음,0.8,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,GR3_DOWNTOWN,도심 혼합·주택형(원도심 포함),procedure_burden,낮음,0.2,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,GR3_DOWNTOWN,도심 혼합·주택형(원도심 포함),proximity_burden_anxiety,낮음,0.2,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,GR3_DOWNTOWN,도심 혼합·주택형(원도심 포함),fiscal_burden,중,0.5,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,GR3_DOWNTOWN,도심 혼합·주택형(원도심 포함),waste_service_stability,높음,0.8,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,LIVESTOCK_FARM,축산 농가,procedure_burden,중,0.5,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,LIVESTOCK_FARM,축산 농가,proximity_burden_anxiety,중,0.5,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,LIVESTOCK_FARM,축산 농가,fiscal_burden,중,0.5,VIRTUAL,plan 8.2 표 변환
+ISSUE-02,LIVESTOCK_FARM,축산 농가,waste_service_stability,높음,0.8,VIRTUAL,plan 8.2 표 변환

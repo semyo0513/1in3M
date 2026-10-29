@@ -1,8 +1,8 @@
-// 진주시 시뮬레이션 엔진 및 수학적 모델
+// 진주시 시뮬레이션 엔진 및 수학적 모델 (공공데이터 및 교육용 모드 필터 지원)
 import { CitizenStatus, CohortPerson, DistrictInfo, DilemmaIssue, CityMacroIndicators, YearFocus, JobType } from '../types/game';
-import { JINJU_DISTRICTS, JINJU_META } from '../data/jinjuData';
+import { JINJU_DISTRICTS, JINJU_META, getEduIncomeDesc } from '../data/jinjuData';
 import { PERSONAL_EVENTS } from '../data/personalEvents';
-import { JINJU_DILEMMAS } from '../data/dilemmas';
+import { getDilemmas } from '../data/dilemmas';
 
 export interface PresetProfile {
   id: string;
@@ -99,21 +99,27 @@ export function getRandomJob(districtId: string, age: number): JobType {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-export function generateRandomBirth(birthYear: number = 2026): CitizenStatus {
+export function generateRandomBirth(birthYear: number = 2026, isEduMode: boolean = false): CitizenStatus {
   const district = pickDistrictByBirthWeight();
-  return generateBirthForDistrict(district.id, birthYear);
+  return generateBirthForDistrict(district.id, birthYear, undefined, isEduMode);
 }
 
-export function generateBirthForDistrict(districtId: string, birthYear: number = 2026, overrideDecile?: number): CitizenStatus {
+export function generateBirthForDistrict(
+  districtId: string,
+  birthYear: number = 2026,
+  overrideDecile?: number,
+  isEduMode: boolean = false
+): CitizenStatus {
   const district = JINJU_DISTRICTS.find(d => d.id === districtId) || JINJU_DISTRICTS[0];
   const gender: '남성' | '여성' = Math.random() < 0.51 ? '남성' : '여성';
 
   const baseDecile = overrideDecile ?? Math.round(district.avgIncomeDecile + (Math.random() * 2 - 1));
   const incomeDecile = Math.max(1, Math.min(5, baseDecile));
   const monthlyIncomeWon = incomeDecile * 1100000 + Math.floor(Math.random() * 600000);
+  const incomeDesc = getEduIncomeDesc(incomeDecile);
 
   return {
-    name: '진주시민',
+    name: isEduMode ? '진주 학생' : '진주시민',
     age: 0,
     birthYear,
     currentYear: birthYear,
@@ -121,6 +127,7 @@ export function generateBirthForDistrict(districtId: string, birthYear: number =
     gender,
     job: '청년 구직자',
     incomeDecile,
+    incomeDesc,
     monthlyIncomeWon,
     health: 90 + Math.floor(Math.random() * 10),
     happiness: 80 + Math.floor(Math.random() * 15),
@@ -165,7 +172,7 @@ export function updateCohort(cohort: CohortPerson[], age: number): CohortPerson[
       return {
         ...p,
         isAlive: false,
-        statusText: `${age}세에 영면하였습니다.`
+        statusText: `${age}세에 평온하게 영면하였습니다.`
       };
     }
 
@@ -209,14 +216,23 @@ export function updateCohort(cohort: CohortPerson[], age: number): CohortPerson[
   });
 }
 
-export function checkMortality(citizen: CitizenStatus, cityIndicators: CityMacroIndicators): { willDie: boolean; cause?: string } {
+export function checkMortality(
+  citizen: CitizenStatus,
+  cityIndicators: CityMacroIndicators,
+  isEduMode: boolean = false
+): { willDie: boolean; cause?: string } {
   if (citizen.health <= 0) {
-    return { willDie: true, cause: '건강 악화 및 복합 질환' };
+    return { willDie: true, cause: isEduMode ? '자연스러운 건강 쇠약으로 인한 영면' : '건강 악화 및 복합 질환' };
   }
 
   const baseLife = citizen.gender === '남성' ? JINJU_META.lifeExpectancy.male : JINJU_META.lifeExpectancy.female;
   const welfareBonus = (cityIndicators.welfare * -1) * 0.05;
   const effectiveExpectedAge = baseLife + welfareBonus;
+
+  // 교육용 모드에서는 학생 정서 보호를 위해 50세 이전 돌연사 확률을 0으로 차단
+  if (isEduMode && citizen.age < 65) {
+    return { willDie: false };
+  }
 
   if (citizen.age < 50) {
     if (Math.random() < 0.001) {
@@ -228,7 +244,7 @@ export function checkMortality(citizen: CitizenStatus, cityIndicators: CityMacro
   if (citizen.age >= 50 && citizen.age < 70) {
     const risk = 0.005 + (100 - citizen.health) * 0.0002;
     if (Math.random() < risk) {
-      return { willDie: true, cause: pickDeathCause() };
+      return { willDie: true, cause: pickDeathCause(isEduMode) };
     }
     return { willDie: false };
   }
@@ -240,27 +256,36 @@ export function checkMortality(citizen: CitizenStatus, cityIndicators: CityMacro
     const totalRisk = Math.min(0.85, baseRisk + healthRisk);
 
     if (Math.random() < totalRisk) {
-      return { willDie: true, cause: pickDeathCause() };
+      return { willDie: true, cause: pickDeathCause(isEduMode) };
     }
   }
 
   return { willDie: false };
 }
 
-function pickDeathCause(): string {
-  const causes = JINJU_META.deathCauses;
-  const rand = Math.random();
+function pickDeathCause(isEduMode: boolean = false): string {
+  // 교육용 모드일 때는 자살(eduModeExclude: true)을 완전 제외
+  const causes = isEduMode 
+    ? JINJU_META.deathCauses.filter(c => !c.eduModeExclude)
+    : JINJU_META.deathCauses;
+
+  const totalWeight = causes.reduce((sum, c) => sum + c.weight, 0);
+  const rand = Math.random() * totalWeight;
   let acc = 0;
   for (const c of causes) {
     acc += c.weight;
-    if (rand < acc) return c.cause;
+    if (rand < acc) {
+      return isEduMode ? `${c.cause}을(를) 앓은 끝에 평온한 영면` : c.cause;
+    }
   }
   return '노환으로 인한 평온한 영면';
 }
 
-export function pickPersonalEvent(citizen: CitizenStatus, focus: YearFocus) {
+export function pickPersonalEvent(citizen: CitizenStatus, focus: YearFocus, isEduMode: boolean = false) {
   const eligible = PERSONAL_EVENTS.filter(e => {
     if (citizen.age < e.minAge || citizen.age > e.maxAge) return false;
+    // 교육용 모드에서는 음주/가계위기 등 민감 소재 이벤트 배제
+    if (isEduMode && e.isSensitive) return false;
     if (e.focusFilter && e.focusFilter !== focus) return Math.random() < 0.35;
     return true;
   });
@@ -271,9 +296,12 @@ export function pickPersonalEvent(citizen: CitizenStatus, focus: YearFocus) {
 
 export function checkDilemmaTrigger(
   citizen: CitizenStatus,
-  resolvedIds: Set<string>
+  resolvedIds: Set<string>,
+  isEduMode: boolean = false
 ): DilemmaIssue | null {
-  for (const dilemma of JINJU_DILEMMAS) {
+  const dilemmas = getDilemmas(isEduMode);
+
+  for (const dilemma of dilemmas) {
     if (resolvedIds.has(dilemma.id)) continue;
     const [minAge, maxAge] = dilemma.triggerAgeRange;
     if (citizen.age >= minAge && citizen.age <= maxAge) {
