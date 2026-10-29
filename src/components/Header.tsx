@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Pause, Volume2, VolumeX, Flame, GraduationCap } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Flame, GraduationCap, User } from 'lucide-react';
 import { CitizenStatus } from '../types/game';
 import { audioManager } from '../utils/audio';
 
@@ -12,6 +12,7 @@ interface HeaderProps {
   onChangeSpeed: (newSpeed: number) => void;
   onToggleEduMode: () => void;
   onOpenMemorial: () => void;
+  onOpenProfile?: () => void;
   isMuted: boolean;
   onToggleMute: () => void;
 }
@@ -25,6 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   onChangeSpeed,
   onToggleEduMode,
   onOpenMemorial,
+  onOpenProfile,
   isMuted,
   onToggleMute
 }) => {
@@ -72,9 +74,24 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* 상단 2줄 (모바일) / 우측 (데스크톱): 교육용 모드 토글 + 컨트롤러 */}
+        {/* 상단 2줄 (모바일) / 우측 (데스크톱): 프로필 + 교육용 모드 토글 + 컨트롤러 */}
         <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 pt-1 sm:pt-0 border-t border-slate-800/60 sm:border-t-0">
           
+          {/* 내 삶의 프로필 버튼 (언제든 팝업/확인 가능) */}
+          {onOpenProfile && (
+            <button
+              onClick={() => {
+                onOpenProfile();
+                audioManager.playClickSound();
+              }}
+              title="내 삶의 궤적 및 프로필 (학력, 직업, 배우자, 자녀, 재산, 삶의 결)"
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition border bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20 hover:border-amber-400"
+            >
+              <User className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-[11px] sm:text-xs">내 프로필</span>
+            </button>
+          )}
+
           {/* 학생 교육용 모드 전환 버튼 */}
           <button
             onClick={() => {

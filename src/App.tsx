@@ -64,8 +64,11 @@ export const App: React.FC = () => {
   const [speed, setSpeed] = useState<number>(1);
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
-  // 모바일 전용 뷰 탭 ('timeline' | 'impact' | 'cohort')
-  const [mobileTab, setMobileTab] = useState<'timeline' | 'impact' | 'cohort'>('timeline');
+  // 모바일 전용 뷰 탭 ('profile' | 'timeline' | 'impact' | 'cohort')
+  const [mobileTab, setMobileTab] = useState<'profile' | 'timeline' | 'impact' | 'cohort'>('timeline');
+
+  // 사이드 대시보드 탭 ('impact' | 'cohort' - 데스크톱 및 모바일 독립 제어)
+  const [dashboardTab, setDashboardTab] = useState<'impact' | 'cohort'>('impact');
 
   // 모달 팝업 상태
   const [isBirthModalOpen, setIsBirthModalOpen] = useState<boolean>(true);
@@ -127,6 +130,7 @@ export const App: React.FC = () => {
     setActiveDilemma(null);
     setActivePauseQuestion(null);
     setMobileTab('timeline');
+    setDashboardTab('impact');
 
     setTimeline([
       {
@@ -440,9 +444,9 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col select-none">
+    <div className="h-screen max-h-screen bg-[#07090e] text-slate-100 flex flex-col select-none overflow-hidden">
       
-      {/* 1. 상단 바 (헤더 - 교육용 모드 토글 지원) */}
+      {/* 1. 상단 바 (헤더 - 프로필 열기 & 교육용 모드 토글 지원) */}
       <Header
         citizen={citizen}
         isPaused={isPaused}
@@ -452,6 +456,7 @@ export const App: React.FC = () => {
         onChangeSpeed={setSpeed}
         onToggleEduMode={handleToggleEduMode}
         onOpenMemorial={() => setIsMemorialOpen(true)}
+        onOpenProfile={() => setIsMobileProfileOpen(true)}
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
       />
@@ -465,15 +470,19 @@ export const App: React.FC = () => {
       />
 
       {/* 3. 모바일 전용 뷰 전환 탭 바 (lg:hidden) */}
-      <div className="lg:hidden bg-space-950 border-b border-space-800 px-2 py-1.5 flex items-center justify-around text-xs gap-1">
+      <div className="lg:hidden bg-space-950 border-b border-space-800 px-2 py-1.5 flex items-center justify-around text-xs gap-1 shrink-0">
         <button
           onClick={() => {
-            setIsMobileProfileOpen(true);
+            setMobileTab('profile');
             audioManager.playClickSound();
           }}
-          className="flex items-center gap-1 py-1.5 px-2.5 rounded-lg font-bold text-amber-300 bg-amber-500/15 border border-amber-500/40 text-[11px] shrink-0"
+          className={`flex items-center gap-1 py-1.5 px-2.5 rounded-lg font-bold text-[11px] transition ${
+            mobileTab === 'profile'
+              ? 'bg-amber-500/25 text-amber-300 border border-amber-500/50 shadow-sm'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
         >
-          <User className="w-3.5 h-3.5" />
+          <User className="w-3.5 h-3.5 text-amber-400" />
           <span>내 프로필</span>
         </button>
 
@@ -495,10 +504,11 @@ export const App: React.FC = () => {
         <button
           onClick={() => {
             setMobileTab('impact');
+            setDashboardTab('impact');
             audioManager.playClickSound();
           }}
           className={`flex items-center gap-1 py-1.5 px-2.5 rounded-lg font-medium transition relative text-[11px] ${
-            mobileTab === 'impact'
+            mobileTab === 'impact' && dashboardTab === 'impact'
               ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
               : 'text-slate-400'
           }`}
@@ -513,45 +523,47 @@ export const App: React.FC = () => {
         <button
           onClick={() => {
             setMobileTab('cohort');
+            setDashboardTab('cohort');
             audioManager.playClickSound();
           }}
           className={`flex items-center gap-1 py-1.5 px-2.5 rounded-lg font-medium transition text-[11px] ${
-            mobileTab === 'cohort'
+            mobileTab === 'cohort' || (mobileTab === 'impact' && dashboardTab === 'cohort')
               ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 font-bold'
               : 'text-slate-400'
           }`}
         >
           <Users className="w-3.5 h-3.5" />
-          <span>동갑내기</span>
+          <span>동갑내기 4인</span>
         </button>
       </div>
 
       {/* 4. 메인 콘텐츠: 좌측 프로필 패널 + 텍스트 타임라인 + 사이드 대시보드 */}
-      <main className="flex-1 max-w-[1600px] w-full mx-auto flex flex-col lg:flex-row overflow-hidden relative">
+      <main className="flex-1 min-h-0 max-w-[1600px] w-full mx-auto flex flex-col lg:flex-row overflow-hidden relative">
         
         {/* 데스크톱: 좌측 패널에 항상 표시되는 인물 프로필 패널 (컴퓨터 화면 전용 고정) */}
-        <aside className="hidden lg:flex w-72 xl:w-80 flex-col shrink-0 border-r border-space-800 bg-space-950/70 overflow-hidden">
+        <aside className="hidden lg:flex w-72 xl:w-80 flex-col shrink-0 border-r border-space-800 bg-space-950/70 overflow-hidden h-full min-h-0">
           <LeftProfilePanel citizen={citizen} isEduMode={isEduMode} />
         </aside>
 
+        {/* 모바일 뷰 1: 내 프로필 (mobileTab === 'profile') */}
+        <div className={`flex-1 min-h-0 flex flex-col overflow-hidden ${mobileTab === 'profile' ? 'flex lg:hidden' : 'hidden'}`}>
+          <LeftProfilePanel citizen={citizen} isEduMode={isEduMode} />
+        </div>
+
         {/* 데스크톱: 타임라인 항상 보임 / 모바일: mobileTab === 'timeline'일 때만 보임 */}
-        <div className={`flex-1 flex flex-col overflow-hidden ${mobileTab !== 'timeline' ? 'hidden lg:flex' : 'flex'}`}>
+        <div className={`flex-1 min-h-0 flex flex-col overflow-hidden ${mobileTab !== 'timeline' ? 'hidden lg:flex' : 'flex'}`}>
           <TimelineLog entries={timeline} />
         </div>
 
         {/* 데스크톱: 사이드바 항상 보임 / 모바일: mobileTab이 impact 또는 cohort일 때 보임 */}
-        <div className={`w-full lg:w-80 xl:w-88 flex flex-col shrink-0 overflow-hidden ${mobileTab === 'timeline' ? 'hidden lg:flex' : 'flex flex-1'}`}>
+        <div className={`w-full lg:w-80 xl:w-88 flex flex-col shrink-0 overflow-hidden h-full min-h-0 ${mobileTab === 'timeline' || mobileTab === 'profile' ? 'hidden lg:flex' : 'flex flex-1'}`}>
           <SideDashboard
             cohort={cohort}
             birthYear={citizen.birthYear}
             choicesHistory={citizen.choicesHistory}
             cityIndicators={cityIndicators}
-            activeTab={mobileTab === 'cohort' ? 'cohort' : 'impact'}
-            onTabChange={(t) => {
-              if (mobileTab !== 'timeline') {
-                setMobileTab(t);
-              }
-            }}
+            activeTab={dashboardTab}
+            onTabChange={setDashboardTab}
           />
         </div>
 

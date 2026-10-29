@@ -49,7 +49,7 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
   const companionLabel = !citizen.isAlive ? '마지막 길을 배웅한 사람' : '곁을 지키는 사람';
 
   return (
-    <div className="h-full flex flex-col bg-space-950/80 text-slate-200 border-r border-space-800 font-sans select-text">
+    <div className="h-full min-h-0 flex flex-col bg-space-950/80 text-slate-200 border-r border-space-800 font-sans select-text">
       
       {/* 1. 상단 패널 헤더 */}
       <div className="p-3.5 border-b border-space-800/80 flex items-center justify-between bg-space-900/60 shrink-0">
@@ -80,7 +80,7 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
       </div>
 
       {/* 2. 본문 프로필 카드 (80억분의1 스타일 타이포그래피) */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs leading-relaxed custom-scrollbar">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 text-xs leading-relaxed custom-scrollbar">
         
         {/* 학력 & 직업 */}
         <div className="space-y-1.5 pb-3 border-b border-slate-800/80">

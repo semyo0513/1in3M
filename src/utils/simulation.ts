@@ -536,11 +536,19 @@ function pickDeathCause(isEduMode: boolean = false): string {
 }
 
 export function pickPersonalEvent(citizen: CitizenStatus, focus: YearFocus, isEduMode: boolean = false) {
+  const isRural = citizen.district.type === 'rural';
   const eligible = PERSONAL_EVENTS.filter(e => {
     if (citizen.age < e.minAge || citizen.age > e.maxAge) return false;
     // 교육용 모드에서는 음주/가계위기 등 민감 소재 이벤트 배제
     if (isEduMode && e.isSensitive) return false;
     if (e.focusFilter && e.focusFilter !== focus) return Math.random() < 0.35;
+
+    // 면(농촌) vs 동(도시) 권역 필터: 가호동 등 도시 거주자가 면 지역 통학버스를 타는 모순 차단
+    if (e.districtTypeFilter) {
+      if (e.districtTypeFilter === 'rural' && !isRural) return false;
+      if (e.districtTypeFilter === 'urban' && isRural) return false;
+    }
+
     return true;
   });
 

@@ -7,6 +7,7 @@ export interface PersonalEventDef {
   minAge: number;
   maxAge: number;
   focusFilter?: YearFocus;
+  districtTypeFilter?: 'rural' | 'urban'; // 면(농촌) vs 동(도시) 권역 구분 필터
   text: string;
   label: CardLabel;
   sourceNote?: string;
@@ -70,7 +71,17 @@ export const PERSONAL_EVENTS: PersonalEventDef[] = [
     id: 'pe_rural_school_bus',
     minAge: 9,
     maxAge: 13,
+    districtTypeFilter: 'rural', // 면(농촌) 지역에서만 발생
     text: '면 지역 통학버스를 타고 굽이굽이 시골길을 달립니다. 창밖으로 비닐하우스와 계절마다 물드는 논밭이 보입니다.',
+    label: 'PERSONAL',
+    impact: { happiness: 4, bonds: 5, health: 3 }
+  },
+  {
+    id: 'pe_urban_walk_to_school',
+    minAge: 9,
+    maxAge: 13,
+    districtTypeFilter: 'urban', // 동(도심/신도심) 지역에서 발생
+    text: '동네 골목길과 보행로를 따라 친구들과 이야기꽃을 피우며 등교합니다. 교문 앞 문구점에서 준비물을 챙깁니다.',
     label: 'PERSONAL',
     impact: { happiness: 4, bonds: 5, health: 3 }
   },
