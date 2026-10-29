@@ -20,6 +20,7 @@ import {
   PresetProfile
 } from './utils/simulation';
 import { PAUSE_QUESTIONS } from './data/pauseQuestions';
+import { getEduIncomeDesc } from './data/jinjuData';
 import { audioManager } from './utils/audio';
 
 import { Header } from './components/Header';
@@ -32,7 +33,7 @@ import { PauseModal } from './components/PauseModal';
 import { EndingReceipt } from './components/EndingReceipt';
 import { MemorialHall, MemorialRecord } from './components/MemorialHall';
 import { BirthModal } from './components/BirthModal';
-import { ScrollText, Scale, Users } from 'lucide-react';
+import { ScrollText, Scale, Users, GraduationCap } from 'lucide-react';
 
 const BASE_YEAR_TICK_MS = 6000; // 1년 = 6초 (15분 내 완주 가능한 템포)
 
@@ -92,7 +93,7 @@ export const App: React.FC = () => {
     setCitizen(prev => ({
       ...prev,
       name: nextMode ? '진주 학생' : '진주시민',
-      incomeDesc: prev.incomeDesc
+      incomeDesc: getEduIncomeDesc(prev.incomeDecile)
     }));
   };
 
@@ -544,6 +545,27 @@ export const App: React.FC = () => {
         onSelectFocus={setFocus}
       />
 
+      {/* 화면 우측 상시 교육용 모드 플로팅 전환 버튼 (모달이 닫혀 있을 때 바로 확인/전환) */}
+      {!isBirthModalOpen && !activeDilemma && !activePauseQuestion && !isEndingOpen && !isMemorialOpen && (
+        <aside aria-label="교육용 모드 빠른 전환" className="fixed bottom-14 right-3 sm:bottom-16 sm:right-5 z-20">
+          <button
+            onClick={() => {
+              handleToggleEduMode();
+              audioManager.playClickSound();
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-full shadow-2xl backdrop-blur-md text-xs font-bold transition-all border transform hover:scale-105 active:scale-95 ${
+              isEduMode
+                ? 'bg-emerald-950/90 border-emerald-400 text-emerald-300 ring-2 ring-emerald-500/40 shadow-emerald-500/20'
+                : 'bg-space-900/90 border-emerald-500/40 text-emerald-300 hover:bg-emerald-950'
+            }`}
+            title={isEduMode ? "일반 시민 모드로 전환" : "학생 교육용 안심 모드로 즉시 전환"}
+          >
+            <GraduationCap className={`w-3.5 h-3.5 ${isEduMode ? 'text-emerald-400 animate-pulse' : 'text-emerald-300'}`} />
+            <span>{isEduMode ? '🎓 교육모드 ON' : '🎓 학생 교육용 모드'}</span>
+          </button>
+        </aside>
+      )}
+
       {/* 모달 1: 출생 및 인물 선택 모달 */}
       {isBirthModalOpen && (
         <BirthModal
@@ -552,6 +574,7 @@ export const App: React.FC = () => {
           onStartLife={handleStartLife}
           onRerollRandom={handleRerollRandom}
           onSelectPreset={handleSelectPreset}
+          onToggleEduMode={handleToggleEduMode}
         />
       )}
 

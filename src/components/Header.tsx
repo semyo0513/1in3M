@@ -81,15 +81,17 @@ export const Header: React.FC<HeaderProps> = ({
               onToggleEduMode();
               audioManager.playClickSound();
             }}
-            title={isEduMode ? "일반 모드로 전환" : "학생 교육용 모드 (민감소재 제외, 가명화 사례) 실행"}
-            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-semibold transition border ${
+            title={isEduMode ? "일반 시민 모드로 전환" : "학생 교육용 모드 (민감소재 제외, 가명화 사례) 실행"}
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition border shadow-sm ${
               isEduMode
-                ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-sm shadow-emerald-500/20'
-                : 'bg-space-850 border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600'
+                ? 'bg-emerald-500/25 border-emerald-400 text-emerald-300 shadow-emerald-500/20 ring-1 ring-emerald-400/50'
+                : 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300 hover:bg-emerald-900/60 hover:border-emerald-400'
             }`}
           >
-            <GraduationCap className={`w-3.5 h-3.5 ${isEduMode ? 'text-emerald-400' : 'text-slate-400'}`} />
-            <span className="text-[11px] sm:text-xs">{isEduMode ? '수업모드 ON' : '교육용 모드'}</span>
+            <GraduationCap className={`w-3.5 h-3.5 ${isEduMode ? 'text-emerald-400 animate-pulse' : 'text-emerald-300'}`} />
+            <span className="text-[11px] sm:text-xs">
+              {isEduMode ? '🎓 수업모드 ON' : '🎓 학생 교육용 모드'}
+            </span>
           </button>
 
           {/* 배속 조절 (교육용 모드에서는 15분 수업 완주를 위해 1x, 2x, 3x 지원) */}

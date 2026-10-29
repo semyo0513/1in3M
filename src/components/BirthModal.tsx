@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CitizenStatus } from '../types/game';
-import { Sparkles, MapPin, ArrowRight, RefreshCw, UserCheck, Dices, ShieldCheck, HeartHandshake } from 'lucide-react';
+import { Sparkles, MapPin, ArrowRight, RefreshCw, UserCheck, Dices, ShieldCheck, HeartHandshake, GraduationCap } from 'lucide-react';
 import { audioManager } from '../utils/audio';
 import { PRESET_PROFILES, PresetProfile } from '../utils/simulation';
 
@@ -10,6 +10,7 @@ interface BirthModalProps {
   onStartLife: () => void;
   onRerollRandom: () => void;
   onSelectPreset: (preset: PresetProfile) => void;
+  onToggleEduMode?: () => void;
 }
 
 export const BirthModal: React.FC<BirthModalProps> = ({
@@ -17,7 +18,8 @@ export const BirthModal: React.FC<BirthModalProps> = ({
   isEduMode = false,
   onStartLife,
   onRerollRandom,
-  onSelectPreset
+  onSelectPreset,
+  onToggleEduMode
 }) => {
   const [tab, setTab] = useState<'random' | 'presets'>('random');
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
@@ -41,15 +43,90 @@ export const BirthModal: React.FC<BirthModalProps> = ({
     <div className="fixed inset-0 z-50 bg-[#06080d]/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn">
       <div className="max-w-xl w-full my-auto text-center space-y-3.5 sm:space-y-4">
         
-        {/* 교육용 모드 철학 배너 (낙인 방지) */}
-        {isEduMode && (
-          <div className="bg-emerald-950/50 border border-emerald-500/40 rounded-xl p-2.5 text-left flex items-start gap-2 text-xs text-emerald-200">
-            <HeartHandshake className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-            <div className="leading-snug">
-              <span className="font-bold text-emerald-300">[교육용 성찰 안내] </span>
-              어디서 어떤 환경에서 태어날지는 스스로 선택한 것이 아닌 <strong>'삶의 우연(운)'</strong>입니다.
-              비교나 낙인 대신, 서로 다른 입장의 이웃들을 깊이 이해하는 여정을 시작합니다.
+        {/* [중요] 모드 선택 세그먼트 (일반 시민 모드 vs 학생 교육용 모드) */}
+        <div className="bg-space-950/90 p-1.5 rounded-2xl border border-slate-700/80 shadow-lg max-w-lg mx-auto">
+          <div className="flex items-center justify-between text-[11px] text-slate-400 px-2 py-0.5 mb-1">
+            <span className="font-semibold text-slate-300">🎮 모드 선택</span>
+            <span className="text-[10px] text-slate-500 font-mono">언제든 상단에서 전환 가능</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (isEduMode && onToggleEduMode) onToggleEduMode();
+                audioManager.playClickSound();
+              }}
+              className={`py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold transition-all ${
+                !isEduMode
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-md shadow-amber-500/10'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-space-900 border border-transparent'
+              }`}
+            >
+              <span>🏛️ 일반 시민 모드</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (!isEduMode && onToggleEduMode) onToggleEduMode();
+                audioManager.playClickSound();
+              }}
+              className={`py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold transition-all ${
+                isEduMode
+                  ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-400 shadow-md shadow-emerald-500/20 ring-1 ring-emerald-400/50'
+                  : 'bg-emerald-950/40 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-900/50'
+              }`}
+            >
+              <GraduationCap className="w-4 h-4 text-emerald-400" />
+              <span>🎓 학생 교육용 모드</span>
+              {isEduMode && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
+            </button>
+          </div>
+        </div>
+
+        {/* 교육용 모드 안내 vs 일반 모드 안내 카드 */}
+        {isEduMode ? (
+          <div className="bg-emerald-950/60 border border-emerald-500/50 rounded-xl p-3 text-left space-y-1.5 text-xs text-emerald-200 animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 font-bold text-emerald-300 text-xs sm:text-sm">
+                <GraduationCap className="w-4 h-4 text-emerald-400" />
+                <span>[학생 교육용 안심 모드 활성화됨]</span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-900/80 border border-emerald-600 text-emerald-200 font-mono">
+                수업 12~15분 완주형
+              </span>
             </div>
+            <p className="text-[11px] text-emerald-200/90 leading-relaxed font-sans">
+              어디서 어떤 환경에서 태어날지는 스스로 선택한 것이 아닌 <strong>'삶의 우연(운)'</strong>입니다.
+              타인과의 비교나 낙인 없이 서로 다른 입장을 경청하고 이해하는 수업 활동입니다.
+            </p>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-emerald-400 pt-1.5 border-t border-emerald-800/60">
+              <div>✓ 민감 소재 완전 배제 (자살·음주·흡연 0%)</div>
+              <div>✓ 낙인 방지 서술형 환경 표기 (분위 수치 제거)</div>
+              <div>✓ 보이텔스바흐 원칙: 반대 입장 필독</div>
+              <div>✓ 개인정보 수집 및 외부 전송 0%</div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-space-900/80 border border-slate-800 rounded-xl p-2.5 text-left flex items-center justify-between text-xs text-slate-300">
+            <div className="flex items-center gap-2">
+              <span className="text-amber-400 text-base">💡</span>
+              <p className="text-[11px] leading-tight text-slate-400">
+                초·중·고 수업 및 학생 활동 시에는 상단의 <strong className="text-emerald-300">🎓 학생 교육용 모드</strong> 버튼을 켜주세요.
+              </p>
+            </div>
+            {onToggleEduMode && (
+              <button
+                type="button"
+                onClick={() => {
+                  onToggleEduMode();
+                  audioManager.playClickSound();
+                }}
+                className="shrink-0 px-2.5 py-1 rounded-lg bg-emerald-950 border border-emerald-500/50 text-emerald-300 font-bold text-[11px] hover:bg-emerald-900 transition flex items-center gap-1 ml-2"
+              >
+                <GraduationCap className="w-3.5 h-3.5" />
+                <span>교육용 켜기</span>
+              </button>
+            )}
           </div>
         )}
 
@@ -197,10 +274,16 @@ export const BirthModal: React.FC<BirthModalProps> = ({
               audioManager.playChimeSound();
               onStartLife();
             }}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl font-bold text-xs sm:text-sm bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-space-950 hover:from-amber-400 hover:to-amber-300 shadow-xl shadow-amber-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+            className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl font-bold text-xs sm:text-sm shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 ${
+              isEduMode
+                ? 'bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 text-space-950 hover:from-emerald-400 hover:to-emerald-300 shadow-emerald-500/25 ring-2 ring-emerald-300/40'
+                : 'bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-space-950 hover:from-amber-400 hover:to-amber-300 shadow-amber-500/25'
+            }`}
           >
             <Sparkles className="w-4 h-4" />
-            <span>이 삶으로 진주에서 시작하기</span>
+            <span>
+              {isEduMode ? '🎓 교육용 모드로 진주에서 시작하기' : '🏛️ 이 삶으로 진주에서 시작하기'}
+            </span>
             <ArrowRight className="w-4 h-4" />
           </button>
           
