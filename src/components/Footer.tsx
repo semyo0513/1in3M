@@ -2,7 +2,7 @@ import React from 'react';
 
 export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
-    <footer className={`app-footer w-full px-4 py-3 sm:py-3.5 border-t border-slate-800/80 bg-space-950/90 text-center text-[11px] sm:text-xs text-slate-400 shrink-0 select-none z-10 ${className}`} role="contentinfo">
+    <footer className={`app-footer w-full px-3 sm:px-4 py-1.5 sm:py-2 border-t border-slate-800/80 bg-space-950/90 text-center text-[10px] sm:text-xs text-slate-400 shrink-0 select-none z-10 ${className}`} role="contentinfo">
       <p className="copyright-notice leading-relaxed max-w-4xl mx-auto break-keep">
         「80억 분의 1」(
         <a

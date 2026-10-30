@@ -57,10 +57,10 @@ export const SideDashboard: React.FC<SideDashboardProps> = ({
   };
 
   return (
-    <div className="bg-space-900 border-l border-space-700 w-full lg:w-84 xl:w-96 flex flex-col h-full text-xs">
+    <div className="w-full h-full min-w-0 min-h-0 flex flex-col bg-space-900 lg:border-l border-space-700 text-xs">
       
       {/* 사이드바 상단 탭 헤더 */}
-      <div className="p-2 sm:p-2.5 border-b border-space-700 bg-space-950/80">
+      <div className="p-2 sm:p-2.5 border-b border-space-700 bg-space-950/80 shrink-0 w-full min-w-0">
         <div className="flex rounded-xl bg-space-850 p-1 border border-slate-800">
           <button
             onClick={() => handleTabClick('impact')}
@@ -95,7 +95,7 @@ export const SideDashboard: React.FC<SideDashboardProps> = ({
 
       {/* 탭 1: 내 선택으로 변화된 상황 (명시적 피드백) */}
       {activeTab === 'impact' && (
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 space-y-4 pb-28 sm:pb-8 w-full min-w-0 custom-scrollbar">
           
           {/* 최근 내 선택 피드백 카드 */}
           {latestChoice ? (
@@ -224,13 +224,13 @@ export const SideDashboard: React.FC<SideDashboardProps> = ({
               <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                 {choicesHistory.slice().reverse().map((c, i) => (
                   <div key={i} className="p-2.5 rounded-lg bg-space-850 border border-slate-800 text-[11px]">
-                    <div className="flex justify-between items-center font-semibold mb-0.5">
-                      <span className="text-slate-200 truncate max-w-[190px]">{c.issueTitle}</span>
+                    <div className="flex justify-between items-center font-semibold mb-0.5 min-w-0 gap-2">
+                      <span className="text-slate-200 truncate flex-1 min-w-0">{c.issueTitle}</span>
                       <span className="text-amber-300 font-mono shrink-0 ml-1">
                         {c.age}세 · {c.stance}
                       </span>
                     </div>
-                    <div className="text-slate-400 text-[10px] line-clamp-1">
+                    <div className="text-slate-400 text-[10px] line-clamp-1 break-all">
                       "{c.reason}"
                     </div>
                   </div>
@@ -244,7 +244,7 @@ export const SideDashboard: React.FC<SideDashboardProps> = ({
 
       {/* 탭 2: 동시 출생 코호트 (동갑내기 4인) */}
       {activeTab === 'cohort' && (
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3">
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 space-y-3 pb-28 sm:pb-8 w-full min-w-0 custom-scrollbar">
           <div className="flex items-center justify-between pb-1 border-b border-slate-800">
             <span className="font-semibold text-slate-300">
               {birthYear}년생 동갑내기 4인
@@ -268,22 +268,22 @@ export const SideDashboard: React.FC<SideDashboardProps> = ({
                     : 'bg-space-950/40 border-slate-900 text-slate-500 opacity-60'
                 }`}
               >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-bold text-slate-200 text-xs flex items-center gap-1.5">
-                    <span className={`w-1.5 h-1.5 rounded-full ${p.isAlive ? 'bg-sky-400' : 'bg-slate-600'}`}></span>
-                    {p.name}
+                <div className="flex items-center justify-between mb-1 min-w-0 gap-2">
+                  <span className="font-bold text-slate-200 text-xs flex items-center gap-1.5 min-w-0 truncate">
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${p.isAlive ? 'bg-sky-400' : 'bg-slate-600'}`}></span>
+                    <span className="truncate">{p.name}</span>
                   </span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-space-800 text-slate-400 border border-slate-700/60 flex items-center gap-1">
-                    <MapPin className="w-2.5 h-2.5 text-sky-400" />
-                    {p.district}
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-space-800 text-slate-400 border border-slate-700/60 flex items-center gap-1 shrink-0">
+                    <MapPin className="w-2.5 h-2.5 text-sky-400 shrink-0" />
+                    <span>{p.district}</span>
                   </span>
                 </div>
 
-                <div className="text-[11px] text-amber-300/90 font-medium mb-1">
+                <div className="text-[11px] text-amber-300/90 font-medium mb-1 truncate">
                   {p.job}
                 </div>
 
-                <p className="text-[11px] text-slate-400 leading-normal font-sans">
+                <p className="text-[11px] text-slate-400 leading-normal font-sans break-keep">
                   {p.statusText}
                 </p>
               </div>
