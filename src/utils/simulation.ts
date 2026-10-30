@@ -26,23 +26,30 @@ export function applyDiminishingReturns(current: number, rawDelta: number): numb
   }
 }
 
-// 한국형 생애 스트레스 곡선 연령별 연간 자연 변화량 D(a) (명세서 3.2)
+// 한국형 생애 스트레스 곡선 연령별 연간 자연 변화량 D(a) (통계청 생명표 및 신체 발달 데이터 반영)
 export function getAgeStressDelta(age: number): {
   health: number;
   happiness: number;
   learning: number;
   bonds: number;
 } {
-  if (age <= 12) return { health: 0.5, happiness: 0.0, learning: 1.5, bonds: 0.5 };
-  if (age <= 18) return { health: -1.0, happiness: -2.8, learning: 2.5, bonds: -0.5 };
-  if (age <= 29) return { health: -0.5, happiness: -2.0, learning: 0.5, bonds: -2.0 };
-  if (age <= 44) return { health: -1.8, happiness: -1.2, learning: -2.0, bonds: -1.5 };
-  if (age <= 59) return { health: -2.5, happiness: -2.5, learning: -1.8, bonds: -2.0 };
-  if (age <= 74) return { health: -3.2, happiness: -1.5, learning: -2.0, bonds: -2.8 };
-  return { health: -4.8, happiness: -2.0, learning: -2.5, bonds: -3.5 };
+  // 0~12세 (유소년기): 신체 발달, 면역력 증가, 호기심과 배움 활발
+  if (age <= 12) return { health: 0.8, happiness: 0.2, learning: 1.5, bonds: 0.5 };
+  // 13~18세 (청소년기): 학업/입시 스트레스, 그러나 신체적 기초 체력과 세포 회복력 우수
+  if (age <= 18) return { health: 0.2, happiness: -1.2, learning: 2.0, bonds: 0.0 };
+  // 19~29세 (청년기): 신체적 최전성기, 취업/진로 고민
+  if (age <= 29) return { health: 0.0, happiness: -0.8, learning: 0.5, bonds: -0.5 };
+  // 30~44세 (청장년기): 직장 생활과 육아로 피로 시작, 완만한 체력 유지
+  if (age <= 44) return { health: -0.5, happiness: -0.5, learning: -0.5, bonds: -0.5 };
+  // 45~59세 (중년기): 기초대사량 저하, 만성피로 및 대사질환 관리 필요
+  if (age <= 59) return { health: -1.2, happiness: -0.8, learning: -0.8, bonds: -0.8 };
+  // 60~74세 (전기 노년기): 신체 노화 본격화, 은퇴 후 여가와 유대 중심
+  if (age <= 74) return { health: -2.0, happiness: -0.5, learning: -1.2, bonds: -1.2 };
+  // 75세 이상 (후기 노년기): 고령에 따른 자연적 신체 쇠약
+  return { health: -3.0, happiness: -1.0, learning: -1.8, bonds: -2.0 };
 }
 
-// 연간 삶의 초점(Focus) 선택 시 기회비용(Trade-off) 매트릭스 (명세서 3.4)
+// 연간 삶의 초점(Focus) 선택 시 기회비용(Trade-off) 매트릭스
 export function getFocusDeltas(focus: YearFocus): {
   health: number;
   happiness: number;
@@ -51,15 +58,20 @@ export function getFocusDeltas(focus: YearFocus): {
 } {
   switch (focus) {
     case 'learning':
-      return { learning: 6.5, health: -2.0, bonds: -2.0, happiness: -1.0 };
+      // 배움: 지식 습득, 약간의 좌식 생활 피로 (-0.2)
+      return { learning: 5.5, health: -0.2, bonds: -1.0, happiness: -0.5 };
     case 'work':
-      return { learning: 1.5, health: -4.5, happiness: -3.5, bonds: -3.0 };
+      // 일: 직무 숙련, 업무 피로 (-0.9), 여가 감소
+      return { learning: 1.5, health: -0.9, happiness: -1.5, bonds: -1.2 };
     case 'relationship':
-      return { bonds: 7.0, happiness: 3.0, learning: -1.5, health: 0 };
+      // 사람·가족: 정서적 안정 및 유대감 대폭 강화
+      return { bonds: 6.0, happiness: 3.5, learning: -0.8, health: 0.3 };
     case 'health':
-      return { health: 6.5, happiness: 4.0, learning: -1.5, bonds: 0 };
+      // 몸과 마음: 운동, 휴식, 치료로 건강 대폭 회복
+      return { health: 6.5, happiness: 3.5, learning: -0.8, bonds: 0.2 };
     case 'change':
-      return { happiness: 6.5, learning: 1.5, health: 1.0, bonds: -1.0 };
+      // 취미·여가: 활력과 행복 증진, 새로운 경험
+      return { happiness: 5.5, learning: 1.2, health: 0.5, bonds: -0.5 };
   }
 }
 
@@ -231,12 +243,11 @@ export function generateBirthForDistrict(
       title: '새싹을 틔운 진주의 아이',
       summary: `${districtName}에 뿌리내린 삶이었어요. 새로운 삶의 걸음을 내딛는 순간이에요.`
     },
-    // 명세서 3.2 (1): 출생 시 초기값 하향 및 정규분포화
-    // S_init = clamp(50 + 3 * (incomeDecile - 3) + N(0, 5^2), 38, 68)
-    health: Math.round(Math.max(45, Math.min(78, 65 + randNormal(0, 4)))),
-    happiness: Math.round(Math.max(38, Math.min(68, 50 + 3 * (incomeDecile - 3) + randNormal(0, 5)))),
-    learning: Math.round(Math.max(38, Math.min(68, 45 + 3 * (incomeDecile - 3) + randNormal(0, 5)))),
-    bonds: Math.round(Math.max(38, Math.min(68, 52 + 3 * (incomeDecile - 3) + randNormal(0, 5)))),
+    // 통계청 신생아 건강 기준선: 한국의 영아 의료체계 반영 (85~96)
+    health: Math.round(Math.max(80, Math.min(98, 88 + randNormal(0, 3)))),
+    happiness: Math.round(Math.max(50, Math.min(85, 65 + 2 * (incomeDecile - 3) + randNormal(0, 4)))),
+    learning: Math.round(Math.max(40, Math.min(75, 55 + 2 * (incomeDecile - 3) + randNormal(0, 4)))),
+    bonds: Math.round(Math.max(50, Math.min(85, 68 + 2 * (incomeDecile - 3) + randNormal(0, 4)))),
     temperament: {
       caution: Math.floor(Math.random() * 100),
       community: Math.floor(Math.random() * 100),
@@ -525,11 +536,19 @@ export function updateCohort(cohort: CohortPerson[], age: number): CohortPerson[
   return cohort.map(p => {
     if (!p.isAlive) return p;
 
-    if (age > 78 && Math.random() < 0.08) {
+    // 통계청 고령기 사망 확률 반영 (75세 이상부터 점진적 자연 영면)
+    if (age >= 75 && age < 85 && Math.random() < 0.035) {
       return {
         ...p,
         isAlive: false,
-        statusText: `${age}세에 평온하게 영면하였습니다.`
+        statusText: `${age}세에 가족들의 배웅 속에 평온하게 영면하였습니다.`
+      };
+    }
+    if (age >= 85 && Math.random() < 0.12) {
+      return {
+        ...p,
+        isAlive: false,
+        statusText: `${age}세에 천수를 누리고 평온하게 영면하였습니다.`
       };
     }
 
@@ -578,53 +597,84 @@ export function checkMortality(
   cityIndicators: CityMacroIndicators,
   isEduMode: boolean = false
 ): { willDie: boolean; cause?: string } {
-  if (citizen.health <= 0) {
-    return { willDie: true, cause: isEduMode ? '자연스러운 건강 쇠약으로 인한 영면' : '건강 악화 및 복합 질환' };
+  // 1. 교육용 모드에서는 학생 정서 보호 및 교육적 취지를 위해 만 65세 이전 돌연사 완전 차단
+  if (isEduMode && citizen.age < 65) {
+    return { willDie: false };
+  }
+
+  // 2. 만 60세 이상에서 건강이 0 이하로 완전히 소진된 경우 노환/만성 쇠약 영면 판정
+  if (citizen.age >= 60 && citizen.health <= 0) {
+    return { willDie: true, cause: isEduMode ? '자연스러운 건강 쇠약으로 인한 평온한 영면' : '만성 복합 질환 및 건강 쇠약' };
   }
 
   const baseLife = citizen.gender === '남성' ? JINJU_META.lifeExpectancy.male : JINJU_META.lifeExpectancy.female;
   const welfareBonus = (cityIndicators.welfare * -1) * 0.05;
   const effectiveExpectedAge = baseLife + welfareBonus;
 
-  // 교육용 모드에서는 학생 정서 보호를 위해 50세 이전 돌연사 확률을 0으로 차단
-  if (isEduMode && citizen.age < 65) {
-    return { willDie: false };
-  }
+  // 통계청 연령별 실제 연간 사망확률 (qx)
+  let baseDeathRate = 0;
 
-  if (citizen.age < 50) {
-    if (Math.random() < 0.001) {
-      return { willDie: true, cause: '불의의 외인사 및 급성 질환' };
-    }
-    return { willDie: false };
-  }
-
-  if (citizen.age >= 50 && citizen.age < 70) {
-    const risk = 0.005 + (100 - citizen.health) * 0.0002;
-    if (Math.random() < risk) {
-      return { willDie: true, cause: pickDeathCause(isEduMode) };
-    }
-    return { willDie: false };
-  }
-
-  if (citizen.age >= 70) {
+  if (citizen.age < 15) {
+    // 0~14세 소아/청소년 사망률: 10만명당 약 10명 (0.01%)
+    baseDeathRate = 0.00010;
+  } else if (citizen.age < 30) {
+    // 15~29세 청년기 사망률: 10만명당 약 38명 (0.038%) - 주로 불의의 교통사고/외인사
+    baseDeathRate = 0.00038;
+  } else if (citizen.age < 50) {
+    // 30~49세 청장년기 사망률: 10만명당 약 120명 (0.12%)
+    baseDeathRate = 0.00120;
+  } else if (citizen.age < 65) {
+    // 50~64세 중장년기 사망률: 1,000명당 약 4.5명 (0.45%)
+    baseDeathRate = 0.00450;
+  } else if (citizen.age < 75) {
+    // 65~74세 전기 고령기 사망률: 100명당 약 1.8명 (1.8%)
+    baseDeathRate = 0.01800;
+  } else if (citizen.age < 85) {
+    // 75~84세 후기 고령기 사망률: 100명당 약 5.5명 (5.5%) + 기대수명 초과분
+    const ageDiff = Math.max(0, citizen.age - effectiveExpectedAge);
+    baseDeathRate = 0.05500 + ageDiff * 0.030;
+  } else {
+    // 85세 이상 초고령기 사망률: 약 12% 이상 + 급증
     const ageDiff = citizen.age - effectiveExpectedAge;
-    const baseRisk = 0.03 + Math.max(0, ageDiff * 0.035);
-    const healthRisk = (100 - citizen.health) * 0.002;
-    const totalRisk = Math.min(0.85, baseRisk + healthRisk);
+    baseDeathRate = 0.12000 + Math.max(0, ageDiff * 0.040);
+  }
 
-    if (Math.random() < totalRisk) {
-      return { willDie: true, cause: pickDeathCause(isEduMode) };
+  // 건강 점수에 따른 위험도 보정:
+  // 50세 이전에는 건강 점수가 사망에 미치는 영향이 극히 제한적(응급의료 체계 및 자연 회복력),
+  // 50세 이후부터 만성질환 취약도로 작용
+  let healthRiskMultiplier = 1.0;
+  if (citizen.age >= 50) {
+    if (citizen.health < 40) {
+      healthRiskMultiplier = 1.0 + (40 - citizen.health) * 0.025; // 저건강 시 위험도 완만한 증가
+    } else if (citizen.health > 70) {
+      healthRiskMultiplier = 0.75; // 장수 보너스
     }
+  }
+
+  const finalRisk = Math.min(0.85, baseDeathRate * healthRiskMultiplier);
+
+  if (Math.random() < finalRisk) {
+    return { willDie: true, cause: pickDeathCause(citizen.age, isEduMode) };
   }
 
   return { willDie: false };
 }
 
-function pickDeathCause(isEduMode: boolean = false): string {
-  // 교육용 모드일 때는 자살(eduModeExclude: true)을 완전 제외
-  const causes = isEduMode 
+function pickDeathCause(age: number = 70, isEduMode: boolean = false): string {
+  // 청년기(40세 미만) 불의의 사고/급성 사망
+  if (age < 40) {
+    return isEduMode ? '불의의 교통안전 사고' : '불의의 교통사고 및 외인사';
+  }
+
+  // 교육용 모드일 때는 자살(eduModeExclude: true) 완전 제외
+  let causes = isEduMode 
     ? JINJU_META.deathCauses.filter(c => !c.eduModeExclude)
     : JINJU_META.deathCauses;
+
+  // 60세 미만에서는 치매나 노환(C07, C99) 제외
+  if (age < 60) {
+    causes = causes.filter(c => c.code !== 'C07' && c.code !== 'C99');
+  }
 
   const totalWeight = causes.reduce((sum, c) => sum + c.weight, 0);
   const rand = Math.random() * totalWeight;

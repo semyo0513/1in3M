@@ -216,8 +216,13 @@ export const App: React.FC = () => {
       const debtPenaltyHappiness = prevCitizen.hasDebtRisk ? -1.5 : 0;
       const debtPenaltyHealth = prevCitizen.hasDebtRisk ? -1.0 : 0;
 
+      // 4-1. 청년기 생체 항상성 및 자연 회복력 (만 45세 미만 저하 시 완만한 자연 회복)
+      const youthHealthRecovery = (nextAge < 45 && prevCitizen.health < 75)
+        ? Math.min(2.5, (75 - prevCitizen.health) * 0.12)
+        : 0;
+
       // 5. 합산 원시 변동치
-      const rawDHealth = fDeltas.health + aDeltas.health + debtPenaltyHealth;
+      const rawDHealth = fDeltas.health + aDeltas.health + debtPenaltyHealth + youthHealthRecovery;
       const rawDHappiness = fDeltas.happiness + aDeltas.happiness + happyReversion + debtPenaltyHappiness;
       const rawDLearning = fDeltas.learning + aDeltas.learning;
       const rawDBonds = fDeltas.bonds + aDeltas.bonds;
@@ -227,6 +232,14 @@ export const App: React.FC = () => {
       let happiness = Math.max(0, Math.min(100, Math.round(prevCitizen.happiness + applyDiminishingReturns(prevCitizen.happiness, rawDHappiness))));
       let learning = Math.max(0, Math.min(100, Math.round(prevCitizen.learning + applyDiminishingReturns(prevCitizen.learning, rawDLearning))));
       let bonds = Math.max(0, Math.min(100, Math.round(prevCitizen.bonds + applyDiminishingReturns(prevCitizen.bonds, rawDBonds))));
+
+      // 6-1. 현대 응급의료 및 지역 의료 안전망 (경상국립대학교병원 등)
+      // 만 45세 미만 청년기에 질병/과로로 건강이 15 미만으로 떨어졌을 때 응급 처치로 안정화
+      let medicalIntervention = false;
+      if (nextAge < 45 && health < 15) {
+        health = 35;
+        medicalIntervention = true;
+      }
 
       // 7. 쿨타임 매년 1씩 차감 (명세서 1.2)
       const nextCooldowns: Record<string, number> = {};
@@ -352,6 +365,22 @@ export const App: React.FC = () => {
             type: 'milestone',
             label: 'PERSONAL',
             text: `정들었던 ${tempCitizen.highSchool} 교정을 나서며 졸업장을 품에 안았습니다. 함께 웃고 울던 친구들과 성인의 길목에 섭니다.`
+          }
+        ]);
+      }
+
+      // 12-1. 청년기 응급의료 회복 로그 (20~30대 돌연사 방지 및 지역 공공의료 체계)
+      if (medicalIntervention) {
+        setTimeline(t => [
+          ...t,
+          {
+            id: `log_med_rescue_${nextAge}`,
+            year: nextYear,
+            age: nextAge,
+            type: 'milestone',
+            label: 'FACT',
+            sourceNote: '진주시 권역응급의료센터 (경상국립대학교병원)',
+            text: `과로와 건강 악화로 고비를 맞았으나, 진주 경상국립대학교병원 응급의료센터의 집중 치료와 가족들의 간호로 회복세를 찾았습니다.`
           }
         ]);
       }
