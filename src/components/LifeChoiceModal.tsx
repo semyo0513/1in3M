@@ -43,6 +43,8 @@ export const LifeChoiceModal: React.FC<LifeChoiceModalProps> = ({
         return 'from-purple-950/80 to-space-900 border-purple-500/40 text-purple-300';
       case 'MEDICAL':
         return 'from-teal-950/80 to-space-900 border-teal-500/40 text-teal-300';
+      case 'WEALTH_GROWTH':
+        return 'from-amber-950/90 via-yellow-950/40 to-space-900 border-amber-400/50 text-amber-200';
       default:
         return 'from-amber-950/80 to-space-900 border-amber-500/40 text-amber-300';
     }
@@ -166,6 +168,13 @@ export const LifeChoiceModal: React.FC<LifeChoiceModalProps> = ({
                         option.effects.spend > 0 ? 'bg-teal-950/60 border-teal-500/30 text-teal-300' : 'bg-orange-950/60 border-orange-500/30 text-orange-300'
                       }`}>
                         {option.effects.spend > 0 ? '가계 지출 절감' : option.effects.spend < -2 ? '막대한 가계 지출' : '가계 지출 발생'}
+                      </span>
+                    )}
+                    {option.effects.netWorthChange !== undefined && option.effects.netWorthChange !== 0 && (
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${
+                        option.effects.netWorthChange > 0 ? 'bg-amber-950/70 border-amber-400/50 text-amber-300 font-bold' : 'bg-rose-950/60 border-rose-500/40 text-rose-300'
+                      }`}>
+                        자산 {option.effects.netWorthChange > 0 ? `+${Math.floor(option.effects.netWorthChange / 10000).toLocaleString('ko-KR')}만 원` : `${Math.floor(option.effects.netWorthChange / 10000).toLocaleString('ko-KR')}만 원`}
                       </span>
                     )}
                   </div>

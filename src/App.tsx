@@ -252,6 +252,27 @@ export const App: React.FC = () => {
       // 프로필 발전 (학력, 직업, 소득, 재산, 배우자, 자녀, 곁을 지키는 사람, 행복한 해, 시간 누적, 삶의 결, 연령별 취미 자동전환)
       const profileUpdates = advanceCitizenProfile(prevCitizen, nextAge, nextYear, focus);
 
+      // 6-2. 학력 및 생애 경험에 따른 '결정성 지능(Crystalized Knowledge)' 배움 영구 하한선 보장
+      // 학교 교육을 이수하고 평생을 살아온 인간의 지식·상식·경험적 지혜는 0으로 소멸하지 않음
+      let learningFloor = 20;
+      if (profileUpdates.education.includes('대학교') || profileUpdates.education.includes('학사')) {
+        learningFloor = 55;
+      } else if (profileUpdates.education.includes('고등학교')) {
+        learningFloor = 45;
+      } else if (profileUpdates.education.includes('중학교')) {
+        learningFloor = 35;
+      } else if (profileUpdates.education.includes('초등학교')) {
+        learningFloor = 25;
+      }
+      learning = Math.max(learningFloor, learning);
+
+      // 6-3. 가족 및 지역 공동체(배우자, 자녀, 친구) 기반 유대 하한선 보장
+      // 평생 배우자나 자녀와 함께 살아온 시민의 관계망이 0~10으로 곤두박질치지 않음
+      let bondsFloor = 18;
+      if (profileUpdates.spouse && !profileUpdates.spouse.passedAway) bondsFloor += 24;
+      if (profileUpdates.childrenCount > 0) bondsFloor += 14;
+      bonds = Math.max(bondsFloor, bonds);
+
       const tempCitizen: CitizenStatus = {
         ...prevCitizen,
         ...profileUpdates,
@@ -516,8 +537,15 @@ export const App: React.FC = () => {
       else if (option.optionId === 'HOBBY_READ_ROOT') nextHobby = '독서와 작은 도서관 모임';
       else if (option.optionId === 'HOBBY_MUSIC_ROOT') nextHobby = '통기타·건반 연주 및 아마추어 밴드';
 
+      // 자산 직접 변동액(청약, 부동산 매매, 투자, 자녀 지원 등) 반영
+      let nextNetWorth = prev.netWorthWon;
+      if (eff.netWorthChange) {
+        nextNetWorth = Math.max(0, nextNetWorth + eff.netWorthChange);
+      }
+
       return {
         ...prev,
+        netWorthWon: nextNetWorth,
         health: Math.max(0, Math.min(100, Math.round(prev.health + dHealth))),
         happiness: Math.max(0, Math.min(100, Math.round(prev.happiness + dHappiness))),
         learning: Math.max(0, Math.min(100, Math.round(prev.learning + dLearning))),

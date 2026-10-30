@@ -168,6 +168,31 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
               <span className="text-yellow-300 font-mono font-bold">
                 {formatWealth(citizen.netWorthWon)}
               </span>
+              {citizen.flags?.has('HOME_OWNER_CHUNGMUGONG') && (
+                <span className="px-1.5 py-0.2 rounded text-[10px] bg-sky-950/80 border border-sky-500/40 text-sky-300 font-semibold">
+                  혁신도시 자가
+                </span>
+              )}
+              {citizen.flags?.has('HOME_OWNER_CHOJEON') && (
+                <span className="px-1.5 py-0.2 rounded text-[10px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-semibold">
+                  초전·평거 자가
+                </span>
+              )}
+              {citizen.flags?.has('COMPOUND_INVESTOR') && (
+                <span className="px-1.5 py-0.2 rounded text-[10px] bg-amber-950/80 border border-amber-500/40 text-amber-300 font-semibold">
+                  복리 투자
+                </span>
+              )}
+              {citizen.flags?.has('REVERSE_MORTGAGE') && (
+                <span className="px-1.5 py-0.2 rounded text-[10px] bg-teal-950/80 border border-teal-500/40 text-teal-300 font-semibold">
+                  주택연금 종신
+                </span>
+              )}
+              {citizen.flags?.has('SOLID_PENSION') && (
+                <span className="px-1.5 py-0.2 rounded text-[10px] bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-semibold">
+                  IRP 연금
+                </span>
+              )}
               {citizen.hasDebtRisk && (
                 <span className="px-1.5 py-0.2 rounded text-[10px] bg-rose-950 border border-rose-500/40 text-rose-300 font-bold">
                   부채 위험

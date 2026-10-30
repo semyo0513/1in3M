@@ -218,7 +218,8 @@ export type LifeChoiceCategory =
   | 'CHILDCARE'       // 30~42세 출산 및 직장 규모별 육아 분기
   | 'SPEND'           // 생애 3대 고정비 (30대 주거비 / 40대 사교육비 / 소비 기조)
   | 'HOBBY'           // 4대 취미 심화 및 서울 원정비용
-  | 'MEDICAL';        // 3대 한국형 의료 딜레마 (시간 부족, 비급여, 빅5 원정)
+  | 'MEDICAL'         // 3대 한국형 의료 딜레마 (시간 부족, 비급여, 빅5 원정)
+  | 'WEALTH_GROWTH';  // 종잣돈, 청약·내 집 마련, 자산 증식 및 노후 연금
 
 export interface LifeChoiceOption {
   optionId: string;
@@ -237,6 +238,7 @@ export interface LifeChoiceOption {
     bonds?: number;
     incomeChange?: number;
     spend?: number; // 가계 지출 부담 수준 (-3: 막대함, 0: 없음, +1: 절감)
+    netWorthChange?: number; // 가계 순자산 직접 변동액 (원)
   };
   grantFlag?: string;
   removeFlag?: string;

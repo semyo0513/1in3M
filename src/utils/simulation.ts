@@ -36,17 +36,17 @@ export function getAgeStressDelta(age: number): {
   // 0~12세 (유소년기): 신체 발달, 면역력 증가, 호기심과 배움 활발
   if (age <= 12) return { health: 0.8, happiness: 0.2, learning: 1.5, bonds: 0.5 };
   // 13~18세 (청소년기): 학업/입시 스트레스, 그러나 신체적 기초 체력과 세포 회복력 우수
-  if (age <= 18) return { health: 0.2, happiness: -1.2, learning: 2.0, bonds: 0.0 };
+  if (age <= 18) return { health: 0.2, happiness: -1.0, learning: 2.0, bonds: 0.0 };
   // 19~29세 (청년기): 신체적 최전성기, 취업/진로 고민
-  if (age <= 29) return { health: 0.0, happiness: -0.8, learning: 0.5, bonds: -0.5 };
-  // 30~44세 (청장년기): 직장 생활과 육아로 피로 시작, 완만한 체력 유지
-  if (age <= 44) return { health: -0.5, happiness: -0.5, learning: -0.5, bonds: -0.5 };
-  // 45~59세 (중년기): 기초대사량 저하, 만성피로 및 대사질환 관리 필요
-  if (age <= 59) return { health: -1.2, happiness: -0.8, learning: -0.8, bonds: -0.8 };
-  // 60~74세 (전기 노년기): 신체 노화 본격화, 은퇴 후 여가와 유대 중심
-  if (age <= 74) return { health: -2.0, happiness: -0.5, learning: -1.2, bonds: -1.2 };
-  // 75세 이상 (후기 노년기): 고령에 따른 자연적 신체 쇠약
-  return { health: -3.0, happiness: -1.0, learning: -1.8, bonds: -2.0 };
+  if (age <= 29) return { health: 0.0, happiness: -0.6, learning: 0.5, bonds: -0.2 };
+  // 30~44세 (청장년기): 직장 생활과 사회 적응, 업무 지식 및 실무 능력 축적
+  if (age <= 44) return { health: -0.5, happiness: -0.3, learning: 0.2, bonds: 0.0 };
+  // 45~59세 (중년기): 직무 전문성 정점, 인생의 연륜과 성숙한 유대
+  if (age <= 59) return { health: -1.2, happiness: -0.4, learning: 0.2, bonds: 0.1 };
+  // 60~74세 (전기 노년기): 은퇴 후 여가, 손주, 복지관/동호회 교류 활성화 (결정성 지능 유지)
+  if (age <= 74) return { health: -2.0, happiness: -0.2, learning: -0.1, bonds: 0.2 };
+  // 75세 이상 (후기 노년기): 고령에 따른 신체 쇠약과 친구들의 사별로 인한 완만한 감퇴
+  return { health: -3.0, happiness: -0.6, learning: -0.3, bonds: -0.4 };
 }
 
 // 연간 삶의 초점(Focus) 선택 시 기회비용(Trade-off) 매트릭스
@@ -58,20 +58,20 @@ export function getFocusDeltas(focus: YearFocus): {
 } {
   switch (focus) {
     case 'learning':
-      // 배움: 지식 습득, 약간의 좌식 생활 피로 (-0.2)
-      return { learning: 5.5, health: -0.2, bonds: -1.0, happiness: -0.5 };
+      // 배움: 지식 습득, 학업 및 전문 자격증 성취
+      return { learning: 5.5, health: -0.2, bonds: -0.4, happiness: 0.5 };
     case 'work':
-      // 일: 직무 숙련, 업무 피로 (-0.9), 여가 감소
-      return { learning: 1.5, health: -0.9, happiness: -1.5, bonds: -1.2 };
+      // 일: 직무 숙련 및 경력 개발 (실무 배움 축적), 업무 피로 (-0.9), 여가 감소
+      return { learning: 2.0, health: -0.9, happiness: -1.0, bonds: -0.4 };
     case 'relationship':
-      // 사람·가족: 정서적 안정 및 유대감 대폭 강화
-      return { bonds: 6.0, happiness: 3.5, learning: -0.8, health: 0.3 };
+      // 사람·가족: 정서적 안정 및 유대감 대폭 강화 (배움 지식은 소멸하지 않음)
+      return { bonds: 5.5, happiness: 3.5, learning: 0.0, health: 0.3 };
     case 'health':
       // 몸과 마음: 운동, 휴식, 치료로 건강 대폭 회복
-      return { health: 6.5, happiness: 3.5, learning: -0.8, bonds: 0.2 };
+      return { health: 6.5, happiness: 3.5, learning: 0.0, bonds: 0.2 };
     case 'change':
-      // 취미·여가: 활력과 행복 증진, 새로운 경험
-      return { happiness: 5.5, learning: 1.2, health: 0.5, bonds: -0.5 };
+      // 취미·여가: 활력과 행복 증진, 새로운 세상 경험
+      return { happiness: 5.5, learning: 1.5, health: 0.5, bonds: 0.0 };
   }
 }
 
@@ -361,27 +361,65 @@ export function advanceCitizenProfile(
     jobTitle = '부장 · 은퇴';
   }
 
-  // 4. 월소득 및 순자산 (저축 누적)
+  // 4. 월소득 및 순자산 (저축 누적, 부동산 자산 상승, 복리 투자, 연금 체계)
   let monthlyIncomeWon = 0;
   if (nextAge < 8) monthlyIncomeWon = 0;
   else if (nextAge <= 13) monthlyIncomeWon = 30000;
   else if (nextAge <= 16) monthlyIncomeWon = 70000;
   else if (nextAge <= 19) monthlyIncomeWon = 150000;
-  else if (nextAge <= 24) monthlyIncomeWon = education.includes('대학교') ? 450000 : 1800000;
-  else if (nextAge <= 34) monthlyIncomeWon = prev.incomeDecile * 600000 + 1800000;
-  else if (nextAge <= 44) monthlyIncomeWon = prev.incomeDecile * 850000 + 2200000;
-  else if (nextAge <= 58) monthlyIncomeWon = prev.incomeDecile * 1000000 + 2600000;
-  else if (nextAge <= 64) monthlyIncomeWon = prev.incomeDecile * 800000 + 2000000;
-  else monthlyIncomeWon = prev.incomeDecile * 250000 + 1300000; // 은퇴 연금
+  else if (nextAge <= 24) monthlyIncomeWon = education.includes('대학교') ? 450000 : 2100000;
+  else if (nextAge <= 34) monthlyIncomeWon = prev.incomeDecile * 700000 + 2000000;
+  else if (nextAge <= 44) monthlyIncomeWon = prev.incomeDecile * 950000 + 2600000;
+  else if (nextAge <= 58) monthlyIncomeWon = prev.incomeDecile * 1150000 + 3200000;
+  else if (nextAge <= 64) monthlyIncomeWon = prev.incomeDecile * 850000 + 2400000;
+  else {
+    // 65세 이상 기본 국민연금
+    let pension = prev.incomeDecile * 280000 + 1400000;
+    // 개인형 IRP/퇴직연금 추가 수령
+    if (prev.flags?.has('SOLID_PENSION') || prev.flags?.has('BALANCED_RETIREMENT')) {
+      pension += 800000;
+    }
+    // 주택연금 종신 수령 추가
+    if (prev.flags?.has('REVERSE_MORTGAGE')) {
+      pension += 1500000;
+    }
+    monthlyIncomeWon = pension;
+  }
+
+  // 부업/배당 등 현금흐름 추가
+  if (prev.flags?.has('LOCAL_ENTREPRENEUR') && nextAge <= 64) {
+    monthlyIncomeWon += 700000;
+  }
+  if (prev.flags?.has('DIVIDEND_CASHFLOW')) {
+    monthlyIncomeWon += 400000;
+  }
 
   let netWorthWon = prev.netWorthWon || 500000;
   if (nextAge < 20) {
     netWorthWon += Math.floor(monthlyIncomeWon * 12 * 0.4);
   } else if (nextAge <= 64) {
-    const saveRate = focus === 'work' ? 0.35 : 0.25;
-    netWorthWon += Math.floor(monthlyIncomeWon * 12 * saveRate);
+    const saveRate = focus === 'work' ? 0.38 : (focus === 'learning' ? 0.22 : 0.28);
+    const yearlySavings = Math.floor(monthlyIncomeWon * 12 * saveRate);
+    netWorthWon += yearlySavings;
+
+    // 부동산 보유 시 매년 인플레이션 및 도시 성장(혁신도시/초전/평거) 자산 가치 상승 (연 2.4%)
+    if (prev.flags?.has('HOME_OWNER_CHUNGMUGONG') || prev.flags?.has('HOME_OWNER_CHOJEON') || prev.flags?.has('WEALTH_EXPANDED')) {
+      const propertyGrowth = Math.floor(netWorthWon * 0.024);
+      netWorthWon += propertyGrowth;
+    }
+
+    // 복리 투자자(ETF/우량주 적립식) 장기 복리 수익 (연 3.5%)
+    if (prev.flags?.has('COMPOUND_INVESTOR')) {
+      const investGain = Math.floor(netWorthWon * 0.035);
+      netWorthWon += investGain;
+    }
   } else {
-    netWorthWon = Math.max(10000000, netWorthWon - 1500000);
+    // 은퇴 후: 주택연금/개인연금이 있으면 자산 보전, 없으면 완만한 생활비 소진
+    if (prev.flags?.has('REVERSE_MORTGAGE') || prev.flags?.has('SOLID_PENSION')) {
+      netWorthWon = Math.max(60000000, netWorthWon);
+    } else {
+      netWorthWon = Math.max(30000000, netWorthWon - 2500000);
+    }
   }
 
   // 5. 배우자 및 자녀

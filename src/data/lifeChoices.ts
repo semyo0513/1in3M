@@ -649,6 +649,178 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
         consequenceText: '자식들에게 짐이 되기 싫어 아픔을 숨기며 버텼지만 병세가 눈에 띄게 악화되었습니다. 가족들의 마음이 무겁게 가라앉습니다.'
       }
     ]
+  },
+
+  // 8. [23~26세] 청년기 첫 자산 형성: 종잣돈과 재테크의 갈림길 (실제 청년 금융 데이터)
+  {
+    choiceCardId: 'LC_WEALTH_20S',
+    category: 'WEALTH_GROWTH',
+    categoryName: '청년기 자산 형성',
+    title: '첫 월급과 종잣돈 3,000만 원 모으기',
+    ageRange: [23, 26],
+    body: '첫 직장 생활을 시작하며 매달 통장에 월급이 들어옵니다. 사회초년생 시기에는 소비의 유혹과 미래를 위한 종잣돈 마련 사이에서 중요한 재무적 가치관이 결정됩니다. 당신은 이 첫 결실을 어떻게 운용하시겠습니까?',
+    statContextFact: '통계청 가계금융복지조사 - 20대 청년의 64.2%가 3천만 원 이하의 순자산을 보유하며, 첫 3년 저축 습관이 30대 자산 격차의 70%를 좌우함',
+    options: [
+      {
+        optionId: 'OPT_INVEST_SAVINGS',
+        label: '청년도약계좌 & 정기적금 몰입 (월급의 60%를 저축해 3천만 원 종잣돈 마련)',
+        effects: { happiness: -2, learning: 3, netWorthChange: 18000000, spend: 1 },
+        grantFlag: 'DILIGENT_SAVER',
+        consequenceText: '외식과 유흥을 줄이고 성실하게 모은 끝에 20대에 든든한 3,000만 원의 종잣돈을 손에 쥐었습니다. 미래 주춧돌이 놓였습니다.'
+      },
+      {
+        optionId: 'OPT_INVEST_ETF',
+        label: '미국 S&P500 지수 ETF & 우량주 적립식 분산 투자 (복리의 마법과 금융 공부)',
+        effects: { learning: 8, happiness: 4, netWorthChange: 12000000, spend: 0 },
+        grantFlag: 'COMPOUND_INVESTOR',
+        consequenceText: '매달 꾸준히 지수 ETF를 모아가며 금융 문해력을 키웠습니다. 장기 복리 투자의 씨앗을 뿌리며 경제적 감각을 익힙니다.'
+      },
+      {
+        optionId: 'OPT_INVEST_YOLO',
+        label: '청춘은 한 번뿐! 배낭여행과 문화생활, 자격증 자기계발에 아낌없이 투자한다',
+        effects: { happiness: 15, learning: 9, bonds: 5, netWorthChange: -4000000, spend: -1 },
+        grantFlag: 'EXPERIENCE_SEEKER',
+        consequenceText: '젊은 날의 눈부신 경험과 추억, 세상을 보는 넓은 시야를 얻었습니다. 통장 잔고는 다소 가볍지만 가슴은 풍요롭습니다.'
+      }
+    ]
+  },
+
+  // 9. [32~36세] 30대 내 집 마련과 주거 사다리 (진주 실제 부동산 실태)
+  {
+    choiceCardId: 'LC_HOUSING_30S',
+    category: 'WEALTH_GROWTH',
+    categoryName: '내 집 마련과 청약',
+    title: '진주 아파트 분양 청약과 내 집 마련',
+    ageRange: [32, 36],
+    body: '결혼과 출산, 안정된 가정을 꾸리며 주거 안정이 절실해집니다. 충무공동 혁신도시와 초전지구의 신축 아파트 분양 소식이 들려옵니다. 주택담보대출을 안고 무리를 해서라도 내 집을 살 것인가, 아니면 전세로 살며 다른 기회를 볼 것인가?',
+    statContextFact: '국토교통부 주거실태조사 - 진주시 자가보유율 62.4%, 30대 첫 주택 마련 평균 대출 비율(LTV) 약 58.7%',
+    options: [
+      {
+        optionId: 'OPT_HOME_CHUNGMUGONG',
+        label: '충무공동 혁신도시 신축 아파트 주담대 분양 청약 (LTV 60% 영끌 자가 매수)',
+        effects: { happiness: 12, bonds: 8, learning: 2, netWorthChange: 140000000, spend: -2 },
+        grantFlag: 'HOME_OWNER_CHUNGMUGONG',
+        consequenceText: '충무공동 남강 조망 신축 아파트에 우리 집 명패를 달았습니다. 매달 대출 원리금 상환 부담은 있지만, 든든한 보금자리와 자산 상승의 기틀을 마련했습니다.'
+      },
+      {
+        optionId: 'OPT_HOME_CHOJEON',
+        label: '초전동·평거동 학군지 구축 아파트 매수 (대출 부담이 적은 실속형 자가)',
+        effects: { happiness: 9, health: 3, bonds: 5, netWorthChange: 80000000, spend: 0 },
+        grantFlag: 'HOME_OWNER_CHOJEON',
+        consequenceText: '초전동 생활권의 단단한 아파트를 실속 있게 매수했습니다. 과도한 빚 없이 평화롭고 안정된 가정을 꾸려갑니다.'
+      },
+      {
+        optionId: 'OPT_HOME_RENT_INVEST',
+        label: '무리한 주담대 대신 전세로 살며 남는 자금을 주식·스마트팜 사업 종잣돈으로 굴린다',
+        effects: { learning: 6, happiness: 5, netWorthChange: 30000000, spend: 1 },
+        grantFlag: 'LIQUID_INVESTOR',
+        consequenceText: '부동산 빚에 얽매이지 않고 유동성 자산으로 투자 기회를 엿봅니다. 유연하고 가벼운 삶의 방식을 유지합니다.'
+      }
+    ]
+  },
+
+  // 10. [43~47세] 40대 중년의 자산 재배치와 도약 (우주항공청 및 KTX 호재)
+  {
+    choiceCardId: 'LC_WEALTH_40S',
+    category: 'WEALTH_GROWTH',
+    categoryName: '중년의 자산 도약',
+    title: '중년의 자산 운용: 남부내륙철도(KTX)와 우주항공 호재',
+    ageRange: [43, 47],
+    body: '40대에 접어들며 자녀 교육비와 함께 은퇴 이후의 삶을 진지하게 고민하기 시작합니다. 진주에는 남부내륙철도(KTX)와 우주항공청 배후 인프라 확충 소식이 이어집니다. 당신의 가계 자산을 어떻게 재배치하시겠습니까?',
+    statContextFact: '한국은행 가계자산 통계 - 40대 가구 순자산의 74%가 실물자산(부동산)에 집중되어 있으며, 광역교통망 확충 시 자산 가치 격차 확대',
+    options: [
+      {
+        optionId: 'OPT_ASSET_UPGRADE',
+        label: '보유 부동산을 지키며 KTX 진주역세권/혁신도시 호재로 자산 가치 재평가 수혜',
+        requireAnyFlags: ['HOME_OWNER_CHUNGMUGONG', 'HOME_OWNER_CHOJEON'],
+        effects: { happiness: 14, bonds: 6, netWorthChange: 160000000 },
+        grantFlag: 'WEALTH_EXPANDED',
+        consequenceText: '진주의 광역 교통망 호재와 도시 성장에 힘입어 아파트 자산 가치가 크게 상승했습니다. 40대에 든든한 자산가로 자리 잡았습니다.'
+      },
+      {
+        optionId: 'OPT_ASSET_DIVIDEND',
+        label: '안정적인 배당주 포트폴리오와 우대금리 정기예금으로 분산 (매달 현금흐름 창출)',
+        effects: { happiness: 8, learning: 6, netWorthChange: 55000000 },
+        grantFlag: 'DIVIDEND_CASHFLOW',
+        consequenceText: '매 분기 쏠쏠하게 들어오는 배당금과 예금 이자로 가계 경제에 단비 같은 현금흐름이 생겼습니다. 마음의 여유가 생깁니다.'
+      },
+      {
+        optionId: 'OPT_ASSET_LOCAL_BIZ',
+        label: '중앙시장 로컬 카페 or 수곡 딸기 가공 유통 소자본 부업에 도전한다',
+        effects: { health: -3, learning: 8, happiness: 7, netWorthChange: 35000000, incomeChange: 1 },
+        grantFlag: 'LOCAL_ENTREPRENEUR',
+        consequenceText: '퇴근 후와 주말마다 땀 흘려 가꾼 로컬 사업이 결실을 맺으며 월 부수입을 안겨줍니다. 몸은 고되지만 활력이 넘칩니다.'
+      }
+    ]
+  },
+
+  // 11. [52~56세] 50대 노후 연금과 자녀 독립 지원의 딜레마
+  {
+    choiceCardId: 'LC_RETIRE_50S',
+    category: 'WEALTH_GROWTH',
+    categoryName: '은퇴 준비와 자녀 지원',
+    title: '50대의 결단: 개인연금(IRP) 극대화 vs 자녀 독립 지원',
+    ageRange: [52, 56],
+    body: '정년퇴직이 눈앞으로 다가오는 50대 중반, 어느덧 훌쩍 자란 자녀가 사회 진출과 결혼을 앞두고 있습니다. 내 노후 연금을 든든히 챙길 것인가, 아니면 자녀의 사회 진출 전세 자금을 전폭적으로 지원할 것인가?',
+    statContextFact: '보건복지부 조사 - 50대 부모의 73%가 자녀 지원으로 노후 자금 부족을 경험하며, 평균 자녀 지원액 1억 2,000만 원',
+    options: [
+      {
+        optionId: 'OPT_PENSION_IRP_MAX',
+        label: '개인형 IRP와 퇴직연금 불입 한도를 최대로 채워 자립적인 노후를 확정한다',
+        effects: { happiness: 9, learning: 4, netWorthChange: 70000000 },
+        grantFlag: 'SOLID_PENSION',
+        consequenceText: '자식에게 짐이 되지 않는 당당한 노후를 위해 연금 자산을 두둑이 확보했습니다. 훗날 자녀들에게도 가장 든든한 힘이 됩니다.'
+      },
+      {
+        optionId: 'OPT_CHILD_SUPPORT_ALL',
+        label: '자녀의 수도권 전세 보증금과 결혼 자금을 전폭적으로 지원한다 (부모의 헌신)',
+        effects: { bonds: 18, happiness: 10, netWorthChange: -60000000 },
+        grantFlag: 'DEVOTED_PARENT',
+        consequenceText: '내 저축을 헐어 자녀의 새 출발에 날개를 달아주었습니다. 부모로서 가슴 벅찬 보람과 자녀의 깊은 감사를 받습니다.'
+      },
+      {
+        optionId: 'OPT_PENSION_BALANCE',
+        label: '자녀와 솔직하게 상의하여 절반씩 매칭 분담하고 내 연금도 균형 있게 지킨다',
+        effects: { bonds: 10, happiness: 9, learning: 4, netWorthChange: 30000000 },
+        grantFlag: 'BALANCED_RETIREMENT',
+        consequenceText: '자녀에게 자립심을 심어주면서도 부모의 따뜻한 온기를 전했습니다. 노후 자산도 안정적으로 지켜냈습니다.'
+      }
+    ]
+  },
+
+  // 12. [63~67세] 60대 은퇴: 주택연금 종신 수령 vs 평생 가업 계승
+  {
+    choiceCardId: 'LC_SENIOR_60S',
+    category: 'WEALTH_GROWTH',
+    categoryName: '풍요로운 황혼 설계',
+    title: '은퇴 이후의 삶: 한국주택금융공사 주택연금 종신 수령',
+    ageRange: [63, 67],
+    body: '오랜 직장 생활을 마치고 은퇴를 맞이했습니다. 국민연금 외에도 보유한 주택을 활용해 국가가 보증하는 주택연금에 가입하면 평생 정든 집에서 살면서 매달 안정적인 연금을 종신 수령할 수 있습니다.',
+    statContextFact: '한국주택금융공사(HF) - 진주시 주택연금 평균 월 수령액 158만 원, 평생 거주 보장 및 부부 종신 지급',
+    options: [
+      {
+        optionId: 'OPT_REVERSE_MORTGAGE',
+        label: '내 집에서 평생 살며 매달 150만 원의 주택연금을 종신 수령한다 (한국주택금융공사)',
+        requireAnyFlags: ['HOME_OWNER_CHUNGMUGONG', 'HOME_OWNER_CHOJEON', 'WEALTH_EXPANDED'],
+        effects: { happiness: 16, health: 6, incomeChange: 2 },
+        grantFlag: 'REVERSE_MORTGAGE',
+        consequenceText: '이사 갈 걱정 없이 정든 집에서 매달 꼬박꼬박 나오는 연금으로 남강변을 산책하며 품격 있는 황혼을 누립니다.'
+      },
+      {
+        optionId: 'OPT_SENIOR_COMMUNITY_WORK',
+        label: '진주시 시니어클럽 및 문화관광 해설사로 사회 공헌 활동에 참여한다',
+        effects: { bonds: 14, learning: 8, happiness: 14, health: 5, incomeChange: 1 },
+        grantFlag: 'HONORED_SENIOR',
+        consequenceText: '지역 청소년들과 관광객들에게 삶의 지혜와 진주의 역사를 들려주며 존경받는 어르신으로 활기찬 하루를 보냅니다.'
+      },
+      {
+        optionId: 'OPT_SENIOR_FAMILY_HEIRLOOM',
+        label: '주말마다 자녀와 손주들을 집으로 불러 따뜻한 밥을 먹이고 삶의 가치를 전한다',
+        effects: { bonds: 20, happiness: 16, health: 4 },
+        grantFlag: 'FAMILY_HEIRLOOM',
+        consequenceText: '주말마다 손주들의 웃음소리로 집안이 가득 찹니다. 평생 성실하게 일군 삶의 결실과 따뜻한 유산이 다음 세대로 이어집니다.'
+      }
+    ]
   }
 ];
 
