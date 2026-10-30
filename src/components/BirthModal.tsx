@@ -3,6 +3,7 @@ import { CitizenStatus } from '../types/game';
 import { Sparkles, MapPin, ArrowRight, RefreshCw, UserCheck, Dices, ShieldCheck, HeartHandshake, GraduationCap } from 'lucide-react';
 import { audioManager } from '../utils/audio';
 import { PRESET_PROFILES, PresetProfile } from '../utils/simulation';
+import { Footer } from './Footer';
 
 interface BirthModalProps {
   citizen: CitizenStatus;
@@ -292,6 +293,9 @@ export const BirthModal: React.FC<BirthModalProps> = ({
             <span>개인정보 수집 0% · 외부 서버 전송 없이 안전하게 브라우저에서 실행됩니다.</span>
           </div>
         </div>
+
+        {/* 하단 라이선스 및 원작 명시 */}
+        <Footer className="border-t border-slate-800/80 bg-space-950 mt-2 py-2" />
 
       </div>
     </div>

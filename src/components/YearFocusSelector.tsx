@@ -13,11 +13,11 @@ export const YearFocusSelector: React.FC<YearFocusSelectorProps> = ({
   onSelectFocus
 }) => {
   const focuses: { id: YearFocus; label: string; icon: React.ElementType; desc: string }[] = [
-    { id: 'learning', label: '배움', icon: BookOpen, desc: '학업·자격증' },
-    { id: 'work', label: '일·벌이', icon: Briefcase, desc: '직업·소득' },
-    { id: 'relationship', label: '사람·관계', icon: HeartHandshake, desc: '가족·친구' },
-    { id: 'health', label: '몸과 마음', icon: Sparkles, desc: '건강·휴식' },
-    { id: 'change', label: '이사와 변화', icon: Compass, desc: '주거 이동' }
+    { id: 'learning', label: '배움·공부', icon: BookOpen, desc: '자격증·학업' },
+    { id: 'work', label: '일·소득', icon: Briefcase, desc: '직업·야근/투잡' },
+    { id: 'relationship', label: '사람·가족', icon: HeartHandshake, desc: '가족·친구·모임' },
+    { id: 'health', label: '몸과 마음', icon: Sparkles, desc: '휴식·치료·운동' },
+    { id: 'change', label: '취미·여가', icon: Compass, desc: '덕질·문화·여가' }
   ];
 
   return (

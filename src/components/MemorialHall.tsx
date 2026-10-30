@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Flame, MapPin, Calendar, Heart } from 'lucide-react';
 import { audioManager } from '../utils/audio';
+import { Footer } from './Footer';
 
 export interface MemorialRecord {
   id: string;
@@ -201,13 +202,14 @@ export const MemorialHall: React.FC<MemorialHallProps> = ({ onClose }) => {
         </div>
 
         {/* 닫기 버튼 */}
-        <div className="p-3 sm:p-4 bg-space-950 border-t border-slate-800 text-right">
+        <div className="p-3 sm:p-4 bg-space-950 border-t border-slate-800 flex items-center justify-between">
+          <Footer className="border-none py-0 px-0 text-left bg-transparent" />
           <button
             onClick={() => {
               audioManager.playClickSound();
               onClose();
             }}
-            className="px-5 py-2 rounded-xl text-xs font-semibold bg-space-850 border border-slate-700 text-slate-300 hover:bg-space-800 hover:text-white transition"
+            className="px-5 py-2 rounded-xl text-xs font-semibold bg-space-850 border border-slate-700 text-slate-300 hover:bg-space-800 hover:text-white transition shrink-0 ml-4"
           >
             닫기
           </button>

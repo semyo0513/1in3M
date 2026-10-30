@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CitizenStatus, CityMacroIndicators } from '../types/game';
 import { Flame, Copy, Check, RotateCcw, HeartHandshake, ShieldCheck } from 'lucide-react';
 import { audioManager } from '../utils/audio';
+import { Footer } from './Footer';
 
 interface EndingReceiptProps {
   citizen: CitizenStatus;
@@ -289,6 +290,9 @@ ${citizen.choicesHistory.map((c, i) => `${i + 1}. [${c.age}세] ${c.issueTitle} 
           <ShieldCheck className="w-3 h-3 text-emerald-500" />
           <span>개인정보 외부 전송 0% (만 14세 미만 학생 보호 적용)</span>
         </div>
+
+        {/* 하단 라이선스 및 원작 명시 */}
+        <Footer className="border-t border-slate-800/80 bg-space-950 mt-2 py-2" />
 
       </div>
     </div>

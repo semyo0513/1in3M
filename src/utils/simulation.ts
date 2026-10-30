@@ -1,9 +1,67 @@
 // 진주시 시뮬레이션 엔진 및 수학적 모델 (공공데이터 및 교육용 모드 필터 지원)
 import { CitizenStatus, CohortPerson, DistrictInfo, DilemmaIssue, CityMacroIndicators, YearFocus, JobType, SpouseInfo, HappiestYearInfo, LifeArchetypeInfo } from '../types/game';
 import { JINJU_DISTRICTS, JINJU_META, getEduIncomeDesc } from '../data/jinjuData';
-import { PERSONAL_EVENTS } from '../data/personalEvents';
+import { PERSONAL_EVENTS, PersonalEventDef } from '../data/personalEvents';
 import { getDilemmas } from '../data/dilemmas';
+import { checkLifeChoiceTrigger } from '../data/lifeChoices';
 import { pickElementarySchool, pickMiddleSchool, pickHighSchool } from '../data/jinjuSchools';
+
+export { checkLifeChoiceTrigger };
+
+// Box-Muller 변환을 통한 정규분포 난수 생성 N(mean, std^2)
+export function randNormal(mean: number, std: number): number {
+  const u1 = Math.max(1e-6, Math.random());
+  const u2 = Math.random();
+  const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+  return mean + z0 * std;
+}
+
+// 한계효용 체감 및 상향 저항 비대칭 수식 (명세서 3.3)
+export function applyDiminishingReturns(current: number, rawDelta: number): number {
+  const ratio = Math.max(0, Math.min(1, current / 100));
+  if (rawDelta > 0) {
+    return rawDelta * (1 - Math.pow(ratio, 1.5));
+  } else {
+    return rawDelta * (1 + 0.30 * ratio);
+  }
+}
+
+// 한국형 생애 스트레스 곡선 연령별 연간 자연 변화량 D(a) (명세서 3.2)
+export function getAgeStressDelta(age: number): {
+  health: number;
+  happiness: number;
+  learning: number;
+  bonds: number;
+} {
+  if (age <= 12) return { health: 0.5, happiness: 0.0, learning: 1.5, bonds: 0.5 };
+  if (age <= 18) return { health: -1.0, happiness: -2.8, learning: 2.5, bonds: -0.5 };
+  if (age <= 29) return { health: -0.5, happiness: -2.0, learning: 0.5, bonds: -2.0 };
+  if (age <= 44) return { health: -1.8, happiness: -1.2, learning: -2.0, bonds: -1.5 };
+  if (age <= 59) return { health: -2.5, happiness: -2.5, learning: -1.8, bonds: -2.0 };
+  if (age <= 74) return { health: -3.2, happiness: -1.5, learning: -2.0, bonds: -2.8 };
+  return { health: -4.8, happiness: -2.0, learning: -2.5, bonds: -3.5 };
+}
+
+// 연간 삶의 초점(Focus) 선택 시 기회비용(Trade-off) 매트릭스 (명세서 3.4)
+export function getFocusDeltas(focus: YearFocus): {
+  health: number;
+  happiness: number;
+  learning: number;
+  bonds: number;
+} {
+  switch (focus) {
+    case 'learning':
+      return { learning: 6.5, health: -2.0, bonds: -2.0, happiness: -1.0 };
+    case 'work':
+      return { learning: 1.5, health: -4.5, happiness: -3.5, bonds: -3.0 };
+    case 'relationship':
+      return { bonds: 7.0, happiness: 3.0, learning: -1.5, health: 0 };
+    case 'health':
+      return { health: 6.5, happiness: 4.0, learning: -1.5, bonds: 0 };
+    case 'change':
+      return { happiness: 6.5, learning: 1.5, health: 1.0, bonds: -1.0 };
+  }
+}
 
 export interface PresetProfile {
   id: string;
@@ -173,10 +231,12 @@ export function generateBirthForDistrict(
       title: '새싹을 틔운 진주의 아이',
       summary: `${districtName}에 뿌리내린 삶이었어요. 새로운 삶의 걸음을 내딛는 순간이에요.`
     },
-    health: 90 + Math.floor(Math.random() * 10),
-    happiness: 80 + Math.floor(Math.random() * 15),
-    learning: 10 + Math.floor(Math.random() * 10),
-    bonds: 75 + Math.floor(Math.random() * 15),
+    // 명세서 3.2 (1): 출생 시 초기값 하향 및 정규분포화
+    // S_init = clamp(50 + 3 * (incomeDecile - 3) + N(0, 5^2), 38, 68)
+    health: Math.round(Math.max(45, Math.min(78, 65 + randNormal(0, 4)))),
+    happiness: Math.round(Math.max(38, Math.min(68, 50 + 3 * (incomeDecile - 3) + randNormal(0, 5)))),
+    learning: Math.round(Math.max(38, Math.min(68, 45 + 3 * (incomeDecile - 3) + randNormal(0, 5)))),
+    bonds: Math.round(Math.max(38, Math.min(68, 52 + 3 * (incomeDecile - 3) + randNormal(0, 5)))),
     temperament: {
       caution: Math.floor(Math.random() * 100),
       community: Math.floor(Math.random() * 100),
@@ -185,6 +245,9 @@ export function generateBirthForDistrict(
     isAlive: true,
     isRelocatedAway: false,
     flags: new Set<string>(),
+    seenOnceEvents: new Set<string>(),
+    eventCooldowns: {},
+    eventCounts: {},
     choicesHistory: [],
     pausedQuestionAnswers: []
   };
@@ -210,6 +273,7 @@ export function advanceCitizenProfile(
   happiestYear: HappiestYearInfo;
   timeSpent: Record<YearFocus, number>;
   lifeArchetype: LifeArchetypeInfo;
+  hobby: string;
 } {
   // 진주시 실제 학교 계승/확보
   const elementarySchool = prev.elementarySchool || pickElementarySchool(prev.district.id);
@@ -400,6 +464,24 @@ export function advanceCitizenProfile(
     summary = `한 자리에 안주하지 않고 삶의 크고 작은 변화를 기꺼이 받아들이며 다채로운 풍경을 걸어온 삶이었어요.`;
   }
 
+  // 9. 연령별 취미 자동 전환 (명세서 2.4)
+  let hobby = prev.hobby || '남강변 산책과 휴식';
+  if (nextAge >= 65) {
+    if (hobby.includes('러닝') || hobby.includes('라이딩') || hobby.includes('체육') || hobby.includes('배드민턴') || hobby.includes('등산') || hobby.includes('산악')) {
+      hobby = '남강 둔치 파크골프 클럽';
+    } else if (hobby.includes('독서') || hobby.includes('도서관') || hobby.includes('글쓰기')) {
+      hobby = '큰글자도서 열람 및 진주 문인협회';
+    } else if (hobby.includes('노래') || hobby.includes('악기') || hobby.includes('아이돌') || hobby.includes('팬덤') || hobby.includes('가수') || hobby.includes('트로트')) {
+      hobby = '트로트 팬카페 및 복지관 노래교실';
+    }
+  } else if (nextAge >= 50) {
+    if (hobby.includes('러닝') || hobby.includes('라이딩') || hobby.includes('체육') || hobby.includes('배드민턴')) {
+      hobby = '월아산·비봉산 주말 산악회 등산';
+    } else if (hobby.includes('아이돌') || hobby.includes('가수')) {
+      hobby = '트로트 가수 팬카페 및 진주 콘서트';
+    }
+  }
+
   const lifeArchetype = { title, summary };
 
   return {
@@ -416,7 +498,8 @@ export function advanceCitizenProfile(
     farewellCompanion,
     happiestYear,
     timeSpent,
-    lifeArchetype
+    lifeArchetype,
+    hobby
   };
 }
 
@@ -555,15 +638,25 @@ function pickDeathCause(isEduMode: boolean = false): string {
   return '노환으로 인한 평온한 영면';
 }
 
-export function pickPersonalEvent(citizen: CitizenStatus, focus: YearFocus, isEduMode: boolean = false) {
+export function pickPersonalEvent(
+  citizen: CitizenStatus,
+  focus: YearFocus,
+  isEduMode: boolean = false
+): PersonalEventDef | null {
   const isRural = citizen.district.type === 'rural';
+  const seenOnce = citizen.seenOnceEvents || new Set<string>();
+  const cooldowns = citizen.eventCooldowns || {};
+  const counts = citizen.eventCounts || {};
+
+  // 1. 후보군 필터링 (영구 차단 및 쿨타임 검사 - 명세서 1.2)
   const eligible = PERSONAL_EVENTS.filter(e => {
     if (citizen.age < e.minAge || citizen.age > e.maxAge) return false;
-    // 교육용 모드에서는 음주/가계위기 등 민감 소재 이벤트 배제
     if (isEduMode && e.isSensitive) return false;
-    if (e.focusFilter && e.focusFilter !== focus) return Math.random() < 0.35;
+    if (e.sexFilter && e.sexFilter !== citizen.gender) return false;
+    if (e.onceOnly && seenOnce.has(e.id)) return false;
+    if ((cooldowns[e.id] || 0) > 0) return false;
 
-    // 면(농촌) vs 동(도시) 권역 필터: 가호동 등 도시 거주자가 면 지역 통학버스를 타는 모순 차단
+    // 면(농촌) vs 동(도시) 권역 필터
     if (e.districtTypeFilter) {
       if (e.districtTypeFilter === 'rural' && !isRural) return false;
       if (e.districtTypeFilter === 'urban' && isRural) return false;
@@ -573,7 +666,28 @@ export function pickPersonalEvent(citizen: CitizenStatus, focus: YearFocus, isEd
   });
 
   if (eligible.length === 0) return null;
-  return eligible[Math.floor(Math.random() * eligible.length)];
+
+  // 2. 누적 노출 횟수 기반 가중치 감쇠 수식 (명세서 1.2: W'_e = W_e * 0.35^c_e)
+  let totalWeight = 0;
+  const weightedCandidates = eligible.map(e => {
+    let baseW = 10;
+    if (e.focusFilter && e.focusFilter === focus) baseW = 25;
+    else if (e.focusFilter && e.focusFilter !== focus) baseW = 4;
+
+    const c_e = counts[e.id] || 0;
+    const decayedW = baseW * Math.pow(0.35, c_e);
+    totalWeight += decayedW;
+    return { event: e, weight: decayedW };
+  });
+
+  let rand = Math.random() * totalWeight;
+  for (const item of weightedCandidates) {
+    if (rand < item.weight) {
+      return item.event;
+    }
+    rand -= item.weight;
+  }
+  return weightedCandidates[0]?.event || null;
 }
 
 export function checkDilemmaTrigger(

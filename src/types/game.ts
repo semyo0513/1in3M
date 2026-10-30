@@ -106,6 +106,12 @@ export interface CitizenStatus {
   deathCause?: string;
   isRelocatedAway: boolean; // 탈진주(출향민) 여부
   flags: Set<string>;
+  seenOnceEvents: Set<string>; // 1회성 사건 영구 차단 집합
+  eventCooldowns: Record<string, number>; // 일상 사건 쿨타임 관리 큐 (남은 연도)
+  eventCounts: Record<string, number>; // 사건별 누적 노출 횟수 (가중치 감쇠용)
+  activeHobbyCategory?: 'IDOL' | 'SPORT' | 'READ' | 'MUSIC';
+  activeHobbyTier?: number;
+  hasDebtRisk?: boolean; // 가계 부채 발생 플래그
   choicesHistory: ChoiceRecord[];
   pausedQuestionAnswers: { age: number; question: string; answer: string }[];
   memorialWords?: string;
@@ -202,4 +208,53 @@ export interface DeathCauseStat {
   weight: number; // 사인 구성 가중치
   sensitiveFlag: boolean;
   eduModeExclude: boolean;
+}
+
+// 대한민국 표본 통계 기반 생애 다지선다 의사결정 (Life_Choices)
+export type LifeChoiceCategory =
+  | 'YOUTH_MIGRATION' // 19세 대학 진학 & 25~28세 구직 청년 유출
+  | 'MILITARY_DUTY'   // 20~21세 남성 병역 / 여성 청년 진로
+  | 'MARRIAGE'        // 28~37세 만혼 및 파트너십
+  | 'CHILDCARE'       // 30~42세 출산 및 직장 규모별 육아 분기
+  | 'SPEND'           // 생애 3대 고정비 (30대 주거비 / 40대 사교육비 / 소비 기조)
+  | 'HOBBY'           // 4대 취미 심화 및 서울 원정비용
+  | 'MEDICAL';        // 3대 한국형 의료 딜레마 (시간 부족, 비급여, 빅5 원정)
+
+export interface LifeChoiceOption {
+  optionId: string;
+  label: string;
+  conditions?: {
+    learningMin?: number;
+    bondsMin?: number;
+    healthMin?: number;
+    incomeMin?: number;
+  };
+  requireAnyFlags?: string[];
+  effects: {
+    health?: number;
+    happiness?: number;
+    learning?: number;
+    bonds?: number;
+    incomeChange?: number;
+    spend?: number; // 가계 지출 부담 수준 (-3: 막대함, 0: 없음, +1: 절감)
+  };
+  grantFlag?: string;
+  removeFlag?: string;
+  consequenceText?: string;
+}
+
+export interface LifeChoiceCard {
+  choiceCardId: string;
+  category: LifeChoiceCategory;
+  categoryName: string;
+  title: string;
+  ageRange: [number, number];
+  genderFilter?: '남성' | '여성';
+  requireFlags?: string[];
+  requireAnyFlags?: string[];
+  excludeFlags?: string[];
+  body: string;
+  statContextFact: string; // 통계청 등 국가공인통계 실증 팩트
+  options: LifeChoiceOption[];
+  isEduModeSafe?: boolean;
 }

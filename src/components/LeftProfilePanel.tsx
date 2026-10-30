@@ -164,9 +164,16 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
           <div className="flex items-start">
             <span className="w-24 text-slate-400 shrink-0">재산</span>
             <span className="text-slate-500 mr-2">:</span>
-            <span className="text-yellow-300 font-mono font-bold">
-              {formatWealth(citizen.netWorthWon)}
-            </span>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-yellow-300 font-mono font-bold">
+                {formatWealth(citizen.netWorthWon)}
+              </span>
+              {citizen.hasDebtRisk && (
+                <span className="px-1.5 py-0.2 rounded text-[10px] bg-rose-950 border border-rose-500/40 text-rose-300 font-bold">
+                  부채 위험
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="flex items-start">
