@@ -42,6 +42,7 @@ import { EndingReceipt } from './components/EndingReceipt';
 import { MemorialHall, MemorialRecord } from './components/MemorialHall';
 import { BirthModal } from './components/BirthModal';
 import { LeftProfilePanel } from './components/LeftProfilePanel';
+import { CollegeApplicationModal } from './components/CollegeApplicationModal';
 import { Footer } from './components/Footer';
 import { ScrollText, Scale, Users, GraduationCap, User } from 'lucide-react';
 
@@ -82,6 +83,7 @@ export const App: React.FC = () => {
   const [isBirthModalOpen, setIsBirthModalOpen] = useState<boolean>(true);
   const [activeDilemma, setActiveDilemma] = useState<DilemmaIssue | null>(null);
   const [activeLifeChoice, setActiveLifeChoice] = useState<LifeChoiceCard | null>(null);
+  const [isCollegeModalOpen, setIsCollegeModalOpen] = useState<boolean>(false);
   const [activePauseQuestion, setActivePauseQuestion] = useState<{ age: number; question: string } | null>(null);
   const [isEndingOpen, setIsEndingOpen] = useState<boolean>(false);
   const [isMemorialOpen, setIsMemorialOpen] = useState<boolean>(false);
@@ -320,16 +322,24 @@ export const App: React.FC = () => {
       setCohort(c => updateCohort(c, nextAge));
 
       // 10. 대한민국 표본 통계 기반 생애 전환 선택 카드 체크 (명세서 2.0: 청년유출, 병역, 결혼, 출산, 고정비, 취미, 의료)
-      const lifeChoice = checkLifeChoiceTrigger(nextAge, tempCitizen.gender, tempCitizen.flags, resolvedLifeChoiceIds.current, isEduMode);
-      if (lifeChoice) {
+      // 19세에는 전국 100개 대학 입시 전용 모달(CollegeApplicationModal)이 열림
+      let triggeredChoice: LifeChoiceCard | null = null;
+      if (nextAge === 19) {
         setIsPaused(true);
-        setActiveLifeChoice(lifeChoice);
+        setIsCollegeModalOpen(true);
         audioManager.playChimeSound();
+      } else {
+        triggeredChoice = checkLifeChoiceTrigger(nextAge, tempCitizen.gender, tempCitizen.flags, resolvedLifeChoiceIds.current, isEduMode);
+        if (triggeredChoice) {
+          setIsPaused(true);
+          setActiveLifeChoice(triggeredChoice);
+          audioManager.playChimeSound();
+        }
       }
 
       // 11. 잠시 멈춤 질문 체크 (5, 15, 30, 50, 70세)
       const pauseDef = PAUSE_QUESTIONS.find(p => p.age === nextAge);
-      if (pauseDef && !lifeChoice) {
+      if (pauseDef && !triggeredChoice && nextAge !== 19) {
         setIsPaused(true);
         const randomQ = pauseDef.questions[Math.floor(Math.random() * pauseDef.questions.length)];
         setActivePauseQuestion({ age: nextAge, question: randomQ });
@@ -408,7 +418,7 @@ export const App: React.FC = () => {
 
       // 13. 지역 현안 딜레마 체크 (보이텔스바흐 원칙)
       const dilemma = checkDilemmaTrigger(tempCitizen, resolvedDilemmaIds.current, isEduMode);
-      if (dilemma && !pauseDef && !lifeChoice) {
+      if (dilemma && !pauseDef && !triggeredChoice && nextAge !== 19) {
         setIsPaused(true);
         setActiveDilemma(dilemma);
         audioManager.playChimeSound();
@@ -460,7 +470,7 @@ export const App: React.FC = () => {
 
   // 메인 타이머 루프
   useEffect(() => {
-    if (isPaused || isBirthModalOpen || activeDilemma || activeLifeChoice || activePauseQuestion || isEndingOpen || isMemorialOpen) {
+    if (isPaused || isBirthModalOpen || activeDilemma || activeLifeChoice || isCollegeModalOpen || activePauseQuestion || isEndingOpen || isMemorialOpen) {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -477,7 +487,7 @@ export const App: React.FC = () => {
         timerRef.current = null;
       }
     };
-  }, [isPaused, speed, isBirthModalOpen, activeDilemma, activeLifeChoice, activePauseQuestion, isEndingOpen, isMemorialOpen, tickYear]);
+  }, [isPaused, speed, isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, activePauseQuestion, isEndingOpen, isMemorialOpen, tickYear]);
 
   // 출생 모달에서 삶 시작
   const handleStartLife = () => {
@@ -590,6 +600,69 @@ export const App: React.FC = () => {
     ]);
 
     setActiveLifeChoice(null);
+    setIsPaused(false);
+  };
+
+  // 전국 100개 대학교 지원 및 입시 결과 완료 핸들러
+  const handleResolveCollegeApplication = (res: {
+    appliedUniv: any;
+    isAccepted: boolean;
+    finalChoice: 'college' | 'work';
+    collegeName: string;
+    consequenceText: string;
+    learningDelta: number;
+    happinessDelta: number;
+    bondsDelta: number;
+    isRelocatedAway: boolean;
+    grantFlag: string;
+  }) => {
+    setCitizen(prev => {
+      const nextFlags = new Set(prev.flags);
+      if (res.grantFlag) nextFlags.add(res.grantFlag);
+
+      let nextEducation = prev.education;
+      let nextJob = prev.job;
+      let nextJobTitle = prev.jobTitle;
+
+      if (res.isAccepted && res.appliedUniv) {
+        nextEducation = `${res.appliedUniv.name} (${prev.highSchool} 졸)`;
+        nextJob = '청년 구직자';
+        nextJobTitle = res.isRelocatedAway
+          ? `서울 유학생 (${res.appliedUniv.name})`
+          : `대학생 (${res.appliedUniv.name})`;
+      } else {
+        nextEducation = `고등학교 (${prev.highSchool} 졸)`;
+        nextJob = getRandomJob(prev.district.id, 20);
+        nextJobTitle = `${nextJob} · 사회초년생`;
+      }
+
+      return {
+        ...prev,
+        education: nextEducation,
+        job: nextJob,
+        jobTitle: nextJobTitle,
+        isRelocatedAway: res.isRelocatedAway,
+        learning: Math.max(0, Math.min(100, prev.learning + res.learningDelta)),
+        happiness: Math.max(0, Math.min(100, prev.happiness + res.happinessDelta)),
+        bonds: Math.max(0, Math.min(100, prev.bonds + res.bondsDelta)),
+        flags: nextFlags
+      };
+    });
+
+    setTimeline(t => [
+      ...t,
+      {
+        id: `college_application_${Date.now()}`,
+        year: citizen.currentYear,
+        age: citizen.age,
+        type: 'milestone',
+        label: 'FACT',
+        sourceNote: res.appliedUniv ? `${res.appliedUniv.region} ${res.appliedUniv.name} 입학처` : '한국고용정보원 고교졸업자 진로통계',
+        text: `[19세 대입 진로] ${res.consequenceText}`
+      }
+    ]);
+
+    setIsCollegeModalOpen(false);
     setIsPaused(false);
   };
 
@@ -890,6 +963,18 @@ export const App: React.FC = () => {
           citizenIncomeDecile={citizen.incomeDecile}
           isEduMode={isEduMode}
           onSelectOption={handleResolveLifeChoice}
+        />
+      )}
+
+      {/* 모달 2-1: 전국 주요 100개 대학교 지망 및 입시 모달 (19세 진학 분기) */}
+      {isCollegeModalOpen && (
+        <CollegeApplicationModal
+          age={citizen.age}
+          year={citizen.currentYear}
+          citizenLearning={citizen.learning}
+          citizenGender={citizen.gender}
+          highSchool={citizen.highSchool}
+          onResolve={handleResolveCollegeApplication}
         />
       )}
 

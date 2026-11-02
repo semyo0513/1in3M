@@ -174,6 +174,8 @@ export interface DilemmaIssue {
   category: string;
   triggerAgeRange: [number, number];
   locationFilter?: DistrictType[];
+  districtFilter?: string[]; // 특정 읍면동 id에 가중/우선 노출 (예: ['bongwon', 'sangbong', 'chungmugong', 'naedong'])
+  requireSchools?: string[]; // 모교 출신자 우선 노출
   factText: string;
   factSource: string;
   stanceA: {

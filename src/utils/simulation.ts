@@ -828,14 +828,52 @@ export function checkDilemmaTrigger(
 ): DilemmaIssue | null {
   const dilemmas = getDilemmas(isEduMode);
 
-  for (const dilemma of dilemmas) {
-    if (resolvedIds.has(dilemma.id)) continue;
-    const [minAge, maxAge] = dilemma.triggerAgeRange;
-    if (citizen.age >= minAge && citizen.age <= maxAge) {
-      if (Math.random() < 0.45 || citizen.age === minAge + 2) {
-        return dilemma;
-      }
+  // 연령 조건에 맞는 미해결 딜레마 선별
+  const eligible = dilemmas.filter(d => {
+    if (resolvedIds.has(d.id)) return false;
+    const [minAge, maxAge] = d.triggerAgeRange;
+    return citizen.age >= minAge && citizen.age <= maxAge;
+  });
+
+  if (eligible.length === 0) return null;
+
+  // 시민의 프로필(거주 읍면동, 초·중·고 모교)에 따른 가중치 계산
+  const userDistrictId = citizen.district.id;
+  const userSchools = [citizen.elementarySchool, citizen.middleSchool, citizen.highSchool];
+
+  const weightedCandidates = eligible.map(d => {
+    let weight = 10;
+
+    // 1. 거주지 일치 보너스 (예: 상봉동 거주 시 봉원중 통폐합, 지수면 거주 시 승산마을 가중)
+    if (d.districtFilter && d.districtFilter.includes(userDistrictId)) {
+      weight += 35;
     }
+
+    // 2. 모교 출신자 보너스 (예: 봉원중학교 출신일 경우 통폐합 안건 우선 트리거)
+    if (d.requireSchools && d.requireSchools.some(s => userSchools.includes(s))) {
+      weight += 40;
+    }
+
+    // 3. 지역 타입(도시 vs 농촌) 일치 보너스
+    if (d.locationFilter && d.locationFilter.includes(citizen.district.type)) {
+      weight += 15;
+    }
+
+    return { dilemma: d, weight };
+  });
+
+  // 일정 확률(50%) 또는 특정 진입 연령에서 트리거
+  if (Math.random() < 0.50) {
+    const totalWeight = weightedCandidates.reduce((sum, item) => sum + item.weight, 0);
+    let rand = Math.random() * totalWeight;
+    for (const item of weightedCandidates) {
+      if (rand < item.weight) {
+        return item.dilemma;
+      }
+      rand -= item.weight;
+    }
+    return weightedCandidates[0]?.dilemma || null;
   }
+
   return null;
 }

@@ -175,6 +175,184 @@ export const JINJU_DILEMMAS_NORMAL: DilemmaIssue[] = [
         whatIfText: '국가 보건의료 정책 추이를 주시합니다.'
       }
     ]
+  },
+
+  // 실명 4: [원도심 학교 통폐합] 봉원중학교·진주여중 등 원도심 학교 통폐합 및 신도심 이전
+  {
+    id: 'issue_school_closure_bongwon',
+    title: '원도심 학령인구 감소와 봉원중학교 등 관내 학교 통폐합',
+    category: '교육 · 학교 자치',
+    triggerAgeRange: [13, 50],
+    districtFilter: ['sangbong', 'seongbuk', 'jungang', 'chojang', 'chungmugong'],
+    requireSchools: ['진주봉원중학교', '진주여자중학교', '봉원초등학교', '봉래초등학교', '진주초등학교'],
+    factText: '상봉동·성북동 등 원도심 지역의 학령인구 급감으로 봉원중학교와 진주여중 등 유서 깊은 중학교들의 학급 수가 급격히 줄어들었습니다. 경상남도교육청은 교육과정 정상화와 신도심(초전·충무공동) 과밀학급 해소를 위해 원도심 학교의 신도심 이전 재배치 또는 남녀공학 통폐합을 추진하고 있습니다. 그러나 동문회와 원도심 주민들은 70년 전통 모교의 역사 단절과 원도심의 공동화를 우려하며 거세게 반발하고 있습니다.',
+    factSource: '경상남도교육청 진주관내 중학교 학교군 개편안 및 학교재배치 타당성조사',
+    stanceA: {
+      actor: '도교육청 및 신도심 학부모 연대',
+      summary: '한 학년에 1~2학급에 불과한 소규모 학교에서는 체육대회나 동아리 활동 등 정상적인 교과 수업이 불가능합니다. 신도심으로 이전하거나 통합해 학생들의 실질적 학습권을 보장해야 합니다.'
+    },
+    stanceB: {
+      actor: '봉원중·원도심 학교 동문회 및 상봉동 주민자치회',
+      summary: '학교는 동네의 정체성이자 젊은 부모가 머무는 최후의 보루입니다. 학생 수가 적다고 신도심으로 학교를 빼앗아가면 원도심은 완전히 노인들만 남는 폐허가 됩니다.'
+    },
+    counterArgumentForPro: '학교 이전을 찬성할 때 생각할 점: 70년 세월 동안 동네를 지켜온 모교가 사라질 때 원도심 주민들과 졸업생들이 겪는 뿌리 뽑힌 상실감을 고려해야 합니다.',
+    counterArgumentForCon: '학교 존치를 요구할 때 생각할 점: 전교생 60명 학교에서 친구 사귀기도 어렵고 선택과목도 개설되지 못해 학습권 침해를 겪는 아이들의 현실을 외면할 수 없습니다.',
+    isEduModeSafe: true,
+    options: [
+      {
+        stance: '조건부 찬성',
+        reasons: ['기존 상봉동 학교 부지를 청소년 복합문화센터·공공도서관으로 100% 환원하는 조건으로 신도심 이전', '남녀공학 개편으로 학급 규모 유지'],
+        impactPersonal: { learning: 6, bonds: 4, happiness: 2 },
+        impactCity: { space: 15, welfare: 10, trust: 15 },
+        whatIfText: '문화복합공간 환원을 전제로 학교 이전에 합의했습니다. 신도심에는 첨단 학교가 들어서고 기존 교사는 주민 문화 쉼터로 재탄생했습니다.'
+      },
+      {
+        stance: '반대',
+        reasons: ['70년 역사 모교 존치와 원도심 공동화 방지', '작은 학교의 장점을 살린 인문·예술 특성화 거점중학교 육성'],
+        impactPersonal: { bonds: 8, happiness: 4 },
+        impactCity: { space: -20, culture: 20 },
+        whatIfText: '모교 지키기에 나섰습니다. 봉원중학교는 전교생 1:1 맞춤형 진로 멘토링 특성화 학교로 거듭나며 원도심 골목의 활기를 지켰습니다.'
+      },
+      {
+        stance: '찬성',
+        reasons: ['신도심 과밀학급 해소와 학생들의 다양한 교과 선택권 보장이 최우선'],
+        impactPersonal: { learning: 7, happiness: 1 },
+        impactCity: { space: 25, economy: 10 },
+        whatIfText: '교육 행정의 효율성을 지지했습니다. 신도심 이전으로 쾌적한 학습 환경이 열렸으나 원도심 상권은 학생 감소의 타격을 입었습니다.'
+      },
+      {
+        stance: '대안 제시',
+        reasons: ['신도심-원도심 간 광역 공동학구제 스쿨버스 운영으로 신도심 학생을 원도심 학교로 유입'],
+        impactPersonal: { learning: 4, bonds: 5 },
+        impactCity: { space: 0, trust: 20 },
+        whatIfText: '역발상 통학 모델을 제안했습니다. 신도심 학생들이 스쿨버스를 타고 원도심 작은 학교로 통학하며 자연 친화적 교육을 받게 되었습니다.'
+      },
+      {
+        stance: '판단 보류',
+        reasons: ['재학생들과 학부모들의 전수 설문조사 결과를 먼저 확인하고 결정해야 한다'],
+        impactPersonal: { learning: 2 },
+        impactCity: { trust: 0 },
+        whatIfText: '당사자인 학생들의 목소리를 가장 먼저 듣기 위해 신중히 지켜봅니다.'
+      }
+    ]
+  },
+
+  // 실명 5: [남강유등축제 유무료화] 유등축제 입장료 징수 vs 시민 열린 쉼터
+  {
+    id: 'issue_yudeung_normal_fee',
+    title: '대한민국 명예대표축제 남강유등축제의 유료화 논쟁과 시민의 쉼터',
+    category: '문화관광 · 시민 자치',
+    triggerAgeRange: [16, 60],
+    districtFilter: ['seongbuk', 'cheonjeon', 'jungang', 'gaho', 'sinan', 'pyeonggeo'],
+    factText: '진주남강유등축제는 임진왜란 진주성 전투에서 유래한 7만 개 유등의 세계적 축제입니다. 2015년 축제 자립화를 위해 전면 유료화(성인 1만 원)와 남강 둘레 2.8km 가림막 설치를 단행했을 당시, 외지 관광객 수입은 늘었으나 "시민들이 산책하던 남강을 붉은 천막으로 가로막았다"는 거센 시민 저항과 갈등을 겪었습니다. 이후 시민 자율 무료화로 환원되었으나, 매년 40억 원이 넘는 시 예산 투입과 상인-시민 간 유무료화 논쟁은 지금도 계속되고 있습니다.',
+    factSource: '진주시 남강유등축제 백서 및 진주시의회 문화복지위원회 감사록',
+    stanceA: {
+      actor: '축제재단 및 원도심 상인연합회',
+      summary: '언제까지 시민 혈세로만 축제를 치를 수는 없습니다. 외지 관광객에게 정당한 입장료나 부교 통행료를 받아 콘텐츠를 혁신하고 상권을 살려야 합니다.'
+    },
+    stanceB: {
+      actor: '진주 시민사회 및 남강 산책 주민 모임',
+      summary: '남강과 진주성은 조상들의 얼이 깃든 시민 모두의 안식처입니다. 가림막을 치고 입장료를 받는 것은 시민의 권리를 침해하고 축제의 역사적 본질을 훼손합니다.'
+    },
+    counterArgumentForPro: '유료화를 주장할 때 생각할 점: 가림막으로 막힌 남강변을 바라보며 자부심 대신 소외감을 느껴야 했던 시민들의 깊은 상처를 헤아려야 합니다.',
+    counterArgumentForCon: '무료화를 주장할 때 생각할 점: 40억 원의 시 보조금이 고갈되면 축제 안전 요원 배치와 유등 품질이 저하되어 전국 축제로서의 명성을 잃게 됩니다.',
+    isEduModeSafe: true,
+    options: [
+      {
+        stance: '조건부 찬성',
+        reasons: ['진주시민은 신분증 확인 후 100% 무료 입장, 외지 관광객에게만 진주사랑상품권 연계 유료 티켓 판매'],
+        impactPersonal: { happiness: 4, learning: 3, incomeChange: 1 },
+        impactCity: { culture: 15, welfare: 10, trust: 25 },
+        whatIfText: '시민 우대와 상품권 페이백 모델을 이끌어냈습니다. 시민의 자부심을 지키면서 외지 관광객 소비가 중앙시장으로 흘러들어 상권이 활기를 띠었습니다.'
+      },
+      {
+        stance: '반대',
+        reasons: ['가림막 없는 완전 무료 개방 원칙 고수', '유등 띄우기 시민 자치 펀딩으로 혈세 투입 절감'],
+        impactPersonal: { happiness: 7, bonds: 6 },
+        impactCity: { culture: -10, trust: 20 },
+        whatIfText: '시민의 열린 강변을 수호했습니다. 가을밤 붉은 가림막 없이 온 가족이 남강 둔치에 돗자리를 펴고 은은한 유등 불빛을 감상합니다.'
+      },
+      {
+        stance: '찬성',
+        reasons: ['글로벌 명품 축제로의 도약과 세계적 유등 조형물 확충을 위한 전면 유료화'],
+        impactPersonal: { incomeChange: 2, learning: 4 },
+        impactCity: { culture: 30, economy: 20 },
+        whatIfText: '세계화를 지지했습니다. 첨단 드론 쇼와 미디어아트 유등이 화려하게 밤하늘을 수놓았으나 강변 산책로 일부 통제는 감수해야 했습니다.'
+      },
+      {
+        stance: '대안 제시',
+        reasons: ['부교(배다리) 통행료와 유등 띄우기 소원 체험권만 선택적 유료화로 재원 조달'],
+        impactPersonal: { learning: 5, bonds: 3 },
+        impactCity: { culture: 10, trust: 15 },
+        whatIfText: '체험 선택 유료화 해법을 제시했습니다. 입장권 갈등 없이 누구나 자유롭게 축제를 즐기며 성공적인 절충점을 찾았습니다.'
+      },
+      {
+        stance: '판단 보류',
+        reasons: ['시민 여론조사와 축제 재정 건전성 평가 결과를 더 종합적으로 보고 싶다'],
+        impactPersonal: { learning: 2 },
+        impactCity: { trust: 0 },
+        whatIfText: '공공성과 경제성의 균형을 고민하며 시민 공론장을 지켜봅니다.'
+      }
+    ]
+  },
+
+  // 실명 6: [지수면 승산마을 K-기업가정신 vs 조용한 마을 보존]
+  {
+    id: 'issue_k_entrepreneur_jisu',
+    title: '지수면 승산마을 K-기업가정신 수도 관광벨트화와 한옥마을 보존',
+    category: '역사문화 · 지역개발',
+    triggerAgeRange: [22, 65],
+    districtFilter: ['jisu', 'jinseong', 'sabong', 'ilbanseong'],
+    factText: '진주시 지수면 승산마을은 삼성 이병철, LG 구인회, 효성 조홍제 등 대한민국 대표 글로벌 창업주들을 배출한 옛 지수초등학교가 있는 유서 깊은 한옥마을입니다. 진주시는 이곳을 "K-기업가정신 수도"로 선포하고 대규모 관광호텔, 주차장, 기업가 교육센터를 건립하여 연간 수십만 관광객을 유치하려 합니다. 반면 고요한 종택을 지켜온 고령의 원주민들은 관광객 소음과 한옥마을 상업화로 인한 평온한 삶의 파괴를 호소하고 있습니다.',
+    factSource: '중소벤처기업진흥공단 K-기업가정신센터 및 진주시 관광개발과 종합계획',
+    stanceA: {
+      actor: '진주시 관광진흥과 및 경제인 연합',
+      summary: '기업가정신은 진주가 가진 전 세계 유일무이한 역사문화 자산입니다. 소멸해가는 농촌 마을에 도로를 뚫고 관광객을 불러모아야 청년이 돌아오고 지역경제가 살아납니다.'
+    },
+    stanceB: {
+      actor: '승산마을 문중 종손 및 원주민 대책위',
+      summary: '수백 년을 이어온 남명 조식 선생의 경의(敬義) 사상과 고즈넉한 한옥 골목이 상업적 펜션과 대형 버스 매연으로 뒤덮이고 있습니다. 마을의 원형과 고요함을 보존해야 합니다.'
+    },
+    counterArgumentForPro: '개발을 찬성할 때 생각할 점: 평생 조용히 농사지으며 살아온 시골 어르신들이 매일 쏟아지는 관광객 카메라와 소음으로 겪는 사생활 침해를 살펴야 합니다.',
+    counterArgumentForCon: '보존을 요구할 때 생각할 점: 관광 개발마저 없으면 아이 울음소리가 끊긴 지수면은 10년 뒤 완전한 인구 소멸 고위험 지역으로 전락한다는 경고를 외면할 수 없습니다.',
+    isEduModeSafe: true,
+    options: [
+      {
+        stance: '조건부 찬성',
+        reasons: ['마을 외곽에 환승주차장을 짓고 마을 내부는 전기 셔틀만 운행하는 저탄소 생태 한옥마을 모델', '마을 농산물 직거래 장터 수익 문중 환원'],
+        impactPersonal: { learning: 6, bonds: 4, incomeChange: 1 },
+        impactCity: { culture: 20, economy: 15, trust: 20 },
+        whatIfText: '친환경 상생 관광을 지지했습니다. 고즈넉한 한옥 골목길의 정취를 해치지 않으면서 전국의 청년 창업가들이 찾아오는 배움터가 되었습니다.'
+      },
+      {
+        stance: '반대',
+        reasons: ['인위적 테마파크식 관광지 개발 중단', '승산마을 한옥과 종택의 국가등록문화재 지정 및 원형 영구 보존'],
+        impactPersonal: { bonds: 7, happiness: 4 },
+        impactCity: { culture: -10, trust: 15 },
+        whatIfText: '마을의 고요함과 정신을 지켰습니다. 화려한 상업시설 대신 은은한 흙담길과 종택의 기품이 온전히 후손들에게 전해졌습니다.'
+      },
+      {
+        stance: '찬성',
+        reasons: ['K-기업가정신 글로벌 연수원과 리조트 조성으로 진주 동부권 관광 대도약 추진'],
+        impactPersonal: { incomeChange: 3, happiness: 1 },
+        impactCity: { economy: 30, culture: 20 },
+        whatIfText: '세계적 기업가정신 명소 육성을 지지했습니다. 전국에서 교육생들이 몰려들며 진주 동부권에 활발한 경제적 낙수효과가 발생했습니다.'
+      },
+      {
+        stance: '대안 제시',
+        reasons: ['관광객 유치보다 청년 스타트업 인큐베이팅 캠퍼스로 조성하여 실질적 청년 창업 인구 정주 유도'],
+        impactPersonal: { learning: 8, happiness: 3 },
+        impactCity: { economy: 20, space: 10, trust: 15 },
+        whatIfText: '청년 창업 캠퍼스 모델을 제안했습니다. 옛 지수초등학교 교실에서 청년들이 밤낮으로 아이디어를 나누며 한국의 새 벤처를 일굽니다.'
+      },
+      {
+        stance: '판단 보류',
+        reasons: ['마을 주민들과의 1:1 보상·정주 여건 협약 결과를 먼저 확인해야 한다'],
+        impactPersonal: { learning: 2 },
+        impactCity: { trust: 0 },
+        whatIfText: '마을 공동체와 지자체 간의 협상 과정을 주의 깊게 지켜봅니다.'
+      }
+    ]
   }
 ];
 
@@ -413,7 +591,12 @@ export const JINJU_DILEMMAS_EDU: DilemmaIssue[] = [
   }
 ];
 
-// 모드에 따라 딜레마 목록 반환
+// 모드에 따라 딜레마 목록 반환 (시민의 거주지, 학교, 연령 프로필에 따라 맞춤 가중 추천)
 export function getDilemmas(isEduMode: boolean): DilemmaIssue[] {
-  return isEduMode ? JINJU_DILEMMAS_EDU : JINJU_DILEMMAS_NORMAL;
+  if (isEduMode) {
+    // 교육용 모드에서는 안전성이 보장된 교육용 딜레마 및 종결 실명 사례(유등축제, 학교통폐합, 승산마을 등) 포함
+    const safeNormalDilemmas = JINJU_DILEMMAS_NORMAL.filter(d => d.isEduModeSafe);
+    return [...JINJU_DILEMMAS_EDU, ...safeNormalDilemmas];
+  }
+  return JINJU_DILEMMAS_NORMAL;
 }
