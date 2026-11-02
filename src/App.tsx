@@ -28,6 +28,7 @@ import {
 } from './utils/simulation';
 import { PAUSE_QUESTIONS } from './data/pauseQuestions';
 import { getEduIncomeDesc } from './data/jinjuData';
+import { pickMacroEvent } from './data/macroEvents';
 import { audioManager } from './utils/audio';
 
 import { Header } from './components/Header';
@@ -329,7 +330,14 @@ export const App: React.FC = () => {
         setIsCollegeModalOpen(true);
         audioManager.playChimeSound();
       } else {
-        triggeredChoice = checkLifeChoiceTrigger(nextAge, tempCitizen.gender, tempCitizen.flags, resolvedLifeChoiceIds.current, isEduMode);
+        triggeredChoice = checkLifeChoiceTrigger(
+          nextAge,
+          tempCitizen.gender,
+          tempCitizen.flags,
+          resolvedLifeChoiceIds.current,
+          isEduMode,
+          tempCitizen.childrenCount
+        );
         if (triggeredChoice) {
           setIsPaused(true);
           setActiveLifeChoice(triggeredChoice);
@@ -416,6 +424,35 @@ export const App: React.FC = () => {
         ]);
       }
 
+      // 12-2. 글로벌 거시 경제 및 국제 정세 악재/호재 (유가 폭등, 전쟁·공급망 위기, 금리 인상, 우주항공 특수 등)
+      let currentNetWorth = tempCitizen.netWorthWon;
+      const macroEvent = pickMacroEvent(nextAge, nextSeenOnce, nextCooldowns);
+      if (macroEvent) {
+        if (macroEvent.impact.health) health = Math.max(0, Math.min(100, Math.round(health + applyDiminishingReturns(health, macroEvent.impact.health))));
+        if (macroEvent.impact.happiness) happiness = Math.max(0, Math.min(100, Math.round(happiness + applyDiminishingReturns(happiness, macroEvent.impact.happiness))));
+        if (macroEvent.impact.learning) learning = Math.max(0, Math.min(100, Math.round(learning + applyDiminishingReturns(learning, macroEvent.impact.learning))));
+        if (macroEvent.impact.bonds) bonds = Math.max(0, Math.min(100, Math.round(bonds + applyDiminishingReturns(bonds, macroEvent.impact.bonds))));
+        if (macroEvent.impact.netWorthChange) {
+          currentNetWorth = Math.max(0, currentNetWorth + macroEvent.impact.netWorthChange);
+        }
+
+        nextCounts[macroEvent.id] = (nextCounts[macroEvent.id] || 0) + 1;
+        nextCooldowns[macroEvent.id] = macroEvent.cooldownYears;
+
+        setTimeline(t => [
+          ...t,
+          {
+            id: `log_macro_${nextAge}_${Date.now()}`,
+            year: nextYear,
+            age: nextAge,
+            type: 'milestone',
+            label: macroEvent.label,
+            sourceNote: macroEvent.sourceNote,
+            text: `[국제 정세] ${macroEvent.text}`
+          }
+        ]);
+      }
+
       // 13. 지역 현안 딜레마 체크 (보이텔스바흐 원칙)
       const dilemma = checkDilemmaTrigger(tempCitizen, resolvedDilemmaIds.current, isEduMode);
       if (dilemma && !pauseDef && !triggeredChoice && nextAge !== 19) {
@@ -457,6 +494,7 @@ export const App: React.FC = () => {
 
       return {
         ...tempCitizen,
+        netWorthWon: currentNetWorth,
         health,
         happiness,
         learning,
@@ -538,13 +576,20 @@ export const App: React.FC = () => {
         nextChildren = 1;
       } else if (option.optionId === 'CHILD_MULTI_BLESSING') {
         nextChildren = Math.max(2, nextChildren + 2);
-      } else if (option.grantFlag === 'DECLARED_SINGLE' || option.grantFlag === 'DECLARED_DINK') {
+      } else if (option.grantFlag === 'DECLARED_SINGLE' || option.grantFlag === 'DECLARED_DINK' || option.optionId === 'CHILD_NONE_DINK') {
         nextChildren = 0;
       }
 
       // 비혼 선언 시 배우자 없음 유지
       if (option.grantFlag === 'DECLARED_SINGLE') {
         nextSpouse = null;
+      }
+
+      // 자녀 플래그 엄격 동기화 (자녀 0명이면 HAS_CHILDREN 완전 배제)
+      if (nextChildren > 0) {
+        nextFlags.add('HAS_CHILDREN');
+      } else {
+        nextFlags.delete('HAS_CHILDREN');
       }
 
       // 수도권 상경(대학/취업) 시 탈진주(출향) 플래그 및 주거지 연동

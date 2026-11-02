@@ -48,12 +48,38 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
     });
   }, [selectedRegion, searchQuery]);
 
-  // 합격 확률 계산 공식 (배움 지표 기반)
+  // 합격 확률 계산 공식 (배움 지표 기반 & 현실적 입시 경쟁률 반영)
   const calculatePassProbability = (univ: UniversityInfo) => {
     const diff = citizenLearning - univ.minLearningCutoff;
-    if (diff < -15) return 0.05; // 컷오프보다 15점 이상 낮으면 불합격 확률 95%
-    if (diff < 0) return Math.max(0.10, univ.acceptanceRateBase + diff * 0.035);
-    return Math.min(0.98, univ.acceptanceRateBase + diff * 0.02);
+    const isUltraTier = univ.id === 'snu'; // 서울대학교 (극상위 0.5% 경쟁)
+    const isTopSkyTier = ['yonsei', 'korea', 'kaist', 'postech'].includes(univ.id);
+
+    // 1. 기준 컷오프 미달 시:
+    if (diff < 0) {
+      if (isUltraTier) {
+        // 서울대는 컷오프(94점)보다 1점이라도 낮으면 99% 이상 불합격
+        return diff < -3 ? 0.005 : 0.01;
+      }
+      if (isTopSkyTier) {
+        return diff < -5 ? 0.01 : 0.03;
+      }
+      if (diff < -15) return 0.02;
+      return Math.max(0.04, univ.acceptanceRateBase + diff * 0.045);
+    }
+
+    // 2. 기준 컷오프 도달 및 초과 시:
+    if (isUltraTier) {
+      // 서울대는 배움 95~100의 최상위권이어도 전국 경쟁으로 합격률 최대 18% (불합격 확률 82% 이상)
+      return Math.min(0.18, univ.acceptanceRateBase + diff * 0.015);
+    }
+    if (isTopSkyTier) {
+      // 연고대/카이스트/포스텍 등은 최대 28%
+      return Math.min(0.28, univ.acceptanceRateBase + diff * 0.02);
+    }
+    if (univ.region === '서울') {
+      return Math.min(0.50, univ.acceptanceRateBase + diff * 0.025);
+    }
+    return Math.min(0.88, univ.acceptanceRateBase + diff * 0.025);
   };
 
   const handleApply = (univ: UniversityInfo) => {

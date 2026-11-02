@@ -479,6 +479,44 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
       }
     ]
   },
+  {
+    choiceCardId: 'LC-SPEND-NOCHILD-43',
+    category: 'SPEND',
+    categoryName: '40대 가계 지출과 라이프스타일',
+    title: '40대의 여유: 자기계발·문화생활 vs 노후 시드머니 축적',
+    ageRange: [42, 48],
+    excludeFlags: ['HAS_CHILDREN'],
+    body: '자녀 양육비 지출 부담이 없는 40대, 가계 가처분 소득의 여유를 어떻게 활용할지 결정해야 합니다. 진주 남강변 문화 예술 향유와 여행·자기계발에 투자할 것인가, 아니면 조기 은퇴를 위한 노후 금융 자산 형성에 집중할 것인가?',
+    statContextFact: '통계청 가계금융복지조사에 따르면 무자녀 1인·부부 가구는 사교육비 지출이 0원인 대신 자기계발·문화여가(34%) 및 금융자산 저축(48%) 비중이 크게 높습니다.',
+    options: [
+      {
+        optionId: 'OPT_NOCHILD_SAVINGS',
+        label: '소비 거품을 줄이고 국내외 우량 배당 ETF와 저축에 집중하여 50대 조기 은퇴를 준비한다',
+        effects: {
+          happiness: 4,
+          learning: 3,
+          health: 2,
+          bonds: 1,
+          spend: 2
+        },
+        grantFlag: 'COMPOUND_INVESTOR',
+        consequenceText: '절제된 생활과 높은 저축률로 가계 금융 자산이 빠르게 불어납니다. 조기 은퇴와 경제적 자유가 눈앞에 다가옵니다.'
+      },
+      {
+        optionId: 'OPT_NOCHILD_CULTURE',
+        label: '진주 도동·평거 문화예술 강좌와 여행, 반려동물 및 취미 생활에 아낌없이 투자한다',
+        effects: {
+          happiness: 8,
+          learning: 5,
+          health: 3,
+          bonds: 6,
+          spend: -1
+        },
+        grantFlag: 'CULTURE_LIFESTYLE',
+        consequenceText: '자신만을 위한 풍요로운 시간과 취미 생활로 매일이 다채롭습니다. 삶의 만족도와 마음의 여유가 최고조에 달합니다.'
+      }
+    ]
+  },
 
   // =========================================================================
   // 7. 취미와 여가 (4대 취미 및 서울 원정비용)
@@ -726,7 +764,7 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
     categoryName: '중년의 자산 도약',
     title: '중년의 자산 운용: 남부내륙철도(KTX)와 우주항공 호재',
     ageRange: [43, 47],
-    body: '40대에 접어들며 자녀 교육비와 함께 은퇴 이후의 삶을 진지하게 고민하기 시작합니다. 진주에는 남부내륙철도(KTX)와 우주항공청 배후 인프라 확충 소식이 이어집니다. 당신의 가계 자산을 어떻게 재배치하시겠습니까?',
+    body: '40대에 접어들며 안정적인 자산 운용과 은퇴 이후의 삶을 진지하게 고민하기 시작합니다. 진주에는 남부내륙철도(KTX)와 우주항공청 배후 인프라 확충 소식이 이어집니다. 당신의 가계 자산을 어떻게 재배치하시겠습니까?',
     statContextFact: '한국은행 가계자산 통계 - 40대 가구 순자산의 74%가 실물자산(부동산)에 집중되어 있으며, 광역교통망 확충 시 자산 가치 격차 확대',
     options: [
       {
@@ -754,7 +792,7 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
     ]
   },
 
-  // 11. [52~56세] 50대 노후 연금과 자녀 독립 지원의 딜레마
+  // 11-1. [52~56세] 50대 유자녀: 노후 연금 vs 자녀 독립 지원의 딜레마
   {
     choiceCardId: 'LC_RETIRE_50S',
     category: 'WEALTH_GROWTH',
@@ -785,6 +823,34 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
         effects: { bonds: 10, happiness: 9, learning: 4, netWorthChange: 30000000 },
         grantFlag: 'BALANCED_RETIREMENT',
         consequenceText: '자녀에게 자립심을 심어주면서도 부모의 따뜻한 온기를 전했습니다. 노후 자산도 안정적으로 지켜냈습니다.'
+      }
+    ]
+  },
+
+  // 11-2. [52~56세] 50대 무자녀/1인가구: 노후 3층 연금 완성 vs 수익형 부동산 월세
+  {
+    choiceCardId: 'LC_RETIRE_50S_NOCHILD',
+    category: 'WEALTH_GROWTH',
+    categoryName: '은퇴 준비와 노후 설계',
+    title: '50대의 결단: 3층 연금(국민·퇴직·개인) 완성 vs 월세 임대수익 다변화',
+    ageRange: [52, 56],
+    excludeFlags: ['HAS_CHILDREN'],
+    body: '정년퇴직이 눈앞으로 다가오는 50대 중반, 자녀 부양 지출이 없는 만큼 안정적이고 여유로운 노후 현금흐름을 설계해야 합니다. IRP와 연금저축을 극대화해 탄탄한 연금 체계를 갖출 것인가, 아니면 상가·수익형 부동산으로 월세 흐름을 만들 것인가?',
+    statContextFact: '국민연금연구원 연구보고서 - 무자녀 가구의 경우 연금 소득 대체율 60% 이상 달성 시 가장 높은 노후 삶의 만족도를 기록',
+    options: [
+      {
+        optionId: 'OPT_PENSION_IRP_NOCHILD',
+        label: '개인형 IRP와 연금저축펀드 납입 한도를 채워 든든한 3층 연금 체계를 완성한다',
+        effects: { happiness: 10, learning: 5, netWorthChange: 80000000 },
+        grantFlag: 'SOLID_PENSION',
+        consequenceText: '정년 이후 매달 안정적으로 꽂히는 평생 연금 파이프라인을 확정했습니다. 돈 걱정 없는 평온한 황혼이 보장됩니다.'
+      },
+      {
+        optionId: 'OPT_REALESTATE_INCOME_NOCHILD',
+        label: '중앙시장·혁신도시 근린상가 소액 지분 or 오피스텔로 매달 월세 현금흐름을 확보한다',
+        effects: { happiness: 8, learning: 6, netWorthChange: 65000000, incomeChange: 1 },
+        grantFlag: 'DIVIDEND_CASHFLOW',
+        consequenceText: '매달 따박따박 들어오는 월세 수익으로 가계에 단비 같은 여유가 생겼습니다. 친구들과 여행을 다니며 여유로운 중년을 보냅니다.'
       }
     ]
   },
@@ -830,13 +896,26 @@ export function checkLifeChoiceTrigger(
   gender: '남성' | '여성',
   flags: Set<string>,
   resolvedChoiceIds: Set<string>,
-  isEduMode: boolean = false
+  isEduMode: boolean = false,
+  childrenCount: number = 0
 ): LifeChoiceCard | null {
   for (const card of LIFE_CHOICES) {
     if (resolvedChoiceIds.has(card.choiceCardId)) continue;
     const [minAge, maxAge] = card.ageRange;
     if (age < minAge || age > maxAge) continue;
     if (card.genderFilter && card.genderFilter !== gender) continue;
+
+    // 자녀 유무 조건 엄격 검사 (무자녀 시 자녀 양육비/사교육비/자녀지원 카드 완전 차단)
+    const requiresChildren = card.requireFlags?.includes('HAS_CHILDREN') ||
+      card.choiceCardId === 'LC-CHILDCARE-DUAL-33' ||
+      card.choiceCardId === 'LC-SPEND-EDU-43' ||
+      card.choiceCardId === 'LC_RETIRE_50S';
+    if (requiresChildren && childrenCount === 0) continue;
+
+    const excludesChildren = card.excludeFlags?.includes('HAS_CHILDREN') ||
+      card.choiceCardId === 'LC-SPEND-NOCHILD-43' ||
+      card.choiceCardId === 'LC_RETIRE_50S_NOCHILD';
+    if (excludesChildren && childrenCount > 0) continue;
 
     // 플래그 조건 검사
     if (card.requireFlags && !card.requireFlags.some(f => flags.has(f))) continue;

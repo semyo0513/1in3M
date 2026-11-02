@@ -517,6 +517,13 @@ export function advanceCitizenProfile(
     }
   }
 
+  // 자녀 플래그 엄격 동기화 (자녀가 0명이면 HAS_CHILDREN 완전 제거)
+  if (childrenCount > 0) {
+    prev.flags?.add('HAS_CHILDREN');
+  } else {
+    prev.flags?.delete('HAS_CHILDREN');
+  }
+
   // 6. 곁을 지키는 사람 / 마지막 배웅
   let farewellCompanion = '오랜 친구 한 명';
   if (nextAge < 20) {
@@ -811,6 +818,11 @@ export function pickPersonalEvent(
     if ((cooldowns[e.id] || 0) > 0) return false;
 
     // 플래그 조건 검사 (비혼, 자녀 유무, 출향 등)
+    const requiresChildren = e.requireFlags?.includes('HAS_CHILDREN');
+    if (requiresChildren && (citizen.childrenCount || 0) === 0) return false;
+    const excludesChildren = e.excludeFlags?.includes('HAS_CHILDREN');
+    if (excludesChildren && (citizen.childrenCount || 0) > 0) return false;
+
     if (e.requireFlags && !e.requireFlags.some(f => citizen.flags?.has(f))) return false;
     if (e.excludeFlags && e.excludeFlags.some(f => citizen.flags?.has(f))) return false;
 
