@@ -60,6 +60,14 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* 현재 나이 및 연도, 거주지 */}
           <div className="flex items-center gap-1.5 text-xs">
+            <span className="font-bold text-slate-100 flex items-center gap-1">
+              <span>{citizen.name}</span>
+              <span className={`text-[10px] px-1 rounded ${
+                citizen.gender === '남성' ? 'text-sky-300 bg-sky-950/60' : 'text-rose-300 bg-rose-950/60'
+              }`}>
+                {citizen.gender}
+              </span>
+            </span>
             <span className="px-2 py-0.5 rounded bg-space-800 text-amber-200 font-mono font-bold border border-amber-500/30 text-[11px] sm:text-xs">
               {citizen.age}세 ({citizen.currentYear}년)
             </span>
@@ -67,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
               📍 {citizen.district.name.split(' ')[0]}
             </span>
             {citizen.isRelocatedAway && (
-              <span className="px-1.5 py-0.5 rounded bg-rose-950/80 text-rose-300 text-[10px] border border-rose-500/40">
+              <span className="px-1.5 py-0.5 rounded bg-rose-950/80 text-rose-300 text-[10px] border border-rose-500/40 font-semibold">
                 상경
               </span>
             )}

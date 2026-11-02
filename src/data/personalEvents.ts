@@ -12,6 +12,8 @@ export interface PersonalEventDef {
   sexFilter?: '남성' | '여성';
   focusFilter?: YearFocus;
   districtTypeFilter?: 'rural' | 'urban'; // 면(농촌) vs 동(도시) 권역 구분 필터
+  requireFlags?: string[]; // 해당 플래그 중 하나라도 보유 시에만 발생
+  excludeFlags?: string[]; // 해당 플래그 보유 시 발생 차단
   text: string;
   label: CardLabel;
   sourceNote?: string;
@@ -294,6 +296,7 @@ export const PERSONAL_EVENTS: PersonalEventDef[] = [
     minAge: 34,
     maxAge: 42,
     cooldownYears: 4,
+    requireFlags: ['HAS_CHILDREN'],
     text: '아이가 밤늦게 열이 펄펄 끓어 진주시 달빛어린이병원을 찾아 줄을 섰습니다. 의사의 빠른 처방에 부모의 가슴을 쓸어내립니다.',
     label: 'FACT',
     sourceNote: '보건복지부 지정 진주시 달빛어린이병원',
@@ -309,6 +312,7 @@ export const PERSONAL_EVENTS: PersonalEventDef[] = [
     minAge: 47,
     maxAge: 56,
     cooldownYears: 4,
+    requireFlags: ['HAS_CHILDREN'],
     text: '자녀의 학원비와 대학 등록금 지출이 절정에 달한 가운데, 연로하신 부모님의 노인장기요양등급 신청을 위해 서류를 챙깁니다.',
     label: 'FACT',
     sourceNote: '통계청 가계금융복지조사 50대 샌드위치 가계 실태',
@@ -391,8 +395,20 @@ export const PERSONAL_EVENTS: PersonalEventDef[] = [
     minAge: 72,
     maxAge: 85,
     cooldownYears: 3,
+    requireFlags: ['HAS_CHILDREN'],
     text: '명절을 맞아 외지에 나갔던 자녀와 손주들이 집을 가득 채웠습니다. 손주의 고사리손을 잡으며 살아온 날들의 고마움을 느낍니다.',
     label: 'PERSONAL',
     impact: { happiness: 9, bonds: 8 }
+  },
+  {
+    id: 'pe_stage8_single_peaceful_day',
+    stage: 8,
+    minAge: 65,
+    maxAge: 85,
+    cooldownYears: 3,
+    excludeFlags: ['HAS_CHILDREN'],
+    text: '오랜 시간 정성껏 가꿔온 화분과 서재, 평생을 함께해온 취미 생활 속에서 고즈넉하고 평온한 나만의 일상을 누립니다.',
+    label: 'PERSONAL',
+    impact: { learning: 4, happiness: 6, health: 3 }
   }
 ];

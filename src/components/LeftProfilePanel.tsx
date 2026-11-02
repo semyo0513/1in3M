@@ -62,9 +62,21 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
                 {citizen.age}세
               </span>
             </h2>
-            <p className="text-[10px] text-slate-400 font-serif">
-              {citizen.name} ({citizen.district.name.split(' ')[0]})
-            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-xs font-bold text-white tracking-wide">
+                {citizen.name}
+              </span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded font-medium border ${
+                citizen.gender === '남성'
+                  ? 'bg-sky-950/80 text-sky-300 border-sky-500/40'
+                  : 'bg-rose-950/80 text-rose-300 border-rose-500/40'
+              }`}>
+                {citizen.gender}
+              </span>
+              <span className="text-[10px] text-slate-400 font-sans">
+                ({citizen.district.name.split(' ')[0]})
+              </span>
+            </div>
           </div>
         </div>
 
@@ -84,6 +96,18 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
         
         {/* 학력 & 직업 */}
         <div className="space-y-1.5 pb-3 border-b border-slate-800/80">
+          <div className="flex items-start">
+            <span className="w-16 text-slate-400 shrink-0 font-medium">이름/성별</span>
+            <span className="text-slate-500 mr-2">:</span>
+            <span className="text-slate-100 font-bold flex items-center gap-1.5">
+              <span>{citizen.name}</span>
+              <span className={`text-[10px] font-normal px-1 rounded ${
+                citizen.gender === '남성' ? 'text-sky-300' : 'text-rose-300'
+              }`}>
+                ({citizen.gender})
+              </span>
+            </span>
+          </div>
           <div className="flex items-start">
             <span className="w-16 text-slate-400 shrink-0 font-medium">학력</span>
             <span className="text-slate-500 mr-2">:</span>

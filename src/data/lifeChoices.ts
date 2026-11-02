@@ -761,6 +761,7 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
     categoryName: '은퇴 준비와 자녀 지원',
     title: '50대의 결단: 개인연금(IRP) 극대화 vs 자녀 독립 지원',
     ageRange: [52, 56],
+    requireFlags: ['HAS_CHILDREN'],
     body: '정년퇴직이 눈앞으로 다가오는 50대 중반, 어느덧 훌쩍 자란 자녀가 사회 진출과 결혼을 앞두고 있습니다. 내 노후 연금을 든든히 챙길 것인가, 아니면 자녀의 사회 진출 전세 자금을 전폭적으로 지원할 것인가?',
     statContextFact: '보건복지부 조사 - 50대 부모의 73%가 자녀 지원으로 노후 자금 부족을 경험하며, 평균 자녀 지원액 1억 2,000만 원',
     options: [
@@ -815,10 +816,10 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
       },
       {
         optionId: 'OPT_SENIOR_FAMILY_HEIRLOOM',
-        label: '주말마다 자녀와 손주들을 집으로 불러 따뜻한 밥을 먹이고 삶의 가치를 전한다',
+        label: '가족과 지인들을 집으로 초대해 따뜻한 밥을 나누고 삶의 온기와 지혜를 전한다',
         effects: { bonds: 20, happiness: 16, health: 4 },
         grantFlag: 'FAMILY_HEIRLOOM',
-        consequenceText: '주말마다 손주들의 웃음소리로 집안이 가득 찹니다. 평생 성실하게 일군 삶의 결실과 따뜻한 유산이 다음 세대로 이어집니다.'
+        consequenceText: '사람들의 온기와 웃음소리로 집안이 가득 찹니다. 평생 성실하게 일군 삶의 결실과 따뜻한 유산이 이어집니다.'
       }
     ]
   }

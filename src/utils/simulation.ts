@@ -185,6 +185,19 @@ const HOBBIES = [
   '배드민턴과 생활 체육'
 ];
 
+export function getRandomKoreanName(gender: '남성' | '여성'): string {
+  const familyNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오', '서', '신', '권', '황', '안', '송', '전', '홍'];
+  const maleGivenNames = ['민준', '서준', '도윤', '예준', '시우', '하준', '주원', '지호', '지훈', '준서', '건우', '우진', '선우', '서진', '유준', '정우', '승우', '승현', '시윤', '민재', '현우', '동현', '준혁'];
+  const femaleGivenNames = ['서연', '서윤', '지우', '서현', '하은', '하윤', '민서', '지유', '윤서', '채원', '수아', '지민', '지원', '다은', '은서', '예은', '수빈', '소율', '예린', '유진', '아린', '소희', '채은'];
+
+  const family = familyNames[Math.floor(Math.random() * familyNames.length)];
+  const given = gender === '남성'
+    ? maleGivenNames[Math.floor(Math.random() * maleGivenNames.length)]
+    : femaleGivenNames[Math.floor(Math.random() * femaleGivenNames.length)];
+
+  return `${family}${given}`;
+}
+
 export function generateBirthForDistrict(
   districtId: string,
   birthYear: number = 2026,
@@ -193,6 +206,7 @@ export function generateBirthForDistrict(
 ): CitizenStatus {
   const district = JINJU_DISTRICTS.find(d => d.id === districtId) || JINJU_DISTRICTS[0];
   const gender: '남성' | '여성' = Math.random() < 0.51 ? '남성' : '여성';
+  const name = getRandomKoreanName(gender);
 
   const baseDecile = overrideDecile ?? Math.round(district.avgIncomeDecile + (Math.random() * 2 - 1));
   const incomeDecile = Math.max(1, Math.min(5, baseDecile));
@@ -207,7 +221,7 @@ export function generateBirthForDistrict(
   const highSchool = pickHighSchool(district.id, gender);
 
   return {
-    name: isEduMode ? '진주 학생' : '진주시민',
+    name,
     age: 0,
     birthYear,
     currentYear: birthYear,
@@ -302,7 +316,7 @@ export function advanceCitizenProfile(
     [focus]: (prevTimeSpent[focus] || 0) + 1
   };
 
-  // 2. 학력 발전 (실제 진주 학교 명칭 반영)
+  // 2. 학력 발전 (실제 진주 학교 명칭 및 사용자 선택 분기 연동)
   let education = prev.education || '미취학 (영유아)';
   if (nextAge < 8) {
     education = '미취학 (영유아)';
@@ -313,9 +327,18 @@ export function advanceCitizenProfile(
   } else if (nextAge <= 19) {
     education = `고등학교 (${highSchool})`;
   } else if (nextAge === 20) {
-    if (prev.learning >= 65) education = `대학교 (경상국립대 / ${highSchool} 졸)`;
-    else if (prev.learning >= 35) education = `전문학사 (연암공대 / ${highSchool} 졸)`;
-    else education = `고등학교 (${highSchool} 졸업)`;
+    // 사용자의 대학 선택 카드(MIGRATED_SEOUL_COLLEGE, COLLEGE_LOCAL_GNU, EARLY_LOCAL_CAREER) 결과 우선 반영
+    if (prev.flags?.has('MIGRATED_SEOUL_COLLEGE')) {
+      education = `서울 4년제 대학교 (${highSchool} 졸)`;
+    } else if (prev.flags?.has('COLLEGE_LOCAL_GNU')) {
+      education = `경상국립대학교 (${highSchool} 졸)`;
+    } else if (prev.flags?.has('EARLY_LOCAL_CAREER')) {
+      education = `고등학교 (${highSchool} 졸 / 취업)`;
+    } else {
+      if (prev.learning >= 65) education = `대학교 (경상국립대 / ${highSchool} 졸)`;
+      else if (prev.learning >= 35) education = `전문학사 (연암공대 / ${highSchool} 졸)`;
+      else education = `고등학교 (${highSchool} 졸업)`;
+    }
   } else if (nextAge >= 26 && education.startsWith('고등학교') && timeSpent.learning >= 10) {
     education = `방통대 학사 (${highSchool} 졸)`;
   }
@@ -339,7 +362,7 @@ export function advanceCitizenProfile(
   } else if (nextAge <= 24) {
     if (education.includes('대학교')) {
       job = '청년 구직자';
-      jobTitle = '대학생 (학업 및 준비)';
+      jobTitle = education.includes('서울') ? '서울 유학생 (대학생)' : '대학생 (경상국립대)';
     } else {
       job = getRandomJob(prev.district.id, nextAge);
       jobTitle = `${job} · 사회초년생`;
@@ -348,7 +371,14 @@ export function advanceCitizenProfile(
     if (job === '청년 구직자' || job === '은퇴 및 프리랜서') {
       job = getRandomJob(prev.district.id, nextAge);
     }
-    jobTitle = `${job} · 사원·주임`;
+    // 취업 선택지 연동
+    if (prev.flags?.has('JOB_PUBLIC_CORP_CANDIDATE')) {
+      jobTitle = '공공기관 공채 준비·인턴';
+    } else if (prev.flags?.has('MIGRATED_OUT_SEOUL')) {
+      jobTitle = '수도권 IT·제조기업 사원';
+    } else {
+      jobTitle = `${job} · 사원·주임`;
+    }
   } else if (nextAge <= 44) {
     jobTitle = `${job} · 대리·과장`;
   } else if (nextAge <= 58) {
@@ -422,11 +452,15 @@ export function advanceCitizenProfile(
     }
   }
 
-  // 5. 배우자 및 자녀
+  // 5. 배우자 및 자녀 (비혼 선언 및 딩크 선택 철저 반영)
   let spouse: SpouseInfo | null = prev.spouse ? { ...prev.spouse } : null;
   let childrenCount = prev.childrenCount || 0;
 
-  if (!spouse && nextAge >= 28 && nextAge <= 38 && prev.bonds >= 50) {
+  // 비혼주의(DECLARED_SINGLE)를 선언한 경우 자동 결혼/파트너 생성 차단
+  const isDeclaredSingle = prev.flags?.has('DECLARED_SINGLE');
+  const isDeclaredDink = prev.flags?.has('DECLARED_DINK');
+
+  if (!isDeclaredSingle && !spouse && nextAge >= 28 && nextAge <= 38 && prev.bonds >= 50) {
     // 결혼 확률 25%
     if (Math.random() < 0.25) {
       const spouseNames = prev.gender === '남성'
@@ -450,7 +484,8 @@ export function advanceCitizenProfile(
     }
   }
 
-  if (spouse && !spouse.passedAway && nextAge >= 29 && nextAge <= 39 && childrenCount < 2) {
+  // 비혼이거나 딩크(DECLARED_DINK)인 경우 자동 자녀 출산 차단
+  if (!isDeclaredSingle && !isDeclaredDink && spouse && !spouse.passedAway && nextAge >= 29 && nextAge <= 39 && childrenCount < 2) {
     if (Math.random() < 0.20) {
       childrenCount += 1;
     }
@@ -460,8 +495,12 @@ export function advanceCitizenProfile(
   let farewellCompanion = '오랜 친구 한 명';
   if (nextAge < 20) {
     farewellCompanion = '사랑으로 품어준 부모님과 가족';
+  } else if (isDeclaredSingle) {
+    farewellCompanion = prev.bonds >= 60 ? '오랜 친구들과 반려묘·반려견' : '마음을 나눈 이웃과 오랜 친구';
   } else if (spouse && !spouse.passedAway) {
-    farewellCompanion = `늘 곁을 지켜준 배우자 ${spouse.name}와 가족`;
+    farewellCompanion = childrenCount > 0
+      ? `늘 곁을 지켜준 배우자 ${spouse.name}와 자녀들`
+      : `늘 곁을 지켜준 배우자 ${spouse.name}`;
   } else if (spouse && spouse.passedAway) {
     farewellCompanion = childrenCount > 0 ? '든든한 자녀들과 오랜 친구' : '오랜 친구 한 명';
   } else if (childrenCount > 0) {
@@ -743,6 +782,10 @@ export function pickPersonalEvent(
     if (e.sexFilter && e.sexFilter !== citizen.gender) return false;
     if (e.onceOnly && seenOnce.has(e.id)) return false;
     if ((cooldowns[e.id] || 0) > 0) return false;
+
+    // 플래그 조건 검사 (비혼, 자녀 유무, 출향 등)
+    if (e.requireFlags && !e.requireFlags.some(f => citizen.flags?.has(f))) return false;
+    if (e.excludeFlags && e.excludeFlags.some(f => citizen.flags?.has(f))) return false;
 
     // 면(농촌) vs 동(도시) 권역 필터
     if (e.districtTypeFilter) {

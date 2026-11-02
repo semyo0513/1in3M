@@ -108,7 +108,7 @@ export const App: React.FC = () => {
     // 진행 중인 상태도 교육용 서술형 표현으로 즉시 보정
     setCitizen(prev => ({
       ...prev,
-      name: nextMode ? '진주 학생' : '진주시민',
+      name: nextMode ? (prev.name.includes('학생') ? prev.name : `${prev.name} (학생)`) : prev.name.replace(' (학생)', ''),
       incomeDesc: getEduIncomeDesc(prev.incomeDecile)
     }));
   };
@@ -528,6 +528,21 @@ export const App: React.FC = () => {
         nextChildren = 1;
       } else if (option.optionId === 'CHILD_MULTI_BLESSING') {
         nextChildren = Math.max(2, nextChildren + 2);
+      } else if (option.grantFlag === 'DECLARED_SINGLE' || option.grantFlag === 'DECLARED_DINK') {
+        nextChildren = 0;
+      }
+
+      // 비혼 선언 시 배우자 없음 유지
+      if (option.grantFlag === 'DECLARED_SINGLE') {
+        nextSpouse = null;
+      }
+
+      // 수도권 상경(대학/취업) 시 탈진주(출향) 플래그 및 주거지 연동
+      let nextIsRelocatedAway = prev.isRelocatedAway;
+      if (option.grantFlag === 'MIGRATED_SEOUL_COLLEGE' || option.grantFlag === 'MIGRATED_OUT_SEOUL') {
+        nextIsRelocatedAway = true;
+      } else if (option.grantFlag === 'COLLEGE_LOCAL_GNU' || option.grantFlag === 'JOB_LOCAL_SME') {
+        nextIsRelocatedAway = false;
       }
 
       // 취미 선택 반영
@@ -556,6 +571,7 @@ export const App: React.FC = () => {
         spouse: nextSpouse,
         childrenCount: nextChildren,
         hobby: nextHobby,
+        isRelocatedAway: nextIsRelocatedAway,
         flags: nextFlags
       };
     });
