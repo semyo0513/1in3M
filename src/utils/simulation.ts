@@ -290,6 +290,7 @@ export function advanceCitizenProfile(
   elementarySchool: string;
   middleSchool: string;
   highSchool: string;
+  collegeName?: string;
   monthlyIncomeWon: number;
   netWorthWon: number;
   spouse: SpouseInfo | null;
@@ -300,10 +301,11 @@ export function advanceCitizenProfile(
   lifeArchetype: LifeArchetypeInfo;
   hobby: string;
 } {
-  // 진주시 실제 학교 계승/확보
+  // 진주시 실제 학교 계승/확보 및 진학 대학 계승
   const elementarySchool = prev.elementarySchool || pickElementarySchool(prev.district.id);
   const middleSchool = prev.middleSchool || pickMiddleSchool(prev.district.id, prev.gender);
   const highSchool = prev.highSchool || pickHighSchool(prev.district.id, prev.gender);
+  const collegeName = prev.collegeName;
 
   // 1. 시간을 쓴 곳 누적
   const prevTimeSpent = prev.timeSpent || { learning: 0, work: 0, relationship: 0, health: 0, change: 0 };
@@ -327,20 +329,27 @@ export function advanceCitizenProfile(
   } else if (nextAge <= 19) {
     education = `고등학교 (${highSchool})`;
   } else if (nextAge === 20) {
-    // 사용자의 대학 선택 카드(MIGRATED_SEOUL_COLLEGE, COLLEGE_LOCAL_GNU, EARLY_LOCAL_CAREER) 결과 우선 반영
-    if (prev.flags?.has('MIGRATED_SEOUL_COLLEGE')) {
+    // 19세 전국 100개 대학 입시 결과(collegeName) 및 선택지 결과 우선 반영
+    if (collegeName) {
+      education = `${collegeName} (${highSchool} 졸)`;
+    } else if (prev.flags?.has('EARLY_LOCAL_CAREER') || prev.flags?.has('COLLEGE_FAILED_CAREER')) {
+      education = `고등학교 (${highSchool} 졸 / 취업)`;
+    } else if (prev.flags?.has('MIGRATED_SEOUL_COLLEGE')) {
       education = `서울 4년제 대학교 (${highSchool} 졸)`;
     } else if (prev.flags?.has('COLLEGE_LOCAL_GNU')) {
       education = `경상국립대학교 (${highSchool} 졸)`;
-    } else if (prev.flags?.has('EARLY_LOCAL_CAREER')) {
-      education = `고등학교 (${highSchool} 졸 / 취업)`;
     } else {
       if (prev.learning >= 65) education = `대학교 (경상국립대 / ${highSchool} 졸)`;
       else if (prev.learning >= 35) education = `전문학사 (연암공대 / ${highSchool} 졸)`;
       else education = `고등학교 (${highSchool} 졸업)`;
     }
-  } else if (nextAge >= 26 && education.startsWith('고등학교') && timeSpent.learning >= 10) {
-    education = `방통대 학사 (${highSchool} 졸)`;
+  } else if (nextAge > 20) {
+    // 20세 이후에도 이미 진학한 대학교 및 학력 유지
+    if (collegeName && !education.includes(collegeName)) {
+      education = `${collegeName} (${highSchool} 졸)`;
+    } else if (nextAge >= 26 && education.startsWith('고등학교') && timeSpent.learning >= 10) {
+      education = `방통대 학사 (${highSchool} 졸)`;
+    }
   }
 
   // 3. 직업 및 직책 발전 (학교 명칭 연동)
@@ -360,9 +369,17 @@ export function advanceCitizenProfile(
     job = '청년 구직자';
     jobTitle = `고등학생 (${highSchool})`;
   } else if (nextAge <= 24) {
-    if (education.includes('대학교')) {
+    const isEnrolledCollege = Boolean(
+      collegeName ||
+      education.includes('대학교') ||
+      education.includes('대학') ||
+      education.includes('과기원') ||
+      education.includes('학사')
+    );
+    if (isEnrolledCollege) {
       job = '청년 구직자';
-      jobTitle = education.includes('서울') ? '서울 유학생 (대학생)' : '대학생 (경상국립대)';
+      const univLabel = collegeName || (education.includes('서울') ? '서울권 대학' : '경상국립대');
+      jobTitle = prev.isRelocatedAway ? `서울 유학생 (${univLabel})` : `대학생 (${univLabel})`;
     } else {
       job = getRandomJob(prev.district.id, nextAge);
       jobTitle = `${job} · 사회초년생`;
@@ -397,7 +414,16 @@ export function advanceCitizenProfile(
   else if (nextAge <= 13) monthlyIncomeWon = 30000;
   else if (nextAge <= 16) monthlyIncomeWon = 70000;
   else if (nextAge <= 19) monthlyIncomeWon = 150000;
-  else if (nextAge <= 24) monthlyIncomeWon = education.includes('대학교') ? 450000 : 2100000;
+  else if (nextAge <= 24) {
+    const isEnrolledCollege = Boolean(
+      collegeName ||
+      education.includes('대학교') ||
+      education.includes('대학') ||
+      education.includes('과기원') ||
+      education.includes('학사')
+    );
+    monthlyIncomeWon = isEnrolledCollege ? 450000 : 2100000;
+  }
   else if (nextAge <= 34) monthlyIncomeWon = prev.incomeDecile * 700000 + 2000000;
   else if (nextAge <= 44) monthlyIncomeWon = prev.incomeDecile * 950000 + 2600000;
   else if (nextAge <= 58) monthlyIncomeWon = prev.incomeDecile * 1150000 + 3200000;
@@ -579,6 +605,7 @@ export function advanceCitizenProfile(
     elementarySchool,
     middleSchool,
     highSchool,
+    collegeName,
     monthlyIncomeWon,
     netWorthWon,
     spouse,

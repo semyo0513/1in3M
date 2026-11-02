@@ -122,7 +122,9 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
                   ? citizen.elementarySchool
                   : citizen.age < 17
                   ? `${citizen.elementarySchool} → ${citizen.middleSchool}`
-                  : `${citizen.elementarySchool} → ${citizen.middleSchool} → ${citizen.highSchool}`}
+                  : citizen.age < 20 || !citizen.collegeName
+                  ? `${citizen.elementarySchool} → ${citizen.middleSchool} → ${citizen.highSchool}`
+                  : `${citizen.elementarySchool} → ${citizen.middleSchool} → ${citizen.highSchool} → ${citizen.collegeName}`}
               </span>
             </div>
           )}

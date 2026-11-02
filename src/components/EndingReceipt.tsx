@@ -125,6 +125,10 @@ ${citizen.choicesHistory.map((c, i) => `${i + 1}. [${c.age}세] ${c.issueTitle} 
             <span className="font-semibold text-rose-300">{citizen.deathCause || '평온한 영면'}</span>
           </div>
           <div className="flex justify-between">
+            <span className="text-slate-400">최종 학력</span>
+            <span className="font-semibold text-sky-300">{citizen.education || '미취학'}</span>
+          </div>
+          <div className="flex justify-between">
             <span className="text-slate-400">평생 직업</span>
             <span className="font-semibold text-amber-300">{citizen.job}</span>
           </div>

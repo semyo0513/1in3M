@@ -257,7 +257,7 @@ export const App: React.FC = () => {
       // 6-2. 학력 및 생애 경험에 따른 '결정성 지능(Crystalized Knowledge)' 배움 영구 하한선 보장
       // 학교 교육을 이수하고 평생을 살아온 인간의 지식·상식·경험적 지혜는 0으로 소멸하지 않음
       let learningFloor = 20;
-      if (profileUpdates.education.includes('대학교') || profileUpdates.education.includes('학사')) {
+      if (profileUpdates.collegeName || profileUpdates.education.includes('대학교') || profileUpdates.education.includes('대학') || profileUpdates.education.includes('과기원') || profileUpdates.education.includes('학사')) {
         learningFloor = 55;
       } else if (profileUpdates.education.includes('고등학교')) {
         learningFloor = 45;
@@ -624,6 +624,8 @@ export const App: React.FC = () => {
       let nextJob = prev.job;
       let nextJobTitle = prev.jobTitle;
 
+      const admittedCollegeName = (res.isAccepted && res.appliedUniv) ? res.appliedUniv.name : undefined;
+
       if (res.isAccepted && res.appliedUniv) {
         nextEducation = `${res.appliedUniv.name} (${prev.highSchool} 졸)`;
         nextJob = '청년 구직자';
@@ -638,6 +640,7 @@ export const App: React.FC = () => {
 
       return {
         ...prev,
+        collegeName: admittedCollegeName,
         education: nextEducation,
         job: nextJob,
         jobTitle: nextJobTitle,

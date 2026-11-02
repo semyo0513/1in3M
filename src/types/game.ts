@@ -68,10 +68,11 @@ export interface CitizenStatus {
   jobTitle: string; // 나이와 생애 주기에 따른 직책/직업 (예: '영유아', '초등학생', '부장 · 은퇴')
   education: string; // 학력 (예: '미취학 (영유아)', '초등학교', '고등학교', '대학교')
   
-  // 진주시 실제 학교 (초·중·고)
+  // 진주시 실제 학교 (초·중·고) 및 진학 대학교
   elementarySchool: string;
   middleSchool: string;
   highSchool: string;
+  collegeName?: string; // 진학 대학교 (예: 'KAIST (한국과학기술원)', '서울대학교', '경상국립대학교')
 
   incomeDecile: number; // 1~5분위 (교육용 모드에서는 서술형 매핑)
   incomeDesc?: string; // 교육용 서술형 표현
