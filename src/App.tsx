@@ -227,9 +227,10 @@ export const App: React.FC = () => {
       const bHappy = 48 + 10 * ((prevCitizen.temperament?.optimism || 50) / 100);
       const happyReversion = -0.12 * (prevCitizen.happiness - bHappy);
 
-      // 4. 가계 부채 발생 시 페널티
-      const debtPenaltyHappiness = prevCitizen.hasDebtRisk ? -1.5 : 0;
-      const debtPenaltyHealth = prevCitizen.hasDebtRisk ? -1.0 : 0;
+      // 4. 가계 부채 발생 시 페널티 (부채가 실제로 남아있을 때만 페널티 적용)
+      const hasActualDebtRisk = Boolean(prevCitizen.hasDebtRisk && (prevCitizen.totalDebtWon || 0) > 0);
+      const debtPenaltyHappiness = hasActualDebtRisk ? -1.5 : 0;
+      const debtPenaltyHealth = hasActualDebtRisk ? -1.0 : 0;
 
       // 4-1. 청년기 생체 항상성 및 자연 회복력 (만 45세 미만 저하 시 완만한 자연 회복)
       const youthHealthRecovery = (nextAge < 45 && prevCitizen.health < 75)
@@ -587,7 +588,7 @@ export const App: React.FC = () => {
       const dBonds = applyDiminishingReturns(prev.bonds, eff.bonds || 0);
 
       const nextIncomeDecile = Math.max(1, Math.min(5, prev.incomeDecile + (eff.incomeChange || 0)));
-      const nextDebtRisk = prev.hasDebtRisk || (eff.spend !== undefined && eff.spend <= -2 && nextIncomeDecile <= 2);
+      const rawDebtRisk = Boolean(prev.hasDebtRisk || (eff.spend !== undefined && eff.spend <= -2 && nextIncomeDecile <= 2));
 
       // 결혼 분기 선택 시 배우자 정보 즉시 생성
       let nextSpouse = prev.spouse;
@@ -669,6 +670,7 @@ export const App: React.FC = () => {
       }
 
       let nextNetWorth = Math.max(0, nextTotalAssetsWon - nextTotalDebtWon);
+      const nextDebtRisk = nextTotalDebtWon > 0 && rawDebtRisk;
 
       return {
         ...prev,

@@ -231,50 +231,75 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
             <span className="text-emerald-300">{citizen.hobby || '노래·악기 연주'}</span>
           </div>
 
-          <div className="flex items-start">
-            <span className="w-20 text-slate-400 shrink-0 font-medium">재산 현황</span>
-            <span className="text-slate-500 mr-2">:</span>
-            <div className="flex-1 min-w-0 space-y-1">
-              <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-0.5">
-                <span className="text-yellow-300 font-mono font-bold text-xs">
-                  순자산 {formatWealth(citizen.netWorthWon)}
+          <div className="pt-0.5">
+            <div className="bg-space-900/90 border border-slate-800/90 rounded-xl p-2.5 space-y-2 shadow-sm">
+              {/* 상단: 순자산 */}
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+                  <span>순자산</span>
                 </span>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  (총자산 {formatWealth(citizen.totalAssetsWon || citizen.netWorthWon)} / 부채 {citizen.totalDebtWon > 0 ? formatWealth(citizen.totalDebtWon) : '없음'})
+                <span className="text-yellow-300 font-mono font-bold text-xs sm:text-[13px]">
+                  {formatWealth(citizen.netWorthWon)}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
-                {citizen.flags?.has('HOME_OWNER_CHUNGMUGONG') && (
-                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-sky-950/80 border border-sky-500/40 text-sky-300 font-semibold">
-                    혁신도시 자가
+
+              {/* 중단: 총자산 & 부채 명확한 2열 분리 */}
+              <div className="grid grid-cols-2 gap-1 pt-1.5 border-t border-slate-800/80 text-[10px] font-mono">
+                <div className="text-slate-400">
+                  <span>총자산: </span>
+                  <span className="text-slate-200 font-semibold">
+                    {formatWealth(citizen.totalAssetsWon || citizen.netWorthWon)}
                   </span>
-                )}
-                {citizen.flags?.has('HOME_OWNER_CHOJEON') && (
-                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-semibold">
-                    초전·평거 자가
+                </div>
+                <div className="text-right">
+                  <span className="text-slate-400">부채: </span>
+                  <span className={citizen.totalDebtWon > 0 ? "text-rose-400 font-bold" : "text-emerald-400 font-semibold"}>
+                    {citizen.totalDebtWon > 0 ? formatWealth(citizen.totalDebtWon) : '없음'}
                   </span>
-                )}
-                {citizen.flags?.has('COMPOUND_INVESTOR') && (
-                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-amber-950/80 border border-amber-500/40 text-amber-300 font-semibold">
-                    복리 투자
-                  </span>
-                )}
-                {citizen.flags?.has('REVERSE_MORTGAGE') && (
-                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-teal-950/80 border border-teal-500/40 text-teal-300 font-semibold">
-                    주택연금 종신
-                  </span>
-                )}
-                {citizen.flags?.has('SOLID_PENSION') && (
-                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-semibold">
-                    IRP 연금
-                  </span>
-                )}
-                {citizen.hasDebtRisk && (
-                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-rose-950 border border-rose-500/40 text-rose-300 font-bold">
-                    부채 위험
-                  </span>
-                )}
+                </div>
               </div>
+
+              {/* 하단: 자산 배지 태그들 (보유 시에만 노출) */}
+              {(citizen.flags?.has('HOME_OWNER_CHUNGMUGONG') ||
+                citizen.flags?.has('HOME_OWNER_CHOJEON') ||
+                citizen.flags?.has('COMPOUND_INVESTOR') ||
+                citizen.flags?.has('REVERSE_MORTGAGE') ||
+                citizen.flags?.has('SOLID_PENSION') ||
+                (citizen.totalDebtWon > 0 && citizen.hasDebtRisk)) && (
+                <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-slate-800/60">
+                  {citizen.flags?.has('HOME_OWNER_CHUNGMUGONG') && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-sky-950/80 border border-sky-500/40 text-sky-300 font-semibold whitespace-nowrap">
+                      혁신도시 자가
+                    </span>
+                  )}
+                  {citizen.flags?.has('HOME_OWNER_CHOJEON') && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-semibold whitespace-nowrap">
+                      초전·평거 자가
+                    </span>
+                  )}
+                  {citizen.flags?.has('COMPOUND_INVESTOR') && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-950/80 border border-amber-500/40 text-amber-300 font-semibold whitespace-nowrap">
+                      복리 투자
+                    </span>
+                  )}
+                  {citizen.flags?.has('REVERSE_MORTGAGE') && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-teal-950/80 border border-teal-500/40 text-teal-300 font-semibold whitespace-nowrap">
+                      주택연금 종신
+                    </span>
+                  )}
+                  {citizen.flags?.has('SOLID_PENSION') && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-semibold whitespace-nowrap">
+                      IRP 연금
+                    </span>
+                  )}
+                  {/* 부채 위험은 부채가 실제로 0보다 클 때만 표시 */}
+                  {citizen.totalDebtWon > 0 && citizen.hasDebtRisk && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-rose-950 border border-rose-500/50 text-rose-300 font-bold whitespace-nowrap animate-pulse">
+                      부채 위험
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

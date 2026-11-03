@@ -317,6 +317,7 @@ export function advanceCitizenProfile(
   totalAssetsWon: number;
   totalDebtWon: number;
   netWorthWon: number;
+  hasDebtRisk?: boolean;
   spouse: SpouseInfo | null;
   childrenCount: number;
   childrenList: Array<{ id: string; name: string; birthAge: number; gender: '아들' | '딸' }>;
@@ -547,6 +548,8 @@ export function advanceCitizenProfile(
   }
 
   let netWorthWon = Math.max(0, totalAssetsWon - totalDebtWon);
+  // 부채가 0원이면 부채 위험 플래그 자동 해제
+  const hasDebtRisk = totalDebtWon > 0 && Boolean(prev.hasDebtRisk);
 
   // 5. 배우자 및 자녀 (비혼 선언 및 딩크 선택 철저 반영)
   let spouse: SpouseInfo | null = prev.spouse ? { ...prev.spouse } : null;
@@ -684,6 +687,7 @@ export function advanceCitizenProfile(
     totalAssetsWon,
     totalDebtWon,
     netWorthWon,
+    hasDebtRisk,
     spouse,
     childrenCount,
     childrenList: prev.childrenList || [],
