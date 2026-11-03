@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { CitizenStatus, CityMacroIndicators } from '../types/game';
-import { Flame, Copy, Check, RotateCcw, HeartHandshake, ShieldCheck } from 'lucide-react';
+import { Flame, Copy, Check, RotateCcw, HeartHandshake, ShieldCheck, Newspaper, Sparkles, Film } from 'lucide-react';
 import { audioManager } from '../utils/audio';
 import { Footer } from './Footer';
+import { EndingRetroCredits } from './EndingRetroCredits';
+import { JinjuDailyNewspaper } from './JinjuDailyNewspaper';
 
 interface EndingReceiptProps {
   citizen: CitizenStatus;
@@ -19,6 +21,7 @@ export const EndingReceipt: React.FC<EndingReceiptProps> = ({
   onRestart,
   onSendToMemorial
 }) => {
+  const [activeEndingTab, setActiveEndingTab] = useState<'receipt' | 'retro' | 'newspaper'>('receipt');
   const [lastWords, setLastWords] = useState('');
   const [selectedEduCard, setSelectedEduCard] = useState('남강의 맑은 물결처럼 이웃을 서로 배려하는 진주가 되길 바랍니다.');
   const [copied, setCopied] = useState(false);
@@ -80,22 +83,87 @@ ${citizen.choicesHistory.map((c, i) => `${i + 1}. [${c.age}세] ${c.issueTitle} 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn">
-      <div className="bg-[#12161f] text-slate-200 border border-amber-500/40 rounded-2xl max-w-xl w-full my-auto shadow-2xl shadow-amber-950/50 p-4 sm:p-6 font-mono text-xs sm:text-sm">
+    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn select-none">
+      <div className="bg-[#12161f] text-slate-200 border border-amber-500/40 rounded-2xl max-w-2xl w-full my-auto shadow-2xl shadow-amber-950/50 p-4 sm:p-6 font-mono text-xs sm:text-sm">
         
-        {/* 교육용 디브리핑 핵심 철학 (출생은 운, 고정 문구) */}
-        {isEduMode && (
-          <div className="mb-3 bg-emerald-950/60 border border-emerald-500/50 rounded-xl p-3 text-left font-sans">
-            <div className="flex items-center gap-1.5 text-emerald-300 font-bold text-xs mb-1">
-              <HeartHandshake className="w-4 h-4 text-emerald-400" />
-              <span>[수업 디브리핑] 함께 살아가는 공동체를 위한 성찰</span>
-            </div>
-            <p className="text-[11px] text-emerald-100 leading-relaxed break-keep">
-              "우리가 어디서, 어떤 환경에서 태어날지는 스스로 선택한 것이 아닌 <strong>'삶의 우연(운)'</strong>입니다.
-              중요한 것은 어떤 환경에서 시작했든 서로의 처지를 존중하고, 함께 살아갈 더 나은 진주를 만들어가는 우리들의 선택입니다."
-            </p>
+        {/* 상단 3단 뷰 전환 탭: 영수증 / 레트로 회상 애니메이션 / 인생 신문 */}
+        <div className="flex rounded-xl bg-space-950 p-1 border border-slate-800 gap-1 mb-4 font-sans text-xs">
+          <button
+            onClick={() => {
+              setActiveEndingTab('receipt');
+              audioManager.playClickSound();
+            }}
+            className={`flex-1 py-2 px-2 rounded-lg flex items-center justify-center gap-1.5 transition font-medium ${
+              activeEndingTab === 'receipt'
+                ? 'bg-amber-500 text-space-950 font-bold shadow'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span>🏮</span>
+            <span>생애 영수증</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveEndingTab('retro');
+              audioManager.playClickSound();
+            }}
+            className={`flex-1 py-2 px-2 rounded-lg flex items-center justify-center gap-1.5 transition font-medium ${
+              activeEndingTab === 'retro'
+                ? 'bg-emerald-500 text-space-950 font-bold shadow'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Film className="w-3.5 h-3.5" />
+            <span>레트로 회상록</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveEndingTab('newspaper');
+              audioManager.playClickSound();
+            }}
+            className={`flex-1 py-2 px-2 rounded-lg flex items-center justify-center gap-1.5 transition font-medium ${
+              activeEndingTab === 'newspaper'
+                ? 'bg-sky-500 text-space-950 font-bold shadow'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Newspaper className="w-3.5 h-3.5" />
+            <span>진주일보 호외</span>
+          </button>
+        </div>
+
+        {/* 탭 2: 레트로 생애 크레딧 애니메이션 */}
+        {activeEndingTab === 'retro' && (
+          <div className="space-y-4 animate-fadeIn">
+            <EndingRetroCredits citizen={citizen} />
           </div>
         )}
+
+        {/* 탭 3: 진주일보 호외 신문 렌더러 */}
+        {activeEndingTab === 'newspaper' && (
+          <div className="space-y-4 animate-fadeIn">
+            <JinjuDailyNewspaper citizen={citizen} cityIndicators={cityIndicators} />
+          </div>
+        )}
+
+        {/* 탭 1: 기존 생애 데이터 영수증 */}
+        {activeEndingTab === 'receipt' && (
+          <>
+            {/* 교육용 디브리핑 핵심 철학 (출생은 운, 고정 문구) */}
+            {isEduMode && (
+              <div className="mb-3 bg-emerald-950/60 border border-emerald-500/50 rounded-xl p-3 text-left font-sans">
+                <div className="flex items-center gap-1.5 text-emerald-300 font-bold text-xs mb-1">
+                  <HeartHandshake className="w-4 h-4 text-emerald-400" />
+                  <span>[수업 디브리핑] 함께 살아가는 공동체를 위한 성찰</span>
+                </div>
+                <p className="text-[11px] text-emerald-100 leading-relaxed break-keep">
+                  "우리가 어디서, 어떤 환경에서 태어날지는 스스로 선택한 것이 아닌 <strong>'삶의 우연(운)'</strong>입니다.
+                  중요한 것은 어떤 환경에서 시작했든 서로의 처지를 존중하고, 함께 살아갈 더 나은 진주를 만들어가는 우리들의 선택입니다."
+                </p>
+              </div>
+            )}
 
         {/* 영수증 상단 헤더 */}
         <div className="text-center pb-3 border-b border-dashed border-slate-700">
@@ -283,6 +351,8 @@ ${citizen.choicesHistory.map((c, i) => `${i + 1}. [${c.age}세] ${c.issueTitle} 
             <Flame className="w-4 h-4 text-amber-400 animate-pulse" />
             <span>당신의 유등이 남강의 밤 물결 위에 띄워졌습니다.</span>
           </div>
+        )}
+          </>
         )}
 
         {/* 액션 버튼들 */}

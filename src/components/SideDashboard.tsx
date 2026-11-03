@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { CohortPerson, ChoiceRecord, CityMacroIndicators } from '../types/game';
-import { Users2, MapPin, Scale, Sparkles, History, CheckCircle2 } from 'lucide-react';
+import { CohortPerson, ChoiceRecord, CityMacroIndicators, CitizenStatus } from '../types/game';
+import { Users2, MapPin, Scale, Sparkles, History, CheckCircle2, Navigation } from 'lucide-react';
 import { audioManager } from '../utils/audio';
+import { JinjuVisualMap } from './JinjuVisualMap';
 
 interface SideDashboardProps {
   cohort: CohortPerson[];
   birthYear: number;
   choicesHistory: ChoiceRecord[];
   cityIndicators: CityMacroIndicators;
-  activeTab?: 'impact' | 'cohort';
-  onTabChange?: (tab: 'impact' | 'cohort') => void;
+  citizen?: CitizenStatus;
+  activeTab?: 'impact' | 'cohort' | 'map';
+  onTabChange?: (tab: 'impact' | 'cohort' | 'map') => void;
 }
 
 export const SideDashboard: React.FC<SideDashboardProps> = ({
@@ -17,13 +19,14 @@ export const SideDashboard: React.FC<SideDashboardProps> = ({
   birthYear,
   choicesHistory,
   cityIndicators,
+  citizen,
   activeTab: externalTab,
   onTabChange
 }) => {
-  const [internalTab, setInternalTab] = useState<'impact' | 'cohort'>('impact');
+  const [internalTab, setInternalTab] = useState<'impact' | 'cohort' | 'map'>('impact');
   const activeTab = externalTab ?? internalTab;
 
-  const handleTabClick = (t: 'impact' | 'cohort') => {
+  const handleTabClick = (t: 'impact' | 'cohort' | 'map') => {
     if (onTabChange) onTabChange(t);
     else setInternalTab(t);
     audioManager.playClickSound();
@@ -89,6 +92,18 @@ export const SideDashboard: React.FC<SideDashboardProps> = ({
           >
             <Users2 className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate text-[11px] sm:text-xs">동갑내기 4인</span>
+          </button>
+
+          <button
+            onClick={() => handleTabClick('map')}
+            className={`flex-1 py-1.5 px-1.5 rounded-lg flex items-center justify-center gap-1 transition font-medium min-w-0 ${
+              activeTab === 'map'
+                ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Navigation className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate text-[11px] sm:text-xs">진주 지도</span>
           </button>
         </div>
       </div>
@@ -293,6 +308,13 @@ export const SideDashboard: React.FC<SideDashboardProps> = ({
           <div className="mt-2 text-[10px] text-slate-500 text-center border-t border-slate-800/80 pt-2">
             통계청 인구 이동 및 직업 분포 모델링
           </div>
+        </div>
+      )}
+
+      {/* 탭 3: 진주 로컬 공간 지도 & 랜드마크 */}
+      {activeTab === 'map' && citizen && (
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden pb-16 sm:pb-0">
+          <JinjuVisualMap citizen={citizen} />
         </div>
       )}
 

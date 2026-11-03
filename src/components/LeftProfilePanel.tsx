@@ -50,7 +50,11 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
     : `${citizen.spouse.name} ${citizen.spouse.yearsTogether}년을 함께하는 중`;
 
   const childrenText = citizen.childrenList && citizen.childrenList.length > 0
-    ? citizen.childrenList.map(c => `${c.gender} ${c.name} (${Math.max(0, citizen.age - c.birthAge)}세)`).join(', ')
+    ? citizen.childrenList.map(c => {
+        const cAge = Math.max(0, citizen.age - c.birthAge);
+        const sub = c.collegeName ? ` · ${c.collegeName}` : c.job ? ` · ${c.job}` : '';
+        return `${c.gender} ${c.name} (${cAge}세${sub})`;
+      }).join(', ')
     : citizen.childrenCount === 0
     ? '없음'
     : `${citizen.childrenCount}명`;

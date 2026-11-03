@@ -96,7 +96,16 @@ export interface CitizenStatus {
   // 가족 및 관계망
   spouse: SpouseInfo | null;
   childrenCount: number;
-  childrenList: Array<{ id: string; name: string; birthAge: number; gender: '아들' | '딸' }>;
+  childrenList: Array<{
+    id: string;
+    name: string;
+    birthAge: number;
+    gender: '아들' | '딸';
+    education?: string;
+    collegeName?: string;
+    job?: string;
+    milestoneSeen?: number[]; // [7, 14, 19, 24]
+  }>;
   pet?: { name: string; type: 'dog' | 'cat'; breed: string; icon: string; adoptedAge: number } | null;
   farewellCompanion: string; // 마지막 길을 배웅한 사람 (또는 곁을 지키는 사람)
   
@@ -131,6 +140,19 @@ export interface CitizenStatus {
   choicesHistory: ChoiceRecord[];
   pausedQuestionAnswers: { age: number; question: string; answer: string }[];
   memorialWords?: string;
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  category: 'ACADEMIC' | 'CAREER' | 'WEALTH' | 'FAMILY' | 'LOCAL' | 'LIFE';
+  iconEmoji: string;
+  secret?: boolean; // 히든 업적 여부
+  unlockedAt?: {
+    year: number;
+    age: number;
+  };
 }
 
 export interface ChoiceRecord {

@@ -47,8 +47,12 @@ import { CollegeApplicationModal } from './components/CollegeApplicationModal';
 import { CareerChoiceModal, CareerOption } from './components/CareerChoiceModal';
 import { ChildNamingModal } from './components/ChildNamingModal';
 import { PetAdoptionModal, PetInfo } from './components/PetAdoptionModal';
+import { AchievementModal } from './components/AchievementModal';
+import { ChildParentingModal, ChildMilestoneDecision } from './components/ChildParentingModal';
+import { evaluateAchievements } from './data/achievements';
+import { Achievement } from './types/game';
 import { Footer } from './components/Footer';
-import { ScrollText, Scale, Users, GraduationCap, User } from 'lucide-react';
+import { ScrollText, Scale, Users, GraduationCap, User, Navigation, Trophy } from 'lucide-react';
 
 const BASE_YEAR_TICK_MS = 6000; // 1년 = 6초 (15분 내 완주 가능한 템포)
 
@@ -77,11 +81,26 @@ export const App: React.FC = () => {
   const [speed, setSpeed] = useState<number>(1);
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
-  // 모바일 전용 뷰 탭 ('profile' | 'timeline' | 'impact' | 'cohort')
-  const [mobileTab, setMobileTab] = useState<'profile' | 'timeline' | 'impact' | 'cohort'>('timeline');
+  // 모바일 전용 뷰 탭 ('profile' | 'timeline' | 'impact' | 'cohort' | 'map')
+  const [mobileTab, setMobileTab] = useState<'profile' | 'timeline' | 'impact' | 'cohort' | 'map'>('timeline');
 
-  // 사이드 대시보드 탭 ('impact' | 'cohort' - 데스크톱 및 모바일 독립 제어)
-  const [dashboardTab, setDashboardTab] = useState<'impact' | 'cohort'>('impact');
+  // 사이드 대시보드 탭 ('impact' | 'cohort' | 'map' - 데스크톱 및 모바일 독립 제어)
+  const [dashboardTab, setDashboardTab] = useState<'impact' | 'cohort' | 'map'>('impact');
+
+  // 생애 업적 도감 상태 (로컬 스토리지에 영구 누적)
+  const [unlockedAchievements, setUnlockedAchievements] = useState<Achievement[]>(() => {
+    try {
+      const saved = localStorage.getItem('jinju_life_achievements');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isAchievementModalOpen, setIsAchievementModalOpen] = useState<boolean>(false);
+  const [achievementToast, setAchievementToast] = useState<Achievement | null>(null);
+
+  // 2세대 연계: 자녀 교육 및 진로 결정 모달
+  const [activeChildDecision, setActiveChildDecision] = useState<ChildMilestoneDecision | null>(null);
 
   // 모달 팝업 상태
   const [isBirthModalOpen, setIsBirthModalOpen] = useState<boolean>(true);
@@ -199,7 +218,7 @@ export const App: React.FC = () => {
   // 키보드 스페이스바 일시정지 토글
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && !isBirthModalOpen && !activeDilemma && !activeLifeChoice && !isCollegeModalOpen && !isCareerModalOpen && !isPetModalOpen && !activeChildNaming && !activePauseQuestion && !isEndingOpen && !isMemorialOpen) {
+      if (e.code === 'Space' && !isBirthModalOpen && !activeDilemma && !activeLifeChoice && !isCollegeModalOpen && !isCareerModalOpen && !isPetModalOpen && !activeChildNaming && !activeChildDecision && !isAchievementModalOpen && !activePauseQuestion && !isEndingOpen && !isMemorialOpen) {
         e.preventDefault();
         setIsPaused(prev => !prev);
         audioManager.playClickSound();
@@ -207,7 +226,7 @@ export const App: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, isCareerModalOpen, isPetModalOpen, activeChildNaming, activePauseQuestion, isEndingOpen, isMemorialOpen]);
+  }, [isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, isCareerModalOpen, isPetModalOpen, activeChildNaming, activeChildDecision, isAchievementModalOpen, activePauseQuestion, isEndingOpen, isMemorialOpen]);
 
   // 1년 진행 틱 함수 (명세서 3.0 동적 밸런싱 & 한국형 스트레스 곡선 & 중복 방지)
   const tickYear = useCallback(() => {
@@ -380,6 +399,31 @@ export const App: React.FC = () => {
 
       // 10-1. 출산은 사용자가 생애 분기(자녀 계획)에서 직접 선택할 때만 발생합니다 (의도치 않은 임의 출산 완전 배제)
 
+      // 10-2. 2세대 연계: 자녀의 성장 및 진로 개입 (7세 초등, 14세 중학, 19세 대입)
+      let childDecisionToTrigger: ChildMilestoneDecision | null = null;
+      if (tempCitizen.childrenList && tempCitizen.childrenList.length > 0) {
+        for (const ch of tempCitizen.childrenList) {
+          const chAge = nextAge - ch.birthAge;
+          const seen = ch.milestoneSeen || [];
+          if (chAge === 7 && !seen.includes(7)) {
+            childDecisionToTrigger = { childId: ch.id, childName: ch.name, childAge: 7, gender: ch.gender, stage: 'elem_7' };
+            break;
+          } else if (chAge === 14 && !seen.includes(14)) {
+            childDecisionToTrigger = { childId: ch.id, childName: ch.name, childAge: 14, gender: ch.gender, stage: 'mid_14' };
+            break;
+          } else if (chAge === 19 && !seen.includes(19)) {
+            childDecisionToTrigger = { childId: ch.id, childName: ch.name, childAge: 19, gender: ch.gender, stage: 'univ_19' };
+            break;
+          }
+        }
+      }
+
+      if (childDecisionToTrigger && !triggeredChoice && nextAge !== 19 && !(isCollegePrepAge && tempCitizen.flags.has('COLLEGE_RETRY_PLANNED'))) {
+        setIsPaused(true);
+        setActiveChildDecision(childDecisionToTrigger);
+        audioManager.playChimeSound();
+      }
+
       // 11. 잠시 멈춤 질문 체크 (5, 15, 30, 50, 70세)
       const pauseDef = PAUSE_QUESTIONS.find(p => p.age === nextAge);
       if (pauseDef && !triggeredChoice && nextAge !== 19 && !(nextAge === 20 && tempCitizen.flags.has('COLLEGE_RETRY_PLANNED'))) {
@@ -527,7 +571,7 @@ export const App: React.FC = () => {
         ]);
       }
 
-      return {
+      const nextCitizenState: CitizenStatus = {
         ...tempCitizen,
         netWorthWon: currentNetWorth,
         health,
@@ -538,12 +582,37 @@ export const App: React.FC = () => {
         eventCooldowns: nextCooldowns,
         eventCounts: nextCounts
       };
+
+      // 15. 생애 업적 실시간 평가 및 팝업 토스트 연출
+      try {
+        setUnlockedAchievements(prevUnlocked => {
+          const alreadySet = new Set(prevUnlocked.map(a => a.id));
+          const newly = evaluateAchievements(nextCitizenState, cityIndicators, alreadySet);
+          if (newly.length > 0) {
+            const updated = [...prevUnlocked, ...newly];
+            try {
+              localStorage.setItem('jinju_life_achievements', JSON.stringify(updated));
+            } catch {
+              // ignore
+            }
+            setAchievementToast(newly[0]);
+            audioManager.playChimeSound();
+            setTimeout(() => setAchievementToast(null), 3800);
+            return updated;
+          }
+          return prevUnlocked;
+        });
+      } catch {
+        // ignore
+      }
+
+      return nextCitizenState;
     });
   }, [focus, cityIndicators, isEduMode]);
 
   // 메인 타이머 루프
   useEffect(() => {
-    if (isPaused || isBirthModalOpen || activeDilemma || activeLifeChoice || isCollegeModalOpen || isCareerModalOpen || isPetModalOpen || activeChildNaming || activePauseQuestion || isEndingOpen || isMemorialOpen) {
+    if (isPaused || isBirthModalOpen || activeDilemma || activeLifeChoice || isCollegeModalOpen || isCareerModalOpen || isPetModalOpen || activeChildNaming || activeChildDecision || isAchievementModalOpen || activePauseQuestion || isEndingOpen || isMemorialOpen) {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -560,7 +629,7 @@ export const App: React.FC = () => {
         timerRef.current = null;
       }
     };
-  }, [isPaused, speed, isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, isCareerModalOpen, isPetModalOpen, activeChildNaming, activePauseQuestion, isEndingOpen, isMemorialOpen, tickYear]);
+  }, [isPaused, speed, isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, isCareerModalOpen, isPetModalOpen, activeChildNaming, activeChildDecision, isAchievementModalOpen, activePauseQuestion, isEndingOpen, isMemorialOpen, tickYear]);
 
   // 출생 모달에서 삶 시작
   const handleStartLife = () => {
@@ -898,6 +967,62 @@ export const App: React.FC = () => {
     setIsPaused(false);
   };
 
+  // 2세대 연계: 자녀 성장 및 진로 결정 완료 핸들러
+  const handleResolveChildParenting = (res: {
+    consequenceText: string;
+    childCollegeName?: string;
+    childJob?: string;
+    happinessDelta: number;
+    bondsDelta: number;
+    spendAmount: number;
+    parentNote: string;
+  }) => {
+    if (!activeChildDecision) return;
+
+    setCitizen(prev => {
+      const updatedChildren = (prev.childrenList || []).map(ch => {
+        if (ch.id === activeChildDecision.childId) {
+          const prevSeen = ch.milestoneSeen || [];
+          return {
+            ...ch,
+            collegeName: res.childCollegeName || ch.collegeName,
+            job: res.childJob || ch.job,
+            milestoneSeen: [...prevSeen, activeChildDecision.childAge]
+          };
+        }
+        return ch;
+      });
+
+      const nextAssets = Math.max(0, (prev.totalAssetsWon || prev.netWorthWon) - res.spendAmount);
+      const nextNetWorth = Math.max(0, nextAssets - (prev.totalDebtWon || 0));
+
+      return {
+        ...prev,
+        childrenList: updatedChildren,
+        happiness: Math.max(0, Math.min(100, prev.happiness + res.happinessDelta)),
+        bonds: Math.max(0, Math.min(100, prev.bonds + res.bondsDelta)),
+        totalAssetsWon: nextAssets,
+        netWorthWon: nextNetWorth
+      };
+    });
+
+    setTimeline(t => [
+      ...t,
+      {
+        id: `child_milestone_${Date.now()}`,
+        year: citizen.currentYear,
+        age: citizen.age,
+        type: 'milestone',
+        label: 'FAMILY',
+        sourceNote: `자녀 '${activeChildDecision.childName}'의 성장 기록`,
+        text: `[자녀 ${activeChildDecision.childAge}세 성장] ${res.consequenceText}`
+      }
+    ]);
+
+    setActiveChildDecision(null);
+    setIsPaused(false);
+  };
+
   // 반려동물 입양 완료 핸들러
   const handleConfirmPet = (pet: PetInfo) => {
     setCitizen(prev => ({
@@ -1046,16 +1171,21 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-[100dvh] h-[100dvh] max-h-[100dvh] w-full bg-[#07090e] text-slate-100 flex flex-col select-none overflow-hidden">
       
-      {/* 1. 상단 바 (헤더 - 프로필 열기 & 교육용 모드 토글 지원) */}
+      {/* 1. 상단 바 (헤더 - 프로필 열기 & 교육용 모드 토글 & 업적 도감 지원) */}
       <Header
         citizen={citizen}
         isPaused={isPaused}
         speed={speed}
         isEduMode={isEduMode}
+        unlockedAchievementCount={unlockedAchievements.length}
         onTogglePause={() => setIsPaused(p => !p)}
         onChangeSpeed={setSpeed}
         onToggleEduMode={handleToggleEduMode}
         onOpenMemorial={() => setIsMemorialOpen(true)}
+        onOpenAchievements={() => {
+          setIsAchievementModalOpen(true);
+          setIsPaused(true);
+        }}
         onOpenProfile={() => setIsMobileProfileOpen(true)}
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
@@ -1135,7 +1265,44 @@ export const App: React.FC = () => {
           <Users className="w-3.5 h-3.5" />
           <span>동갑내기 4인</span>
         </button>
+
+        <button
+          onClick={() => {
+            setMobileTab('map');
+            setDashboardTab('map');
+            audioManager.playClickSound();
+          }}
+          className={`flex items-center gap-1 py-1.5 px-2.5 rounded-lg font-medium transition text-[11px] ${
+            mobileTab === 'map' || dashboardTab === 'map'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold'
+              : 'text-slate-400'
+          }`}
+        >
+          <Navigation className="w-3.5 h-3.5" />
+          <span>진주 지도</span>
+        </button>
       </div>
+
+      {/* 실시간 업적 달성 축하 팝업 토스트 */}
+      {achievementToast && (
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-amber-950/95 via-space-900/95 to-amber-950/95 border-2 border-amber-400/80 rounded-2xl px-4 py-2.5 shadow-2xl backdrop-blur-md flex items-center gap-3 animate-bounce">
+          <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-xl shrink-0">
+            {achievementToast.iconEmoji}
+          </div>
+          <div>
+            <div className="text-[10px] font-bold text-amber-400 font-mono tracking-wider flex items-center gap-1">
+              <Trophy className="w-3 h-3" />
+              <span>생애 업적 달성!</span>
+            </div>
+            <div className="text-xs font-bold text-white">
+              {achievementToast.title}
+            </div>
+            <div className="text-[10px] text-slate-300 line-clamp-1">
+              {achievementToast.description}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 4. 메인 콘텐츠: 좌측 프로필 패널 + 텍스트 타임라인 + 사이드 대시보드 */}
       <main className="flex-1 min-h-0 w-full max-w-[1680px] mx-auto flex flex-col lg:flex-row overflow-hidden relative min-w-0">
@@ -1177,13 +1344,14 @@ export const App: React.FC = () => {
           <TimelineLog entries={timeline} />
         </div>
 
-        {/* 데스크톱: 사이드바 항상 보임 / 모바일: mobileTab이 impact 또는 cohort일 때 보임 */}
+        {/* 데스크톱: 사이드바 항상 보임 / 모바일: mobileTab이 impact, cohort, map일 때 보임 */}
         <div className={`w-full lg:w-72 xl:w-80 flex flex-col shrink-0 overflow-hidden h-full min-h-0 min-w-0 border-l border-space-800 ${mobileTab === 'timeline' || mobileTab === 'profile' ? 'hidden lg:flex' : 'flex flex-1'}`}>
           <SideDashboard
             cohort={cohort}
             birthYear={citizen.birthYear}
             choicesHistory={citizen.choicesHistory}
             cityIndicators={cityIndicators}
+            citizen={citizen}
             activeTab={dashboardTab}
             onTabChange={setDashboardTab}
           />
@@ -1289,6 +1457,17 @@ export const App: React.FC = () => {
         />
       )}
 
+      {/* 모달 2-3-1: 2세대 자녀 교육 및 진로 결정 모달 (7세 초등, 14세 중학, 19세 대입) */}
+      {activeChildDecision && (
+        <ChildParentingModal
+          decision={activeChildDecision}
+          parentAge={citizen.age}
+          year={citizen.currentYear}
+          parentNetWorth={citizen.netWorthWon}
+          onResolve={handleResolveChildParenting}
+        />
+      )}
+
       {/* 모달 2-4: 반려동물 입양 모달 (품종 카드 선택 및 이름 작명) */}
       {isPetModalOpen && (
         <PetAdoptionModal
@@ -1338,6 +1517,17 @@ export const App: React.FC = () => {
       {isMemorialOpen && (
         <MemorialHall
           onClose={() => setIsMemorialOpen(false)}
+        />
+      )}
+
+      {/* 모달 7: 생애 업적 도감 모달 (24대 업적 컬렉션) */}
+      {isAchievementModalOpen && (
+        <AchievementModal
+          unlockedAchievements={unlockedAchievements}
+          onClose={() => {
+            setIsAchievementModalOpen(false);
+            setIsPaused(false);
+          }}
         />
       )}
 

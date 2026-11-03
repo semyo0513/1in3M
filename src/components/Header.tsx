@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Pause, Volume2, VolumeX, Flame, GraduationCap, User } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Flame, GraduationCap, User, Trophy } from 'lucide-react';
 import { CitizenStatus } from '../types/game';
 import { audioManager } from '../utils/audio';
 
@@ -8,10 +8,12 @@ interface HeaderProps {
   isPaused: boolean;
   speed: number;
   isEduMode: boolean;
+  unlockedAchievementCount?: number;
   onTogglePause: () => void;
   onChangeSpeed: (newSpeed: number) => void;
   onToggleEduMode: () => void;
   onOpenMemorial: () => void;
+  onOpenAchievements?: () => void;
   onOpenProfile?: () => void;
   isMuted: boolean;
   onToggleMute: () => void;
@@ -22,10 +24,12 @@ export const Header: React.FC<HeaderProps> = ({
   isPaused,
   speed,
   isEduMode,
+  unlockedAchievementCount = 0,
   onTogglePause,
   onChangeSpeed,
   onToggleEduMode,
   onOpenMemorial,
+  onOpenAchievements,
   onOpenProfile,
   isMuted,
   onToggleMute
@@ -164,6 +168,26 @@ export const Header: React.FC<HeaderProps> = ({
           >
             {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-sky-400" />}
           </button>
+
+          {/* 생애 업적 도감 열기 */}
+          {onOpenAchievements && (
+            <button
+              onClick={() => {
+                onOpenAchievements();
+                audioManager.playClickSound();
+              }}
+              title="생애 업적 도감 확인"
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500/25 transition text-xs font-semibold"
+            >
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden xs:inline sm:inline">업적</span>
+              {unlockedAchievementCount > 0 && (
+                <span className="px-1 py-0.2 rounded-full bg-amber-500 text-space-950 text-[10px] font-bold">
+                  {unlockedAchievementCount}
+                </span>
+              )}
+            </button>
+          )}
 
           {/* 남강 유등 추모관 열기 */}
           <button
