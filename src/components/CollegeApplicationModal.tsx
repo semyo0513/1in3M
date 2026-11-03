@@ -9,10 +9,11 @@ interface CollegeApplicationModalProps {
   citizenLearning: number;
   citizenGender: '남성' | '여성';
   highSchool: string;
+  isRetryYear?: boolean;
   onResolve: (result: {
     appliedUniv: UniversityInfo | null;
     isAccepted: boolean;
-    finalChoice: 'college' | 'work';
+    finalChoice: 'college' | 'work' | 'retry';
     collegeName: string;
     consequenceText: string;
     learningDelta: number;
@@ -27,7 +28,9 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
   age,
   year,
   citizenLearning,
+  citizenGender,
   highSchool,
+  isRetryYear = false,
   onResolve
 }) => {
   const [selectedUniv, setSelectedUniv] = useState<UniversityInfo | null>(null);
@@ -42,11 +45,15 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
 
   const filteredUnivs = useMemo(() => {
     return KOREA_MAJOR_UNIVERSITIES.filter(u => {
+      // 남학생은 여자대학교 지원 불가 (원천 차단)
+      if (citizenGender === '남성' && (u.genderRestriction === 'female' || u.name.includes('여자'))) {
+        return false;
+      }
       const matchRegion = selectedRegion === '전체' || u.region === selectedRegion;
       const matchQuery = !searchQuery || u.name.includes(searchQuery) || u.description.includes(searchQuery);
       return matchRegion && matchQuery;
     });
-  }, [selectedRegion, searchQuery]);
+  }, [selectedRegion, searchQuery, citizenGender]);
 
   // 합격 확률 계산 공식 (배움 지표 기반 & 현실적 입시 경쟁률 반영)
   const calculatePassProbability = (univ: UniversityInfo) => {
@@ -99,41 +106,63 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
     }
   };
 
-  const handleConfirmDecision = () => {
+  const handleAcceptCollege = () => {
     audioManager.playClickSound();
     if (!selectedUniv) return;
 
-    if (admissionResult.isAccepted) {
-      const isSeoulOrMetro = selectedUniv.region === '서울' || selectedUniv.region === '경기/인천';
-      const isJinju = selectedUniv.region === '진주';
-      
-      onResolve({
-        appliedUniv: selectedUniv,
-        isAccepted: true,
-        finalChoice: 'college',
-        collegeName: selectedUniv.name,
-        consequenceText: `축하합니다! ${selectedUniv.name}에 당당히 합격하여 ${selectedUniv.name} ${selectedUniv.category} 신입생으로 캠퍼스 라이프를 시작합니다.`,
-        learningDelta: 8,
-        happinessDelta: 10,
-        bondsDelta: isJinju ? 6 : -4,
-        isRelocatedAway: isSeoulOrMetro,
-        grantFlag: isSeoulOrMetro ? 'MIGRATED_SEOUL_COLLEGE' : (isJinju ? 'COLLEGE_LOCAL_GNU' : 'COLLEGE_REGIONAL')
-      });
-    } else {
-      // 불합격 시: 재수를 결심하거나 취업 전선에 뛰어듦
-      onResolve({
-        appliedUniv: selectedUniv,
-        isAccepted: false,
-        finalChoice: 'work',
-        collegeName: `${highSchool} 졸업 (대입 재도전 및 사회진출)`,
-        consequenceText: `아쉽게도 ${selectedUniv.name} 입시에서 높은 경쟁률의 벽을 넘지 못하고 고배를 마셨습니다. 쓰라린 실패를 딛고 새로운 진로를 모색합니다.`,
-        learningDelta: 3,
-        happinessDelta: -6,
-        bondsDelta: 2,
-        isRelocatedAway: false,
-        grantFlag: 'COLLEGE_FAILED_CAREER'
-      });
-    }
+    const isSeoulOrMetro = selectedUniv.region === '서울' || selectedUniv.region === '경기/인천';
+    const isJinju = selectedUniv.region === '진주';
+    
+    onResolve({
+      appliedUniv: selectedUniv,
+      isAccepted: true,
+      finalChoice: 'college',
+      collegeName: selectedUniv.name,
+      consequenceText: `축하합니다! ${selectedUniv.name}에 당당히 합격하여 ${selectedUniv.name} ${selectedUniv.category} 신입생으로 캠퍼스 라이프를 시작합니다.`,
+      learningDelta: 8,
+      happinessDelta: 10,
+      bondsDelta: isJinju ? 6 : -4,
+      isRelocatedAway: isSeoulOrMetro,
+      grantFlag: isSeoulOrMetro ? 'MIGRATED_SEOUL_COLLEGE' : (isJinju ? 'COLLEGE_LOCAL_GNU' : 'COLLEGE_REGIONAL')
+    });
+  };
+
+  // 불합격 후: 1년 더 공부하여 내년에 재도전 (재수)
+  const handleChooseRetry = () => {
+    audioManager.playClickSound();
+    if (!selectedUniv) return;
+
+    onResolve({
+      appliedUniv: selectedUniv,
+      isAccepted: false,
+      finalChoice: 'retry',
+      collegeName: `${highSchool} 졸업 (대입 재수 준비)`,
+      consequenceText: `아쉽게도 ${selectedUniv.name} 입시에서 고배를 마셨지만, 1년간 피나는 노력으로 수능을 다시 준비하여 내년에 재도전하기로 결심했습니다.`,
+      learningDelta: 7, // 재수 기간 배움 상승
+      happinessDelta: -5,
+      bondsDelta: -2,
+      isRelocatedAway: false,
+      grantFlag: 'COLLEGE_RETRY_PLANNED'
+    });
+  };
+
+  // 불합격 후: 입시를 매듭짓고 곧바로 사회 진출/취업
+  const handleChooseWork = () => {
+    audioManager.playClickSound();
+    if (!selectedUniv) return;
+
+    onResolve({
+      appliedUniv: selectedUniv,
+      isAccepted: false,
+      finalChoice: 'work',
+      collegeName: `${highSchool} 졸업 (사회 진출)`,
+      consequenceText: `아쉽게도 ${selectedUniv.name} 입시의 벽을 넘지 못했지만, 미련을 털어내고 사회 진출과 취업 준비에 전념하기로 결정했습니다.`,
+      learningDelta: 3,
+      happinessDelta: -3,
+      bondsDelta: 2,
+      isRelocatedAway: false,
+      grantFlag: 'COLLEGE_FAILED_CAREER'
+    });
   };
 
   // 대학 진학 대신 곧바로 취업/창업을 선택할 경우
@@ -166,14 +195,14 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                  {age}세 ({year}년) · 대학 진학의 갈림길
+                  {age}세 ({year}년) · {isRetryYear ? '대입 재도전 (재수)' : '대학 진학의 갈림길'}
                 </span>
                 <span className="text-[11px] text-amber-300 font-medium">
                   나의 배움(수능/내신) 지표: {citizenLearning}점
                 </span>
               </div>
               <h2 className="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5">
-                전국 주요 100개 대학교 지망 및 입시 지원
+                {isRetryYear ? '20세 대입 재도전: 전국 100개 대학교 재지원' : '전국 주요 100개 대학교 지망 및 입시 지원'}
               </h2>
             </div>
           </div>
@@ -196,6 +225,14 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
                     {highSchool}을 졸업하고 {selectedUniv.region}의 명문 {selectedUniv.name}에서 찬란한 20대 청춘의 첫 페이지를 열게 되었습니다.
                   </p>
                 </div>
+
+                <button
+                  onClick={handleAcceptCollege}
+                  className="mt-2 px-6 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-1.5"
+                >
+                  <span>합격 등록하고 대학 생활 시작하기</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </>
             ) : (
               <>
@@ -208,19 +245,26 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
                     <span className="text-slate-300">{selectedUniv.name}</span> 불합격 (예비 순위 초과)
                   </h3>
                   <p className="text-xs text-slate-300 mt-1 max-w-md mx-auto leading-relaxed">
-                    치열한 입시 경쟁 끝에 안타깝게 합격자 명단에 들지 못했습니다. 그러나 인생의 성패는 대학 하나로 결정되지 않습니다.
+                    치열한 입시 경쟁 끝에 안타깝게 합격자 명단에 들지 못했습니다. 1년 더 수능을 준비하여 내년에 재도전할 수도 있고, 입시를 매듭짓고 곧바로 사회 진출을 선택할 수도 있습니다.
                   </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2.5 w-full max-w-md mt-2">
+                  <button
+                    onClick={handleChooseRetry}
+                    className="flex-1 px-4 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <span>📚 1년 더 준비하여 내년에 재도전 (재수)</span>
+                  </button>
+                  <button
+                    onClick={handleChooseWork}
+                    className="flex-1 px-4 py-2.5 rounded-xl font-medium text-xs bg-space-850 hover:bg-space-800 text-slate-200 border border-slate-700 transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <span>💼 입시 마무리하고 사회 진출·취업</span>
+                  </button>
                 </div>
               </>
             )}
-
-            <button
-              onClick={handleConfirmDecision}
-              className="mt-2 px-6 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all flex items-center gap-1.5"
-            >
-              <span>{admissionResult.isAccepted ? '입학 등록하고 삶 이어가기' : '결과를 받아들이고 새로운 길 찾기'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
           </div>
         )}
 

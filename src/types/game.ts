@@ -36,8 +36,16 @@ export type JobType =
   | '시설원예 스마트팜 농업인'
   | '종합병원 간호사·의료직'
   | '문화·관광 서비스업'
+  | '제조 및 공학 기술직'
+  | '교육 및 행정직'
+  | '전문직 및 연구원'
+  | '서비스 및 자영업'
+  | '농축산업'
+  | '문화예술 및 여가'
   | '청년 구직자'
-  | '은퇴 및 프리랜서';
+  | '재수생 (수능 준비)'
+  | '은퇴 및 프리랜서'
+  | (string & {});
 
 export interface SpouseInfo {
   name: string;
@@ -77,12 +85,16 @@ export interface CitizenStatus {
   incomeDecile: number; // 1~5분위 (교육용 모드에서는 서술형 매핑)
   incomeDesc?: string; // 교육용 서술형 표현
   monthlyIncomeWon: number; // 월 소득 추정치
-  netWorthWon: number; // 누적 순자산 (원)
+  totalAssetsWon: number; // 총자산 (부동산, 금융자산, 저축 등)
+  totalDebtWon: number; // 총부채 (주택담보대출, 전세대출, 신용대출 등)
+  netWorthWon: number; // 순자산 = 총자산 - 총부채 (원)
   hobby: string; // 취미 (예: '노래·악기 연주')
   
   // 가족 및 관계망
   spouse: SpouseInfo | null;
   childrenCount: number;
+  childrenList: Array<{ id: string; name: string; birthAge: number; gender: '아들' | '딸' }>;
+  pet?: { name: string; type: 'dog' | 'cat'; breed: string; icon: string; adoptedAge: number } | null;
   farewellCompanion: string; // 마지막 길을 배웅한 사람 (또는 곁을 지키는 사람)
   
   // 하이라이트 & 삶의 결
@@ -137,7 +149,7 @@ export interface CohortPerson {
   isAlive: boolean;
 }
 
-export type CardLabel = 'FACT' | 'STANCE' | 'WHATIF' | 'PERSONAL' | 'REFLECT';
+export type CardLabel = 'FACT' | 'STANCE' | 'WHATIF' | 'PERSONAL' | 'REFLECT' | 'CAREER' | 'FAMILY';
 
 export interface TimelineEntry {
   id: string;
@@ -222,7 +234,9 @@ export type LifeChoiceCategory =
   | 'SPEND'           // 생애 3대 고정비 (30대 주거비 / 40대 사교육비 / 소비 기조)
   | 'HOBBY'           // 4대 취미 심화 및 서울 원정비용
   | 'MEDICAL'         // 3대 한국형 의료 딜레마 (시간 부족, 비급여, 빅5 원정)
-  | 'WEALTH_GROWTH';  // 종잣돈, 청약·내 집 마련, 자산 증식 및 노후 연금
+  | 'WEALTH_GROWTH'   // 종잣돈, 청약·내 집 마련, 자산 증식 및 노후 연금
+  | 'WORK_CAREER'     // 직장 생활 및 회사 경력 발전
+  | 'PET_FAMILY';     // 반려동물 입양 및 동행 가족
 
 export interface LifeChoiceOption {
   optionId: string;

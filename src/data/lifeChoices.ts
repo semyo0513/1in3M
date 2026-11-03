@@ -519,8 +519,134 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
   },
 
   // =========================================================================
-  // 7. 취미와 여가 (4대 취미 및 서울 원정비용)
+  // 6-1. 회사 생활 및 커리어 분기 (직장인의 다양한 선택과 갈등)
   // =========================================================================
+  {
+    choiceCardId: 'LC_WORK_OVERTIME_VS_LIFE',
+    category: 'WORK_CAREER',
+    categoryName: '회사 생활과 일터의 선택',
+    title: '사회초년생의 선택: 야근과 고과 경쟁 vs 칼퇴와 워라밸',
+    ageRange: [26, 32],
+    body: '치열한 입사 관문을 뚫고 들어온 직장. 팀장님은 밤샘 프로젝트로 이번 분기 핵심 성과를 내자고 독려합니다. 남아서 야근하며 핵심 인재로 인정받을 것인가, 아니면 정시 퇴근하여 건강과 저녁이 있는 삶을 지킬 것인가?',
+    statContextFact: '고용노동부 근로시간 실태조사에 따르면 한국 직장인의 46.2%가 잦은 초과근무를 경험하며, 번아웃 증후군 호소율은 68%에 달합니다.',
+    options: [
+      {
+        optionId: 'OPT_WORK_OVERTIME_STAR',
+        label: '프로젝트 완수에 올인하여 팀 내 핵심 인력으로 자리매김하고 특별 보너스를 노린다',
+        effects: { happiness: 2, learning: 8, health: -6, bonds: -2, netWorthChange: 8000000 },
+        grantFlag: 'WORK_FAST_TRACK',
+        consequenceText: '잦은 야근으로 눈 밑이 쾡하지만, 뛰어난 업무 실적을 인정받아 조기 승진 대상자에 이름을 올렸습니다.'
+      },
+      {
+        optionId: 'OPT_WORK_LIFE_BALANCE',
+        label: '정시 퇴근 후 남강 둔치 러닝과 전문 자격증 공부로 나만의 저녁을 온전히 지킨다',
+        effects: { happiness: 8, health: 6, learning: 5, bonds: 4 },
+        grantFlag: 'WORK_LIFE_BALANCED',
+        consequenceText: '회사 일에 휘둘리지 않고 내 삶의 주도권을 지켰습니다. 건강한 체력과 마음의 평온이 일상의 큰 힘이 됩니다.'
+      }
+    ]
+  },
+  {
+    choiceCardId: 'LC_WORK_TURNOVER_OFFER',
+    category: 'WORK_CAREER',
+    categoryName: '커리어 전환과 이직',
+    title: '경력 5년 차의 갈림길: 수도권 헤드헌팅 이직 vs 진주 정주',
+    ageRange: [32, 38],
+    body: '실무 능력을 인정받으며 헤드헌터로부터 수도권 첨단 기업으로의 이직 제안이 들어왔습니다. 연봉 35% 인상과 최신 기술을 접할 기회지만, 서울의 높은 집값과 치열한 경쟁을 감내해야 합니다.',
+    statContextFact: '통계청 지역간 이동 통계에 따르면 30대 청년의 수도권 순유입 주요 원인 1위는 "직업 및 고임금 기회(64.8%)"입니다.',
+    options: [
+      {
+        optionId: 'OPT_TURNOVER_METRO',
+        label: '더 넓은 무대로 도약하기 위해 판교·강남 IT 대기업 이직 제안을 수락한다',
+        effects: { happiness: 6, learning: 9, health: -4, netWorthChange: 20000000, incomeChange: 1 },
+        grantFlag: 'MIGRATED_OUT_SEOUL',
+        consequenceText: '서울의 숨 가쁜 빌딩 숲으로 출근합니다. 치솟는 월세가 부담스럽지만, 업계 최전선에서 뛰는 자부심이 큽니다.'
+      },
+      {
+        optionId: 'OPT_STAY_LOCAL_LEADER',
+        label: '진주에 남아 혁신도시 공공기관·지역 강소기업의 핵심 관리자로 성장한다',
+        effects: { happiness: 9, bonds: 8, health: 4, netWorthChange: 10000000 },
+        grantFlag: 'LOCAL_PILLAR',
+        consequenceText: '남강의 여유로운 풍경과 오랜 지인들의 곁을 지키며, 지역 사회의 든든한 중추 인력으로 자리를 굳혔습니다.'
+      }
+    ]
+  },
+  {
+    choiceCardId: 'LC_WORK_SIDE_PROJECT',
+    category: 'WORK_CAREER',
+    categoryName: '중간관리자의 역량',
+    title: '직장인의 무기: 사내 정치 vs 실무 전문성 강화 & 부업',
+    ageRange: [36, 42],
+    body: '팀의 중간 관리자로서 위아래로 치이는 시기. 임원 라인에 줄을 서며 사내 정치에 발을 들일 것인가, 아니면 독자적인 전문 기술과 자격증, 사이드 부업으로 내 몸값을 올릴 것인가?',
+    statContextFact: '잡코리아 조사 - 직장인 78%가 "사내 정치 피로감"을 호소하며, 42%가 퇴근 후 N잡·사이드 프로젝트를 병행합니다.',
+    options: [
+      {
+        optionId: 'OPT_CORP_POLITICS',
+        label: '사내 주요 네트워크와 임원 라인을 적극 관리하며 조직 내 승진 가도를 달린다',
+        effects: { happiness: 2, bonds: 4, health: -4, incomeChange: 1 },
+        grantFlag: 'CORP_POLITICIAN',
+        consequenceText: '잦은 회식과 줄타기로 스트레스가 쌓이지만, 다음 인사 평가에서 주요 보직 팀장으로 낙점되었습니다.'
+      },
+      {
+        optionId: 'OPT_SOLO_EXPERTISE',
+        label: '사내 눈치 대신 전문 자격증 취득과 주말 소자본 부업으로 독자적 무기를 만든다',
+        effects: { learning: 8, happiness: 7, health: 1, netWorthChange: 15000000 },
+        grantFlag: 'INDEPENDENT_PRO',
+        consequenceText: '회사 명함 없이도 세상에서 살아남을 수 있는 진짜 실력을 갖추었습니다. 가계 부수입도 쏠쏠하게 들어옵니다.'
+      }
+    ]
+  },
+  {
+    choiceCardId: 'LC_WORK_STARTUP_CHALLENGE',
+    category: 'WORK_CAREER',
+    categoryName: '창업과 도전',
+    title: '인생 후반부의 결단: 안정적 월급쟁이 vs 스타트업 창업 도전',
+    ageRange: [39, 46],
+    body: '마흔을 넘기며 가슴 깊은 곳에서 꿈틀대는 열망. 동료 엔지니어들이 우주항공 소프트웨어 벤처 창업을 제안합니다. 안정적인 월급과 정년을 지킬 것인가, 아니면 실패 위험을 무릅쓰고 창업의 바다로 뛰어들 것인가?',
+    statContextFact: '중소벤처기업부 기업생멸행정통계 - 창업 5년 후 생존율은 33.8%이며, 성공 시 폭발적인 자산 증식 가능',
+    options: [
+      {
+        optionId: 'OPT_STABLE_SALARYMAN',
+        label: '가계 안정과 가족을 위해 정년이 보장된 직장을 굳건히 지킨다',
+        effects: { happiness: 7, bonds: 6, health: 3, netWorthChange: 12000000 },
+        grantFlag: 'STABLE_LIFELONG_WORK',
+        consequenceText: '흔들림 없는 월급으로 가계 경제의 안정을 확고히 지켰습니다. 주말마다 가족들과 여유로운 시간을 보냅니다.'
+      },
+      {
+        optionId: 'OPT_STARTUP_FOUNDER',
+        label: '사표를 던지고 동료들과 함께 테크 스타트업을 공동 창업한다',
+        effects: { learning: 12, happiness: 10, health: -7, bonds: -4, netWorthChange: 35000000 },
+        grantFlag: 'TECH_FOUNDER',
+        consequenceText: '내 회사의 대표가 되었습니다. 자금 조달과 밤샘 개발로 피가 마르지만, 세상을 바꾸는 짜릿한 성취감을 맛봅니다.'
+      }
+    ]
+  },
+  {
+    choiceCardId: 'LC_PET_ADOPTION_CHOICE',
+    category: 'PET_FAMILY',
+    categoryName: '반려동물과의 만남',
+    title: '반려동물 입양: 지친 하루를 반겨주는 소중한 가족',
+    ageRange: [24, 45],
+    excludeFlags: ['PET_ADOPTED'],
+    body: '퇴근 후 현관문을 열었을 때 따뜻하게 맞아주는 온기. 보호소에서 애타게 가족을 기다리는 유기동물을 품에 안고 평생의 단짝으로 맞이하시겠습니까?',
+    statContextFact: '농림축산식품부 국민의식조사 - 대한민국 4가구 중 1가구(25.4%)가 반려동물을 양육하며, 정서적 유대감(84%)이 주된 양육 동기입니다.',
+    options: [
+      {
+        optionId: 'OPT_ADOPT_PET_YES',
+        label: '유기동물 보호소에서 소중한 인연의 반려동물을 가족으로 입양한다 (이름 작명)',
+        effects: { happiness: 14, bonds: 12, health: 4, spend: -1 },
+        grantFlag: 'TRIGGER_PET_ADOPTION',
+        consequenceText: '소중한 생명이 나의 가장 다정한 식구가 되었습니다. 현관문 앞에서 꼬리를 치고 골골송을 부르는 모습에 하루의 피로가 눈 녹듯 사라집니다.'
+      },
+      {
+        optionId: 'OPT_ADOPT_PET_NO',
+        label: '야근과 출장 등 현실적인 돌봄 여건을 신중히 고려하여 랜선 집사로 만족한다',
+        effects: { happiness: 2, learning: 2, spend: 1 },
+        grantFlag: 'PET_ADOPTION_PASSED',
+        consequenceText: '한 생명을 끝까지 책임지지 못할 바엔 섣불리 시작하지 않는 신중함을 택했습니다. 가계 지출을 아끼고 영상으로 힐링합니다.'
+      }
+    ]
+  },
   {
     choiceCardId: 'LC-HOBBY-CHOOSE-16',
     category: 'HOBBY',

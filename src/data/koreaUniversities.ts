@@ -8,6 +8,7 @@ export interface UniversityInfo {
   acceptanceRateBase: number; // 기준선 도달 시 기본 합격 확률 (0.0 ~ 1.0)
   tuitionLevel: '저렴' | '보통' | '높음';
   description: string;
+  genderRestriction?: 'female'; // 여자대학교 지원 제한
 }
 
 export const KOREA_MAJOR_UNIVERSITIES: UniversityInfo[] = [
@@ -43,11 +44,11 @@ export const KOREA_MAJOR_UNIVERSITIES: UniversityInfo[] = [
   { id: 'khu', name: '경희대학교', region: '서울', category: '사립', minLearningCutoff: 77, acceptanceRateBase: 0.34, tuitionLevel: '높음', description: '한의학·호텔관광·국제학 특성화 명문대' },
   { id: 'hufs', name: '한국외국어대학교', region: '서울', category: '사립', minLearningCutoff: 75, acceptanceRateBase: 0.38, tuitionLevel: '높음', description: '글로벌 언어·외교·통상 전문 명문 사립대' },
   { id: 'uos', name: '서울시립대학교', region: '서울', category: '국립', minLearningCutoff: 78, acceptanceRateBase: 0.32, tuitionLevel: '저렴', description: '서울시 지원 도시과학·세무 특성화 공립대' },
-  { id: 'ewha', name: '이화여자대학교', region: '서울', category: '사립', minLearningCutoff: 78, acceptanceRateBase: 0.32, tuitionLevel: '높음', description: '신촌 소재 역사 깊은 여성 명문 사립대학' },
+  { id: 'ewha', name: '이화여자대학교', region: '서울', category: '사립', minLearningCutoff: 78, acceptanceRateBase: 0.32, tuitionLevel: '높음', description: '신촌 소재 역사 깊은 여성 명문 사립대학', genderRestriction: 'female' },
   { id: 'konkuk', name: '건국대학교', region: '서울', category: '사립', minLearningCutoff: 73, acceptanceRateBase: 0.42, tuitionLevel: '높음', description: '일감호 호수와 바이오·부동산 특성화 명문대' },
   { id: 'dongguk', name: '동국대학교', region: '서울', category: '사립', minLearningCutoff: 71, acceptanceRateBase: 0.45, tuitionLevel: '높음', description: '남산 아래 경찰행정·영상문예 명문 사립대' },
   { id: 'hongik', name: '홍익대학교', region: '서울', category: '사립', minLearningCutoff: 72, acceptanceRateBase: 0.42, tuitionLevel: '높음', description: '미술·디자인·건축 최고 권위의 명문대' },
-  { id: 'sookmyung', name: '숙명여자대학교', region: '서울', category: '사립', minLearningCutoff: 70, acceptanceRateBase: 0.48, tuitionLevel: '높음', description: '용산 소재 여성 리더 양성 전통 사립대' },
+  { id: 'sookmyung', name: '숙명여자대학교', region: '서울', category: '사립', minLearningCutoff: 70, acceptanceRateBase: 0.48, tuitionLevel: '높음', description: '용산 소재 여성 리더 양성 전통 사립대', genderRestriction: 'female' },
   { id: 'kookmin', name: '국민대학교', region: '서울', category: '사립', minLearningCutoff: 63, acceptanceRateBase: 0.70, tuitionLevel: '높음', description: '자동차공학 및 조형디자인 특성화 사립대' },
   { id: 'soongsil', name: '숭실대학교', region: '서울', category: '사립', minLearningCutoff: 63, acceptanceRateBase: 0.70, tuitionLevel: '높음', description: '국내 최초 IT·컴퓨터학부 특성화 사립대' },
   { id: 'sejong', name: '세종대학교', region: '서울', category: '사립', minLearningCutoff: 61, acceptanceRateBase: 0.72, tuitionLevel: '높음', description: '호텔경영·만화애니·소프트웨어 특성화대' },

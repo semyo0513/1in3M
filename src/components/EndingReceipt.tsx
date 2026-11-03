@@ -142,6 +142,23 @@ ${citizen.choicesHistory.map((c, i) => `${i + 1}. [${c.age}세] ${c.issueTitle} 
               )}
             </span>
           </div>
+          <div className="flex justify-between">
+            <span className="text-slate-400">최종 순자산</span>
+            <span className="font-semibold text-yellow-300 font-mono">
+              {Math.floor(citizen.netWorthWon / 10000).toLocaleString('ko-KR')}만 원
+              <span className="text-[10px] text-slate-400 font-normal ml-1">
+                (자산 {Math.floor((citizen.totalAssetsWon || citizen.netWorthWon) / 10000).toLocaleString('ko-KR')}만 / 부채 {citizen.totalDebtWon > 0 ? `${Math.floor(citizen.totalDebtWon / 10000).toLocaleString('ko-KR')}만` : '0원'})
+              </span>
+            </span>
+          </div>
+          {citizen.pet && (
+            <div className="flex justify-between">
+              <span className="text-slate-400">평생의 반려</span>
+              <span className="font-semibold text-amber-200">
+                {citizen.pet.icon} {citizen.pet.breed} '{citizen.pet.name}'
+              </span>
+            </div>
+          )}
         </div>
 
         {/* 4대 생애 지표 결과 */}

@@ -44,6 +44,9 @@ import { MemorialHall, MemorialRecord } from './components/MemorialHall';
 import { BirthModal } from './components/BirthModal';
 import { LeftProfilePanel } from './components/LeftProfilePanel';
 import { CollegeApplicationModal } from './components/CollegeApplicationModal';
+import { CareerChoiceModal, CareerOption } from './components/CareerChoiceModal';
+import { ChildNamingModal } from './components/ChildNamingModal';
+import { PetAdoptionModal, PetInfo } from './components/PetAdoptionModal';
 import { Footer } from './components/Footer';
 import { ScrollText, Scale, Users, GraduationCap, User } from 'lucide-react';
 
@@ -85,6 +88,10 @@ export const App: React.FC = () => {
   const [activeDilemma, setActiveDilemma] = useState<DilemmaIssue | null>(null);
   const [activeLifeChoice, setActiveLifeChoice] = useState<LifeChoiceCard | null>(null);
   const [isCollegeModalOpen, setIsCollegeModalOpen] = useState<boolean>(false);
+  const [isRetryCollege, setIsRetryCollege] = useState<boolean>(false);
+  const [isCareerModalOpen, setIsCareerModalOpen] = useState<boolean>(false);
+  const [activeChildNaming, setActiveChildNaming] = useState<{ gender: '아들' | '딸' } | null>(null);
+  const [isPetModalOpen, setIsPetModalOpen] = useState<boolean>(false);
   const [activePauseQuestion, setActivePauseQuestion] = useState<{ age: number; question: string } | null>(null);
   const [isEndingOpen, setIsEndingOpen] = useState<boolean>(false);
   const [isMemorialOpen, setIsMemorialOpen] = useState<boolean>(false);
@@ -143,6 +150,11 @@ export const App: React.FC = () => {
     setIsEndingOpen(false);
     setActiveDilemma(null);
     setActiveLifeChoice(null);
+    setIsCollegeModalOpen(false);
+    setIsRetryCollege(false);
+    setIsCareerModalOpen(false);
+    setIsPetModalOpen(false);
+    setActiveChildNaming(null);
     setActivePauseQuestion(null);
     setMobileTab('timeline');
     setDashboardTab('impact');
@@ -187,7 +199,7 @@ export const App: React.FC = () => {
   // 키보드 스페이스바 일시정지 토글
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && !isBirthModalOpen && !activeDilemma && !activeLifeChoice && !activePauseQuestion && !isEndingOpen && !isMemorialOpen) {
+      if (e.code === 'Space' && !isBirthModalOpen && !activeDilemma && !activeLifeChoice && !isCollegeModalOpen && !isCareerModalOpen && !isPetModalOpen && !activeChildNaming && !activePauseQuestion && !isEndingOpen && !isMemorialOpen) {
         e.preventDefault();
         setIsPaused(prev => !prev);
         audioManager.playClickSound();
@@ -195,7 +207,7 @@ export const App: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isBirthModalOpen, activeDilemma, activeLifeChoice, activePauseQuestion, isEndingOpen, isMemorialOpen]);
+  }, [isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, isCareerModalOpen, isPetModalOpen, activeChildNaming, activePauseQuestion, isEndingOpen, isMemorialOpen]);
 
   // 1년 진행 틱 함수 (명세서 3.0 동적 밸런싱 & 한국형 스트레스 곡선 & 중복 방지)
   const tickYear = useCallback(() => {
@@ -324,10 +336,24 @@ export const App: React.FC = () => {
 
       // 10. 대한민국 표본 통계 기반 생애 전환 선택 카드 체크 (명세서 2.0: 청년유출, 병역, 결혼, 출산, 고정비, 취미, 의료)
       // 19세에는 전국 100개 대학 입시 전용 모달(CollegeApplicationModal)이 열림
+      // 20세에 재수 플래그가 있으면 1년 뒤 재도전 모달이 다시 열림
       let triggeredChoice: LifeChoiceCard | null = null;
       if (nextAge === 19) {
         setIsPaused(true);
+        setIsRetryCollege(false);
         setIsCollegeModalOpen(true);
+        audioManager.playChimeSound();
+      } else if (nextAge === 20 && tempCitizen.flags.has('COLLEGE_RETRY_PLANNED')) {
+        setIsPaused(true);
+        setIsRetryCollege(true);
+        setIsCollegeModalOpen(true);
+        audioManager.playChimeSound();
+      } else if (
+        (nextAge === 20 && !tempCitizen.collegeName && !tempCitizen.flags.has('COLLEGE_RETRY_PLANNED') && !tempCitizen.flags.has('CAREER_CHOSEN')) ||
+        (nextAge === 24 && tempCitizen.collegeName && !tempCitizen.flags.has('CAREER_CHOSEN'))
+      ) {
+        setIsPaused(true);
+        setIsCareerModalOpen(true);
         audioManager.playChimeSound();
       } else {
         triggeredChoice = checkLifeChoiceTrigger(
@@ -345,9 +371,17 @@ export const App: React.FC = () => {
         }
       }
 
+      // 10-1. 자연 출생 시 작명 모달 자동 트리거
+      if (profileUpdates.childrenCount > prevCitizen.childrenCount && !activeChildNaming) {
+        const childGender: '아들' | '딸' = Math.random() < 0.5 ? '아들' : '딸';
+        setActiveChildNaming({ gender: childGender });
+        setIsPaused(true);
+        audioManager.playChimeSound();
+      }
+
       // 11. 잠시 멈춤 질문 체크 (5, 15, 30, 50, 70세)
       const pauseDef = PAUSE_QUESTIONS.find(p => p.age === nextAge);
-      if (pauseDef && !triggeredChoice && nextAge !== 19) {
+      if (pauseDef && !triggeredChoice && nextAge !== 19 && !(nextAge === 20 && tempCitizen.flags.has('COLLEGE_RETRY_PLANNED'))) {
         setIsPaused(true);
         const randomQ = pauseDef.questions[Math.floor(Math.random() * pauseDef.questions.length)];
         setActivePauseQuestion({ age: nextAge, question: randomQ });
@@ -508,7 +542,7 @@ export const App: React.FC = () => {
 
   // 메인 타이머 루프
   useEffect(() => {
-    if (isPaused || isBirthModalOpen || activeDilemma || activeLifeChoice || isCollegeModalOpen || activePauseQuestion || isEndingOpen || isMemorialOpen) {
+    if (isPaused || isBirthModalOpen || activeDilemma || activeLifeChoice || isCollegeModalOpen || isCareerModalOpen || isPetModalOpen || activeChildNaming || activePauseQuestion || isEndingOpen || isMemorialOpen) {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -525,7 +559,7 @@ export const App: React.FC = () => {
         timerRef.current = null;
       }
     };
-  }, [isPaused, speed, isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, activePauseQuestion, isEndingOpen, isMemorialOpen, tickYear]);
+  }, [isPaused, speed, isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, isCareerModalOpen, isPetModalOpen, activeChildNaming, activePauseQuestion, isEndingOpen, isMemorialOpen, tickYear]);
 
   // 출생 모달에서 삶 시작
   const handleStartLife = () => {
@@ -607,14 +641,39 @@ export const App: React.FC = () => {
       else if (option.optionId === 'HOBBY_READ_ROOT') nextHobby = '독서와 작은 도서관 모임';
       else if (option.optionId === 'HOBBY_MUSIC_ROOT') nextHobby = '통기타·건반 연주 및 아마추어 밴드';
 
-      // 자산 직접 변동액(청약, 부동산 매매, 투자, 자녀 지원 등) 반영
-      let nextNetWorth = prev.netWorthWon;
-      if (eff.netWorthChange) {
-        nextNetWorth = Math.max(0, nextNetWorth + eff.netWorthChange);
+      // 자산 및 부채 분리 변동액(청약, 부동산 매매, 투자, 사업 등) 현실적 반영
+      let nextTotalAssetsWon = prev.totalAssetsWon || prev.netWorthWon || 500000;
+      let nextTotalDebtWon = prev.totalDebtWon || 0;
+
+      if (option.grantFlag === 'HOME_OWNER_CHUNGMUGONG') {
+        nextTotalAssetsWon += 380000000;
+        nextTotalDebtWon += 180000000;
+      } else if (option.grantFlag === 'HOME_OWNER_CHOJEON') {
+        nextTotalAssetsWon += 320000000;
+        nextTotalDebtWon += 140000000;
+      } else if (option.grantFlag === 'HOME_OWNER_PYEONGGEO') {
+        nextTotalAssetsWon += 270000000;
+        nextTotalDebtWon += 100000000;
+      } else if (eff.netWorthChange) {
+        if (eff.netWorthChange > 0) {
+          nextTotalAssetsWon += eff.netWorthChange;
+        } else {
+          const absLoss = Math.abs(eff.netWorthChange);
+          if (nextTotalAssetsWon >= absLoss) {
+            nextTotalAssetsWon -= absLoss;
+          } else {
+            nextTotalDebtWon += (absLoss - nextTotalAssetsWon);
+            nextTotalAssetsWon = 0;
+          }
+        }
       }
+
+      let nextNetWorth = Math.max(0, nextTotalAssetsWon - nextTotalDebtWon);
 
       return {
         ...prev,
+        totalAssetsWon: nextTotalAssetsWon,
+        totalDebtWon: nextTotalDebtWon,
         netWorthWon: nextNetWorth,
         health: Math.max(0, Math.min(100, Math.round(prev.health + dHealth))),
         happiness: Math.max(0, Math.min(100, Math.round(prev.happiness + dHappiness))),
@@ -645,14 +704,25 @@ export const App: React.FC = () => {
     ]);
 
     setActiveLifeChoice(null);
-    setIsPaused(false);
+
+    // 반려동물 입양 트리거 분기
+    if (option.grantFlag === 'TRIGGER_PET_ADOPTION') {
+      setIsPetModalOpen(true);
+      setIsPaused(true);
+    } else if (option.optionId === 'CHILD_ONE_FOCUS' || option.optionId === 'CHILD_MULTI_BLESSING') {
+      const childGender: '아들' | '딸' = Math.random() < 0.5 ? '아들' : '딸';
+      setActiveChildNaming({ gender: childGender });
+      setIsPaused(true);
+    } else {
+      setIsPaused(false);
+    }
   };
 
-  // 전국 100개 대학교 지원 및 입시 결과 완료 핸들러
+  // 전국 100개 대학교 지원 및 입시 결과 완료 핸들러 (재수 분기 및 진로 연계)
   const handleResolveCollegeApplication = (res: {
     appliedUniv: any;
     isAccepted: boolean;
-    finalChoice: 'college' | 'work';
+    finalChoice: 'college' | 'work' | 'retry';
     collegeName: string;
     consequenceText: string;
     learningDelta: number;
@@ -661,9 +731,16 @@ export const App: React.FC = () => {
     isRelocatedAway: boolean;
     grantFlag: string;
   }) => {
+    let openCareerNext = false;
+
     setCitizen(prev => {
       const nextFlags = new Set(prev.flags);
       if (res.grantFlag) nextFlags.add(res.grantFlag);
+
+      // 재수가 아닌 경우(합격 진학 또는 사회 진출) 재수 플래그 해제
+      if (res.finalChoice !== 'retry') {
+        nextFlags.delete('COLLEGE_RETRY_PLANNED');
+      }
 
       let nextEducation = prev.education;
       let nextJob = prev.job;
@@ -677,10 +754,13 @@ export const App: React.FC = () => {
         nextJobTitle = res.isRelocatedAway
           ? `서울 유학생 (${res.appliedUniv.name})`
           : `대학생 (${res.appliedUniv.name})`;
+      } else if (res.finalChoice === 'retry') {
+        nextEducation = `${prev.highSchool} 졸 (대입 재수 준비)`;
+        nextJob = '재수생 (수능 준비)';
+        nextJobTitle = '대입 재수생';
       } else {
         nextEducation = `고등학교 (${prev.highSchool} 졸)`;
-        nextJob = getRandomJob(prev.district.id, 20);
-        nextJobTitle = `${nextJob} · 사회초년생`;
+        openCareerNext = true;
       }
 
       return {
@@ -706,11 +786,122 @@ export const App: React.FC = () => {
         type: 'milestone',
         label: 'FACT',
         sourceNote: res.appliedUniv ? `${res.appliedUniv.region} ${res.appliedUniv.name} 입학처` : '한국고용정보원 고교졸업자 진로통계',
-        text: `[19세 대입 진로] ${res.consequenceText}`
+        text: `[${citizen.age}세 대입 진로] ${res.consequenceText}`
       }
     ]);
 
     setIsCollegeModalOpen(false);
+
+    if (openCareerNext) {
+      setIsCareerModalOpen(true);
+      setIsPaused(true);
+    } else {
+      setIsPaused(false);
+    }
+  };
+
+  // 직업군 선택 완료 핸들러 (출향민 서울 거주 시 스마트팜 농업 자동 제외)
+  const handleResolveCareer = (career: CareerOption) => {
+    setCitizen(prev => {
+      const nextFlags = new Set(prev.flags);
+      nextFlags.add('CAREER_CHOSEN');
+      let nextIsRelocatedAway = prev.isRelocatedAway;
+      if (career.regionType === '서울') {
+        nextFlags.add('MIGRATED_OUT_SEOUL');
+        nextIsRelocatedAway = true;
+      }
+
+      return {
+        ...prev,
+        job: career.name,
+        jobTitle: career.title,
+        learning: Math.min(100, prev.learning + career.learningBonus),
+        happiness: Math.min(100, prev.happiness + career.happinessBonus),
+        isRelocatedAway: nextIsRelocatedAway,
+        flags: nextFlags
+      };
+    });
+
+    setTimeline(t => [
+      ...t,
+      {
+        id: `career_chosen_${Date.now()}`,
+        year: citizen.currentYear,
+        age: citizen.age,
+        type: 'milestone',
+        label: 'CAREER',
+        sourceNote: `${career.regionType} 직업 생태계`,
+        text: `[진로 및 직업 확정] ${career.name} 분야의 '${career.title}'(으)로 본격적인 사회 활동을 시작했습니다. ${career.description}`
+      }
+    ]);
+
+    setIsCareerModalOpen(false);
+    setIsPaused(false);
+  };
+
+  // 자녀 작명 완료 핸들러
+  const handleConfirmChildName = (name: string, gender: '아들' | '딸') => {
+    setCitizen(prev => {
+      const newChild = {
+        id: `child_${Date.now()}`,
+        name,
+        birthAge: prev.age,
+        gender
+      };
+      const nextList = [...(prev.childrenList || []), newChild];
+      const nextFlags = new Set(prev.flags);
+      nextFlags.add('HAS_CHILDREN');
+
+      return {
+        ...prev,
+        childrenCount: Math.max(prev.childrenCount, nextList.length),
+        childrenList: nextList,
+        happiness: Math.min(100, prev.happiness + 8),
+        bonds: Math.min(100, prev.bonds + 10),
+        flags: nextFlags
+      };
+    });
+
+    setTimeline(t => [
+      ...t,
+      {
+        id: `child_birth_${Date.now()}`,
+        year: citizen.currentYear,
+        age: citizen.age,
+        type: 'milestone',
+        label: 'FAMILY',
+        sourceNote: '가족관계등록부 출생 신고',
+        text: `건강하게 태어난 소중한 ${gender} 아이의 이름을 '${name}'(으)로 지었습니다. 아이의 맑은 웃음소리가 온 집안에 울려 퍼집니다.`
+      }
+    ]);
+
+    setActiveChildNaming(null);
+    setIsPaused(false);
+  };
+
+  // 반려동물 입양 완료 핸들러
+  const handleConfirmPet = (pet: PetInfo) => {
+    setCitizen(prev => ({
+      ...prev,
+      pet,
+      happiness: Math.min(100, prev.happiness + 10),
+      bonds: Math.min(100, prev.bonds + 12)
+    }));
+
+    setTimeline(t => [
+      ...t,
+      {
+        id: `pet_adopt_${Date.now()}`,
+        year: citizen.currentYear,
+        age: citizen.age,
+        type: 'milestone',
+        label: 'FAMILY',
+        sourceNote: '농림축산검역본부 동물등록제',
+        text: `[반려동물 입양] 다정하고 사랑스러운 '${pet.name}'(${pet.breed})을(를) 새로운 가족으로 맞이했습니다. 매일 함께 산책하고 온기를 나누며 큰 위안을 얻습니다.`
+      }
+    ]);
+
+    setIsPetModalOpen(false);
     setIsPaused(false);
   };
 
@@ -1014,7 +1205,7 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* 모달 2-1: 전국 주요 100개 대학교 지망 및 입시 모달 (19세 진학 분기) */}
+      {/* 모달 2-1: 전국 주요 100개 대학교 지망 및 입시 모달 (19세 진학 분기 및 20세 대입 재수) */}
       {isCollegeModalOpen && (
         <CollegeApplicationModal
           age={citizen.age}
@@ -1022,7 +1213,44 @@ export const App: React.FC = () => {
           citizenLearning={citizen.learning}
           citizenGender={citizen.gender}
           highSchool={citizen.highSchool}
+          isRetryYear={isRetryCollege}
           onResolve={handleResolveCollegeApplication}
+        />
+      )}
+
+      {/* 모달 2-2: 직업군 선택 모달 (사회 진출 및 대학 졸업 시 커리어 결정) */}
+      {isCareerModalOpen && (
+        <CareerChoiceModal
+          age={citizen.age}
+          year={citizen.currentYear}
+          education={citizen.education}
+          collegeName={citizen.collegeName}
+          isRelocatedAway={citizen.isRelocatedAway}
+          onSelectCareer={handleResolveCareer}
+        />
+      )}
+
+      {/* 모달 2-3: 자녀 작명 모달 (출생 시 아들/딸 작명 및 추천 이름 선택) */}
+      {activeChildNaming && (
+        <ChildNamingModal
+          gender={activeChildNaming.gender}
+          parentName={citizen.name}
+          age={citizen.age}
+          year={citizen.currentYear}
+          onConfirm={handleConfirmChildName}
+        />
+      )}
+
+      {/* 모달 2-4: 반려동물 입양 모달 (품종 카드 선택 및 이름 작명) */}
+      {isPetModalOpen && (
+        <PetAdoptionModal
+          age={citizen.age}
+          year={citizen.currentYear}
+          onConfirm={handleConfirmPet}
+          onCancel={() => {
+            setIsPetModalOpen(false);
+            setIsPaused(false);
+          }}
         />
       )}
 

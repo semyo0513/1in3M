@@ -45,7 +45,12 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
     ? `${citizen.spouse.name} ${citizen.spouse.yearsTogether}년을 함께하다 먼저 떠나보냄`
     : `${citizen.spouse.name} ${citizen.spouse.yearsTogether}년을 함께하는 중`;
 
-  const childrenText = citizen.childrenCount === 0 ? '없음' : `${citizen.childrenCount}명`;
+  const childrenText = citizen.childrenList && citizen.childrenList.length > 0
+    ? citizen.childrenList.map(c => `${c.gender} ${c.name} (${Math.max(0, citizen.age - c.birthAge)}세)`).join(', ')
+    : citizen.childrenCount === 0
+    ? '없음'
+    : `${citizen.childrenCount}명`;
+
   const companionLabel = !citizen.isAlive ? '마지막 길을 배웅한 사람' : '곁을 지키는 사람';
 
   return (
@@ -151,6 +156,16 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
             <span className="text-slate-500 mr-2">:</span>
             <span className="text-slate-200">{childrenText}</span>
           </div>
+          {citizen.pet && (
+            <div className="flex items-start pl-1">
+              <span className="w-14 text-slate-400 shrink-0">반려동물</span>
+              <span className="text-slate-500 mr-2">:</span>
+              <span className="text-amber-200 flex items-center gap-1 font-medium">
+                <span>{citizen.pet.icon}</span>
+                <span>{citizen.pet.breed} '{citizen.pet.name}' ({Math.max(1, citizen.age - citizen.pet.adoptedAge)}년째 동행)</span>
+              </span>
+            </div>
+          )}
         </div>
 
         {/* 마지막 길을 배웅한 사람 (또는 곁을 지키는 사람) */}
@@ -188,42 +203,49 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
           </div>
 
           <div className="flex items-start">
-            <span className="w-24 text-slate-400 shrink-0">재산</span>
+            <span className="w-20 text-slate-400 shrink-0 font-medium">재산 현황</span>
             <span className="text-slate-500 mr-2">:</span>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-yellow-300 font-mono font-bold">
-                {formatWealth(citizen.netWorthWon)}
-              </span>
-              {citizen.flags?.has('HOME_OWNER_CHUNGMUGONG') && (
-                <span className="px-1.5 py-0.2 rounded text-[10px] bg-sky-950/80 border border-sky-500/40 text-sky-300 font-semibold">
-                  혁신도시 자가
+            <div className="flex-1 min-w-0 space-y-1">
+              <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-0.5">
+                <span className="text-yellow-300 font-mono font-bold text-xs">
+                  순자산 {formatWealth(citizen.netWorthWon)}
                 </span>
-              )}
-              {citizen.flags?.has('HOME_OWNER_CHOJEON') && (
-                <span className="px-1.5 py-0.2 rounded text-[10px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-semibold">
-                  초전·평거 자가
+                <span className="text-[10px] text-slate-400 font-mono">
+                  (총자산 {formatWealth(citizen.totalAssetsWon || citizen.netWorthWon)} / 부채 {citizen.totalDebtWon > 0 ? formatWealth(citizen.totalDebtWon) : '없음'})
                 </span>
-              )}
-              {citizen.flags?.has('COMPOUND_INVESTOR') && (
-                <span className="px-1.5 py-0.2 rounded text-[10px] bg-amber-950/80 border border-amber-500/40 text-amber-300 font-semibold">
-                  복리 투자
-                </span>
-              )}
-              {citizen.flags?.has('REVERSE_MORTGAGE') && (
-                <span className="px-1.5 py-0.2 rounded text-[10px] bg-teal-950/80 border border-teal-500/40 text-teal-300 font-semibold">
-                  주택연금 종신
-                </span>
-              )}
-              {citizen.flags?.has('SOLID_PENSION') && (
-                <span className="px-1.5 py-0.2 rounded text-[10px] bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-semibold">
-                  IRP 연금
-                </span>
-              )}
-              {citizen.hasDebtRisk && (
-                <span className="px-1.5 py-0.2 rounded text-[10px] bg-rose-950 border border-rose-500/40 text-rose-300 font-bold">
-                  부채 위험
-                </span>
-              )}
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                {citizen.flags?.has('HOME_OWNER_CHUNGMUGONG') && (
+                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-sky-950/80 border border-sky-500/40 text-sky-300 font-semibold">
+                    혁신도시 자가
+                  </span>
+                )}
+                {citizen.flags?.has('HOME_OWNER_CHOJEON') && (
+                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-semibold">
+                    초전·평거 자가
+                  </span>
+                )}
+                {citizen.flags?.has('COMPOUND_INVESTOR') && (
+                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-amber-950/80 border border-amber-500/40 text-amber-300 font-semibold">
+                    복리 투자
+                  </span>
+                )}
+                {citizen.flags?.has('REVERSE_MORTGAGE') && (
+                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-teal-950/80 border border-teal-500/40 text-teal-300 font-semibold">
+                    주택연금 종신
+                  </span>
+                )}
+                {citizen.flags?.has('SOLID_PENSION') && (
+                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-semibold">
+                    IRP 연금
+                  </span>
+                )}
+                {citizen.hasDebtRisk && (
+                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-rose-950 border border-rose-500/40 text-rose-300 font-bold">
+                    부채 위험
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 

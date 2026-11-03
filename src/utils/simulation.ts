@@ -162,9 +162,24 @@ const JOBS_BY_DISTRICT: Record<string, JobType[]> = {
   default: ['원도심 소상공인·자영업', '제조업·기계 연구원', '시설원예 스마트팜 농업인', '청년 구직자']
 };
 
-export function getRandomJob(districtId: string, age: number): JobType {
+// 서울·수도권 상경 출향민 전용 도시형 직업군 (농업 배제)
+const JOBS_BY_SEOUL: JobType[] = [
+  '공공기관 임직원',
+  '제조업·기계 연구원',
+  '초·중·고 교사 및 교육직',
+  '종합병원 간호사·의료직',
+  '문화·관광 서비스업',
+  '원도심 소상공인·자영업'
+];
+
+export function getRandomJob(districtId: string, age: number, isRelocatedAway: boolean = false): JobType {
   if (age < 19) return '청년 구직자';
   if (age >= 65) return '은퇴 및 프리랜서';
+
+  // 서울 상경 출향민은 농축산업을 절대 배정하지 않고 수도권 도시 직군 배정
+  if (isRelocatedAway) {
+    return JOBS_BY_SEOUL[Math.floor(Math.random() * JOBS_BY_SEOUL.length)];
+  }
 
   const pool = JOBS_BY_DISTRICT[districtId] || JOBS_BY_DISTRICT.default;
   return pool[Math.floor(Math.random() * pool.length)];
@@ -236,10 +251,14 @@ export function generateBirthForDistrict(
     incomeDecile,
     incomeDesc,
     monthlyIncomeWon,
+    totalAssetsWon: 500000,
+    totalDebtWon: 0,
     netWorthWon: 500000, // 50만 원 (돌 축하금 등)
     hobby,
     spouse: null,
     childrenCount: 0,
+    childrenList: [],
+    pet: null,
     farewellCompanion: '사랑으로 품어준 부모님과 가족',
     happiestYear: {
       age: 0,
@@ -292,9 +311,13 @@ export function advanceCitizenProfile(
   highSchool: string;
   collegeName?: string;
   monthlyIncomeWon: number;
+  totalAssetsWon: number;
+  totalDebtWon: number;
   netWorthWon: number;
   spouse: SpouseInfo | null;
   childrenCount: number;
+  childrenList: Array<{ id: string; name: string; birthAge: number; gender: '아들' | '딸' }>;
+  pet?: { name: string; type: 'dog' | 'cat'; breed: string; icon: string; adoptedAge: number } | null;
   farewellCompanion: string;
   happiestYear: HappiestYearInfo;
   timeSpent: Record<YearFocus, number>;
@@ -376,36 +399,55 @@ export function advanceCitizenProfile(
       education.includes('과기원') ||
       education.includes('학사')
     );
-    if (isEnrolledCollege) {
+    if (prev.flags?.has('COLLEGE_RETRY_PLANNED')) {
+      job = '재수생 (수능 준비)';
+      jobTitle = '대입 재수생';
+    } else if (isEnrolledCollege) {
       job = '청년 구직자';
       const univLabel = collegeName || (education.includes('서울') ? '서울권 대학' : '경상국립대');
       jobTitle = prev.isRelocatedAway ? `서울 유학생 (${univLabel})` : `대학생 (${univLabel})`;
+    } else if (prev.flags?.has('CAREER_CHOSEN') && prev.job && prev.job !== '청년 구직자') {
+      job = prev.job;
+      jobTitle = `${job} · 사회초년생`;
     } else {
-      job = getRandomJob(prev.district.id, nextAge);
+      job = getRandomJob(prev.district.id, nextAge, prev.isRelocatedAway);
       jobTitle = `${job} · 사회초년생`;
     }
   } else if (nextAge <= 34) {
-    if (job === '청년 구직자' || job === '은퇴 및 프리랜서') {
-      job = getRandomJob(prev.district.id, nextAge);
-    }
-    // 취업 선택지 연동
-    if (prev.flags?.has('JOB_PUBLIC_CORP_CANDIDATE')) {
-      jobTitle = '공공기관 공채 준비·인턴';
-    } else if (prev.flags?.has('MIGRATED_OUT_SEOUL')) {
-      jobTitle = '수도권 IT·제조기업 사원';
+    if (prev.flags?.has('CAREER_CHOSEN') && prev.job && prev.job !== '청년 구직자') {
+      job = prev.job;
+      jobTitle = `${job} · 실무자`;
+    } else if (job === '청년 구직자' || job === '은퇴 및 프리랜서') {
+      job = getRandomJob(prev.district.id, nextAge, prev.isRelocatedAway);
+      if (prev.flags?.has('JOB_PUBLIC_CORP_CANDIDATE')) {
+        jobTitle = '공공기관 공채 준비·인턴';
+      } else if (prev.flags?.has('MIGRATED_OUT_SEOUL')) {
+        jobTitle = '수도권 IT·제조기업 사원';
+      } else {
+        jobTitle = `${job} · 사원·주임`;
+      }
     } else {
       jobTitle = `${job} · 사원·주임`;
     }
   } else if (nextAge <= 44) {
+    if (prev.flags?.has('CAREER_CHOSEN') && prev.job) {
+      job = prev.job;
+    }
     jobTitle = `${job} · 대리·과장`;
   } else if (nextAge <= 58) {
+    if (prev.flags?.has('CAREER_CHOSEN') && prev.job) {
+      job = prev.job;
+    }
     jobTitle = `${job} · 팀장·부장`;
   } else if (nextAge <= 64) {
+    if (prev.flags?.has('CAREER_CHOSEN') && prev.job) {
+      job = prev.job;
+    }
     jobTitle = `${job} · 부장·책임`;
   } else {
     // 65세 이상 은퇴
     job = '은퇴 및 프리랜서';
-    jobTitle = '부장 · 은퇴';
+    jobTitle = '은퇴 생활자';
   }
 
   // 4. 월소득 및 순자산 (저축 누적, 부동산 자산 상승, 복리 투자, 연금 체계)
@@ -450,33 +492,47 @@ export function advanceCitizenProfile(
     monthlyIncomeWon += 400000;
   }
 
-  let netWorthWon = prev.netWorthWon || 500000;
+  let totalAssetsWon = prev.totalAssetsWon || prev.netWorthWon || 500000;
+  let totalDebtWon = prev.totalDebtWon || 0;
+
   if (nextAge < 20) {
-    netWorthWon += Math.floor(monthlyIncomeWon * 12 * 0.4);
+    const youthSavings = Math.floor(monthlyIncomeWon * 12 * 0.4);
+    totalAssetsWon += youthSavings;
   } else if (nextAge <= 64) {
     const saveRate = focus === 'work' ? 0.38 : (focus === 'learning' ? 0.22 : 0.28);
     const yearlySavings = Math.floor(monthlyIncomeWon * 12 * saveRate);
-    netWorthWon += yearlySavings;
+    totalAssetsWon += yearlySavings;
 
     // 부동산 보유 시 매년 인플레이션 및 도시 성장(혁신도시/초전/평거) 자산 가치 상승 (연 2.4%)
     if (prev.flags?.has('HOME_OWNER_CHUNGMUGONG') || prev.flags?.has('HOME_OWNER_CHOJEON') || prev.flags?.has('WEALTH_EXPANDED')) {
-      const propertyGrowth = Math.floor(netWorthWon * 0.024);
-      netWorthWon += propertyGrowth;
+      const propertyGrowth = Math.floor(totalAssetsWon * 0.024);
+      totalAssetsWon += propertyGrowth;
     }
 
     // 복리 투자자(ETF/우량주 적립식) 장기 복리 수익 (연 3.5%)
     if (prev.flags?.has('COMPOUND_INVESTOR')) {
-      const investGain = Math.floor(netWorthWon * 0.035);
-      netWorthWon += investGain;
+      const investGain = Math.floor(totalAssetsWon * 0.035);
+      totalAssetsWon += investGain;
+    }
+
+    // 부채가 있을 경우 매년 소득의 12%를 부채 상환에 배정하여 부채 감소
+    if (totalDebtWon > 0) {
+      const debtPayment = Math.min(totalDebtWon, Math.floor(monthlyIncomeWon * 12 * 0.12));
+      totalDebtWon -= debtPayment;
     }
   } else {
     // 은퇴 후: 주택연금/개인연금이 있으면 자산 보전, 없으면 완만한 생활비 소진
     if (prev.flags?.has('REVERSE_MORTGAGE') || prev.flags?.has('SOLID_PENSION')) {
-      netWorthWon = Math.max(60000000, netWorthWon);
+      totalAssetsWon = Math.max(80000000, totalAssetsWon);
     } else {
-      netWorthWon = Math.max(30000000, netWorthWon - 2500000);
+      totalAssetsWon = Math.max(35000000, totalAssetsWon - 2500000);
+    }
+    if (totalDebtWon > 0) {
+      totalDebtWon = Math.max(0, totalDebtWon - 3000000);
     }
   }
+
+  let netWorthWon = Math.max(0, totalAssetsWon - totalDebtWon);
 
   // 5. 배우자 및 자녀 (비혼 선언 및 딩크 선택 철저 반영)
   let spouse: SpouseInfo | null = prev.spouse ? { ...prev.spouse } : null;
@@ -614,9 +670,13 @@ export function advanceCitizenProfile(
     highSchool,
     collegeName,
     monthlyIncomeWon,
+    totalAssetsWon,
+    totalDebtWon,
     netWorthWon,
     spouse,
     childrenCount,
+    childrenList: prev.childrenList || [],
+    pet: prev.pet || null,
     farewellCompanion,
     happiestYear,
     timeSpent,

@@ -120,34 +120,56 @@ export function pickElementarySchool(districtId: string): string {
   return '진주초등학교';
 }
 
-// 중학교 배정 로직 (거주지 & 성별 기반)
+// 중학교 배정 로직 (거주지 & 성별 기반 - 남녀 단성학교 엄격 필터링)
 export function pickMiddleSchool(districtId: string, gender: '남성' | '여성'): string {
-  const genderCode = gender === '남성' ? 'male' : 'female';
+  const isMale = gender === '남성';
   
-  // 1순위: 같은 행정동 + 성별 일치(남/여) 또는 남녀공학(all)
-  const exact = JINJU_MIDDLE_SCHOOLS.filter(s => 
-    s.districtIds.includes(districtId) && (s.gender === genderCode || s.gender === 'all')
-  );
+  // 성별 부합 기본 필터 (남학생은 '여자' 학교 절대 금지, 여학생은 남중 금지)
+  const isGenderValid = (s: SchoolEntry) => {
+    if (isMale) {
+      if (s.gender === 'female' || s.name.includes('여자') || s.name.includes('여중')) return false;
+      return s.gender === 'male' || s.gender === 'all';
+    } else {
+      if (s.gender === 'male') return false;
+      return s.gender === 'female' || s.gender === 'all';
+    }
+  };
+
+  // 1순위: 같은 행정동 + 성별 일치
+  const exact = JINJU_MIDDLE_SCHOOLS.filter(s => s.districtIds.includes(districtId) && isGenderValid(s));
   if (exact.length > 0) {
     return exact[Math.floor(Math.random() * exact.length)].name;
   }
 
   // 2순위: 성별 적합 전체 중학교 중 무작위
-  const general = JINJU_MIDDLE_SCHOOLS.filter(s => s.gender === genderCode || s.gender === 'all');
-  return general[Math.floor(Math.random() * general.length)].name;
+  const general = JINJU_MIDDLE_SCHOOLS.filter(isGenderValid);
+  if (general.length > 0) {
+    return general[Math.floor(Math.random() * general.length)].name;
+  }
+  return isMale ? '진주중학교' : '진주여자중학교';
 }
 
-// 고등학교 배정 로직 (거주지 & 성별 & 관심 분야)
+// 고등학교 배정 로직 (거주지 & 성별 & 관심 분야 - 단성학교 엄격 필터링)
 export function pickHighSchool(
   districtId: string,
   gender: '남성' | '여성',
   categoryPreference?: 'general' | 'meister' | 'arts_sports' | 'special'
 ): string {
-  const genderCode = gender === '남성' ? 'male' : 'female';
+  const isMale = gender === '남성';
+
+  const isGenderValid = (s: SchoolEntry) => {
+    if (isMale) {
+      if (s.gender === 'female' || s.name.includes('여자') || s.name.includes('여고')) return false;
+      return s.gender === 'male' || s.gender === 'all';
+    } else {
+      if (s.gender === 'male') return false;
+      return s.gender === 'female' || s.gender === 'all';
+    }
+  };
 
   // 1순위: 희망 계열 + 성별 부합
   let pool = JINJU_HIGH_SCHOOLS.filter(s => 
-    (s.gender === genderCode || s.gender === 'all') &&
+    isGenderValid(s) &&
     (!categoryPreference || s.category === categoryPreference)
   );
 
@@ -162,5 +184,5 @@ export function pickHighSchool(
   }
 
   // 기본 fallback
-  return gender === '남성' ? '진주고등학교' : '진주여자고등학교';
+  return isMale ? '진주고등학교' : '진주여자고등학교';
 }
