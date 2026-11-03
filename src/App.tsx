@@ -359,8 +359,8 @@ export const App: React.FC = () => {
       let triggeredChoice: LifeChoiceCard | null = null;
       const isCollegePrepAge = nextAge >= 20 && nextAge <= 23;
 
-      if (nextAge === 19 && !tempCitizen.collegeName && !tempCitizen.flags.has('EARLY_LOCAL_CAREER') && !tempCitizen.flags.has('CAREER_CHOSEN')) {
-        // 19세 고교 졸업 후 현역 대입 지원
+      if (nextAge === 19 && !tempCitizen.collegeName) {
+        // 19세 고교 졸업 후 현역 대입 지원 (사용자 선택 무조건 보장)
         setIsPaused(true);
         setIsRetryCollege(false);
         setIsCollegeModalOpen(true);
@@ -1187,6 +1187,10 @@ export const App: React.FC = () => {
           setIsPaused(true);
         }}
         onOpenProfile={() => setIsMobileProfileOpen(true)}
+        onOpenCollegeApplication={() => {
+          setIsCollegeModalOpen(true);
+          setIsPaused(true);
+        }}
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
       />

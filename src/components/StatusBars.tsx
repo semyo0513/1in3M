@@ -45,21 +45,24 @@ export const StatusBars: React.FC<StatusBarsProps> = ({
             </span>
           </div>
           <span className="text-slate-600">|</span>
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0 bg-space-950/70 px-2 py-0.5 rounded border border-yellow-500/30">
             <Coins className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
-            <span className="text-slate-300 font-sans text-[11px] sm:text-xs">
-              {isEduMode ? (
-                <span className="text-emerald-300 font-medium">{citizen.incomeDesc || '성실한 일터의 가정'}</span>
-              ) : (
-                <span className="font-mono">
-                  {citizen.age < 20 ? (
-                    `재산 ${formatWealth(citizen.netWorthWon)}`
-                  ) : (
-                    `월 ${(citizen.monthlyIncomeWon / 10000).toLocaleString('ko-KR')}만 (재산 ${formatWealth(citizen.netWorthWon)})`
-                  )}
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs">
+              <span className="text-slate-400 font-medium">순자산:</span>
+              <span className="text-yellow-300 font-mono font-bold">
+                {formatWealth(citizen.netWorthWon ?? 0)}
+              </span>
+              {citizen.age >= 20 && citizen.monthlyIncomeWon > 0 && !isEduMode && (
+                <span className="text-slate-400 font-mono text-[10px] hidden sm:inline">
+                  (월 {(citizen.monthlyIncomeWon / 10000).toLocaleString('ko-KR')}만)
                 </span>
               )}
-            </span>
+              {isEduMode && (
+                <span className="text-emerald-300 text-[10px] hidden md:inline font-medium">
+                  • {citizen.incomeDesc || '성실한 일터'}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* 모바일 전용: 프로필 팝업 열기 버튼 */}

@@ -15,6 +15,7 @@ interface HeaderProps {
   onOpenMemorial: () => void;
   onOpenAchievements?: () => void;
   onOpenProfile?: () => void;
+  onOpenCollegeApplication?: () => void;
   isMuted: boolean;
   onToggleMute: () => void;
 }
@@ -31,6 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenMemorial,
   onOpenAchievements,
   onOpenProfile,
+  onOpenCollegeApplication,
   isMuted,
   onToggleMute
 }) => {
@@ -47,6 +49,9 @@ export const Header: React.FC<HeaderProps> = ({
                 <h1 className="text-xs sm:text-base font-bold tracking-tight text-amber-300">
                   34만 분의 1 : 진주
                 </h1>
+                <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono" title="최신 실시간 업데이트 버전">
+                  v2.5
+                </span>
                 {isEduMode && (
                   <span className="px-1.5 py-0.2 rounded text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500/50 font-bold flex items-center gap-0.5">
                     <GraduationCap className="w-3 h-3 text-emerald-400" />
@@ -87,8 +92,23 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* 상단 2줄 (모바일) / 우측 (데스크톱): 프로필 + 교육용 모드 토글 + 컨트롤러 */}
-        <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 pt-1 sm:pt-0 border-t border-slate-800/60 sm:border-t-0">
+        <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 pt-1 sm:pt-0 border-t border-slate-800/60 sm:border-t-0 flex-wrap">
           
+          {/* 대입 원서 지원 상단 바로가기 버튼 (17~25세 청년 수험생 시기 상시 노출) */}
+          {onOpenCollegeApplication && citizen.age >= 17 && citizen.age <= 26 && (
+            <button
+              onClick={() => {
+                onOpenCollegeApplication();
+                audioManager.playClickSound();
+              }}
+              title="전국 주요 100개 대학 입시 지원서 작성"
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition border bg-emerald-950/80 border-emerald-500/60 text-emerald-300 hover:bg-emerald-900 animate-pulse shadow-sm"
+            >
+              <GraduationCap className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-[11px] sm:text-xs font-bold">대입 원서 지원</span>
+            </button>
+          )}
+
           {/* 내 삶의 프로필 버튼 (언제든 팝업/확인 가능) */}
           {onOpenProfile && (
             <button

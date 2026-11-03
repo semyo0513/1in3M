@@ -127,15 +127,19 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
               <span className="text-slate-500 mr-2">:</span>
               <span className="text-slate-100 font-medium">{citizen.education || '미취학 (영유아)'}</span>
             </div>
-            {onOpenCollegeApplication && (citizen.age === 19 || citizen.flags?.has('COLLEGE_RETRY_PLANNED') || (citizen.age >= 19 && citizen.age <= 21 && !citizen.collegeName)) && (
+            {onOpenCollegeApplication && citizen.age >= 17 && citizen.age <= 28 && (
               <button
                 type="button"
                 onClick={onOpenCollegeApplication}
-                className="shrink-0 text-[10px] px-2 py-0.5 rounded bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-900 transition flex items-center gap-1 font-bold shadow animate-pulse"
-                title="전국 주요 100개 대학 입시 지원서 작성"
+                className={`shrink-0 text-[10px] px-2 py-0.5 rounded border transition flex items-center gap-1 font-bold shadow ${
+                  (citizen.age === 19 || citizen.flags?.has('COLLEGE_RETRY_PLANNED') || !citizen.collegeName)
+                    ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-300 hover:bg-emerald-900 animate-pulse'
+                    : 'bg-space-900 border-slate-700 text-slate-300 hover:bg-space-800'
+                }`}
+                title="전국 주요 100개 대학 입시 지원서 작성 및 지원 이력 확인"
               >
                 <GraduationCap className="w-3 h-3 text-emerald-400" />
-                <span>대입 원서 쓰기</span>
+                <span>{citizen.collegeName ? '대입 이력' : '대입 원서 쓰기'}</span>
               </button>
             )}
           </div>
@@ -243,7 +247,7 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
                   <span>순자산</span>
                 </span>
                 <span className="text-yellow-300 font-mono font-bold text-xs sm:text-[13px]">
-                  {formatWealth(citizen.netWorthWon)}
+                  {formatWealth(citizen.netWorthWon ?? 0)}
                 </span>
               </div>
 
