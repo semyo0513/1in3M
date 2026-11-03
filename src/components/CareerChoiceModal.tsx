@@ -23,11 +23,14 @@ interface CareerChoiceModalProps {
   year: number;
   education: string;
   collegeName?: string;
+  collegeMajor?: string;
   isRelocatedAway: boolean;
+  isTurnoverMode?: boolean;
   onSelectCareer: (career: CareerOption) => void;
+  onCancel?: () => void;
 }
 
-export const CAREER_OPTIONS: CareerOption[] = [
+export const CAREER_OPTIONS: (CareerOption & { matchingKeywords: string[] })[] = [
   {
     id: 'career_it_tech',
     name: '대기업 및 IT·첨단기술 엔지니어',
@@ -40,7 +43,8 @@ export const CAREER_OPTIONS: CareerOption[] = [
     salaryLabel: '높음 (초봉 4,500만~6,000만)',
     workLifeBalance: '낮음',
     learningBonus: 8,
-    happinessBonus: 6
+    happinessBonus: 6,
+    matchingKeywords: ['컴퓨터', '인공지능', '소프트웨어', '코딩', '전산', 'IT', '공학']
   },
   {
     id: 'career_public_corp',
@@ -54,7 +58,8 @@ export const CAREER_OPTIONS: CareerOption[] = [
     salaryLabel: '안정적 (초봉 3,800만~4,800만)',
     workLifeBalance: '높음',
     learningBonus: 5,
-    happinessBonus: 9
+    happinessBonus: 9,
+    matchingKeywords: ['공공', '행정', '도시', '법학', '경영', '경제']
   },
   {
     id: 'career_aerospace_kdefense',
@@ -68,7 +73,8 @@ export const CAREER_OPTIONS: CareerOption[] = [
     salaryLabel: '보통 (초봉 4,000만~5,200만)',
     workLifeBalance: '보통',
     learningBonus: 7,
-    happinessBonus: 7
+    happinessBonus: 7,
+    matchingKeywords: ['항공', '우주', '기계', '로봇', '전자', '메카']
   },
   {
     id: 'career_professional_medical',
@@ -82,7 +88,8 @@ export const CAREER_OPTIONS: CareerOption[] = [
     salaryLabel: '매우 높음 (초봉 5,000만~7,000만)',
     workLifeBalance: '낮음',
     learningBonus: 10,
-    happinessBonus: 5
+    happinessBonus: 5,
+    matchingKeywords: ['의예', '의학', '간호', '보건', '약학', '임상']
   },
   {
     id: 'career_education_teacher',
@@ -96,7 +103,8 @@ export const CAREER_OPTIONS: CareerOption[] = [
     salaryLabel: '안정적 (호봉제)',
     workLifeBalance: '높음',
     learningBonus: 6,
-    happinessBonus: 10
+    happinessBonus: 10,
+    matchingKeywords: ['사범', '교육', '교대', '교원', '사대']
   },
   {
     id: 'career_finance_corp',
@@ -110,7 +118,8 @@ export const CAREER_OPTIONS: CareerOption[] = [
     salaryLabel: '보통 (초봉 3,800만~4,600만)',
     workLifeBalance: '보통',
     learningBonus: 5,
-    happinessBonus: 6
+    happinessBonus: 6,
+    matchingKeywords: ['경영', '경제', '금융', '세무', '회계', '무역']
   },
   {
     id: 'career_local_business',
@@ -124,7 +133,8 @@ export const CAREER_OPTIONS: CareerOption[] = [
     salaryLabel: '성과 연동 (자율적)',
     workLifeBalance: '보통',
     learningBonus: 6,
-    happinessBonus: 8
+    happinessBonus: 8,
+    matchingKeywords: ['창업', '경영', '디자인', '식품', '외식']
   },
   {
     id: 'career_smart_farm',
@@ -138,7 +148,8 @@ export const CAREER_OPTIONS: CareerOption[] = [
     salaryLabel: '성과 연동 (고소득 잠재력)',
     workLifeBalance: '보통',
     learningBonus: 5,
-    happinessBonus: 8
+    happinessBonus: 8,
+    matchingKeywords: ['농업', '스마트팜', '생명', '원예', '바이오', '작물']
   },
   {
     id: 'career_arts_culture',
@@ -152,7 +163,8 @@ export const CAREER_OPTIONS: CareerOption[] = [
     salaryLabel: '프리랜서형 (자율적)',
     workLifeBalance: '보통',
     learningBonus: 8,
-    happinessBonus: 9
+    happinessBonus: 9,
+    matchingKeywords: ['디자인', '미디어', '예술', '음악', '콘텐츠', '영상']
   }
 ];
 
@@ -161,18 +173,26 @@ export const CareerChoiceModal: React.FC<CareerChoiceModalProps> = ({
   year,
   education,
   collegeName,
+  collegeMajor,
   isRelocatedAway,
-  onSelectCareer
+  isTurnoverMode = false,
+  onSelectCareer,
+  onCancel
 }) => {
   const [selectedCareer, setSelectedCareer] = useState<CareerOption>(CAREER_OPTIONS[0]);
 
   // 서울 상경 출향민의 경우 농업은 비추천/경고 표시
   const availableCareers = CAREER_OPTIONS.filter(c => {
     if (isRelocatedAway && c.id === 'career_smart_farm') {
-      return false; // 서울 거주자는 농축산업 기본 목록에서 배제 (아이러니 차단)
+      return false; // 수도권 거주자는 농업 선택지 자동 제외
     }
     return true;
   });
+
+  const checkMajorMatch = (career: typeof CAREER_OPTIONS[0]) => {
+    if (!collegeMajor) return false;
+    return career.matchingKeywords.some(kw => collegeMajor.includes(kw));
+  };
 
   const handleConfirm = () => {
     audioManager.playChimeSound();
@@ -185,19 +205,35 @@ export const CareerChoiceModal: React.FC<CareerChoiceModalProps> = ({
         
         {/* 헤더 */}
         <div className="bg-gradient-to-r from-blue-950 via-indigo-950 to-space-900 border-b border-blue-500/30 p-4 sm:p-5 shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
-              {year}년 ({age}세) · 생애 커리어 선택
-            </span>
-            <span className="text-xs text-amber-300 font-semibold">
-              학력: {collegeName || education}
-            </span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                {year}년 ({age}세) · {isTurnoverMode ? '이직 및 커리어 전향' : '생애 첫 커리어 선택'}
+              </span>
+              <span className="text-xs text-amber-300 font-semibold">
+                학력: {collegeName ? `${collegeName} ${collegeMajor || ''}`.trim() : education}
+              </span>
+            </div>
+            {onCancel && (
+              <button
+                type="button"
+                onClick={onCancel}
+                className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-space-800 border border-slate-700"
+              >
+                닫기
+              </button>
+            )}
           </div>
           <h2 className="text-lg font-bold text-white mt-1.5 flex items-center gap-2">
             <Briefcase className="w-5 h-5 text-blue-400" />
-            <span>나의 평생 직업군과 진로 방향을 선택하세요</span>
+            <span>{isTurnoverMode ? '새로운 일터와 직무로 이직하기' : '나의 평생 직업군과 진로 방향을 선택하세요'}</span>
           </h2>
           <p className="text-xs text-slate-300 mt-0.5">
+            {collegeMajor && (
+              <span className="text-amber-300 font-medium mr-1.5">
+                [전공: {collegeMajor}]
+              </span>
+            )}
             {isRelocatedAway
               ? '수도권(서울) 생활권에 맞춘 첨단 IT·대기업·전문직 진로가 열려 있습니다.'
               : '진주 혁신도시 공공기관, 우주항공 국가산단, 교육·로컬 비즈니스 등 다양한 선택지가 있습니다.'}
@@ -210,6 +246,7 @@ export const CareerChoiceModal: React.FC<CareerChoiceModalProps> = ({
             {availableCareers.map(career => {
               const Icon = career.icon;
               const isSelected = selectedCareer.id === career.id;
+              const isMajorMatch = checkMajorMatch(career);
 
               return (
                 <button
@@ -222,6 +259,8 @@ export const CareerChoiceModal: React.FC<CareerChoiceModalProps> = ({
                   className={`p-3.5 rounded-xl border text-left transition flex flex-col justify-between ${
                     isSelected
                       ? 'bg-blue-950/40 border-blue-400 shadow-md shadow-blue-500/10'
+                      : isMajorMatch
+                      ? 'bg-space-850/90 border-amber-500/40 hover:border-amber-400'
                       : 'bg-space-850 border-slate-700/80 hover:border-slate-500 hover:bg-space-800'
                   }`}
                 >
@@ -231,9 +270,16 @@ export const CareerChoiceModal: React.FC<CareerChoiceModalProps> = ({
                         <Icon className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-white">
-                          {career.name}
-                        </h4>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h4 className="text-xs font-bold text-white">
+                            {career.name}
+                          </h4>
+                          {isMajorMatch && (
+                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
+                              🎓 전공 연계
+                            </span>
+                          )}
+                        </div>
                         <span className="text-[10px] text-amber-300 font-medium">
                           {career.title}
                         </span>
@@ -265,13 +311,24 @@ export const CareerChoiceModal: React.FC<CareerChoiceModalProps> = ({
           <div className="text-xs text-slate-300">
             선택된 직업: <strong className="text-blue-300 font-bold">{selectedCareer.name} ({selectedCareer.title})</strong>
           </div>
-          <button
-            onClick={handleConfirm}
-            className="px-6 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20 transition flex items-center gap-1.5 shrink-0"
-          >
-            <span>이 진로로 첫발 내딛기</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            {onCancel && (
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-4 py-2 rounded-xl font-medium text-xs bg-space-800 hover:bg-space-750 text-slate-300 border border-slate-700 transition"
+              >
+                현재 직장 유지
+              </button>
+            )}
+            <button
+              onClick={handleConfirm}
+              className="px-6 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20 transition flex items-center gap-1.5 shrink-0"
+            >
+              <span>{isTurnoverMode ? '이 직업으로 이직하기' : '이 진로로 첫발 내딛기'}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

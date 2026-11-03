@@ -5,6 +5,138 @@ import { LifeChoiceCard } from '../types/game';
 
 export const LIFE_CHOICES: LifeChoiceCard[] = [
   // =========================================================================
+  // 0. 청소년 학업과 진로 탐색 (15세 중3 / 17세 고2) - 학습 지표의 현실적 분기
+  // =========================================================================
+  {
+    choiceCardId: 'LC-TEEN-TRACK-15',
+    category: 'TEEN_EDUCATION',
+    categoryName: '청소년기 학업과 진로',
+    title: '중학교 3학년, 나의 학습 태도와 관심사',
+    ageRange: [15, 15],
+    body: '고등학교 진학을 앞둔 중학교 3학년의 갈림길. 야간 학원가와 독서실을 오가며 심화 공부에 몰두할지, 친구들과 동아리 및 취미에 열중할지 나의 청소년기 방향을 선택합니다.',
+    statContextFact: '교육부·통계청 초중고사교육비조사 결과 중학생 1인당 월평균 사교육비는 43.8만 원이며, 일반고·자율고·특성화고 진학에 따라 고교 학업 성취도와 진로 격차가 가시화됩니다.',
+    options: [
+      {
+        optionId: 'TEEN_STUDY_INTENSE',
+        label: '학습 학원과 인터넷 강의를 병행하며 주요 과목 심화 학습에 매진한다',
+        effects: {
+          learning: 10,
+          happiness: -3,
+          health: -2,
+          bonds: -2,
+          spend: -1
+        },
+        grantFlag: 'TEEN_STUDY_INTENSE',
+        consequenceText: '평거동·초전동 학원가를 오가며 수학과 영어 기출문제를 반복해 풀었습니다. 모의고사 성적이 수직 상승했습니다.'
+      },
+      {
+        optionId: 'TEEN_BALANCE_FRIENDS',
+        label: '학교 수업에 성실히 참여하고, 방과 후에는 친구들과 풋살·밴드 동아리를 즐긴다',
+        effects: {
+          learning: 4,
+          happiness: 8,
+          health: 4,
+          bonds: 9,
+          spend: 0
+        },
+        grantFlag: 'TEEN_BALANCE_FRIENDS',
+        consequenceText: '공부와 여가의 균형을 지키며 학창 시절의 소중한 추억과 단짝 친구들을 얻었습니다.'
+      },
+      {
+        optionId: 'TEEN_CODING_PRACTICAL',
+        label: '교과 공부보다 컴퓨터 프로그래밍, 영상 편집, 실용 기술을 독학한다',
+        effects: {
+          learning: 7,
+          happiness: 9,
+          health: -1,
+          bonds: 2,
+          spend: 0
+        },
+        grantFlag: 'TEEN_TECH_PRACTICAL',
+        consequenceText: '밤늦게까지 코딩과 디지털 콘텐츠 제작에 푹 빠졌습니다. 또래 친구들 사이에서 실용 기술 실력자로 인정받습니다.'
+      },
+      {
+        optionId: 'TEEN_GAMING_REST',
+        label: '학업 스트레스에서 벗어나 온라인 게임과 모바일 커뮤니티에 열중한다',
+        effects: {
+          learning: -4,
+          happiness: 6,
+          health: -2,
+          bonds: 4,
+          spend: 0
+        },
+        grantFlag: 'TEEN_GAMING_REST',
+        consequenceText: '시험 성적표를 받아들고 부모님의 한숨을 들었지만, 게임 속 친구들과 랭커를 달성하며 즐거운 사춘기를 보냈습니다.'
+      }
+    ]
+  },
+  {
+    choiceCardId: 'LC-TEEN-TRACK-17',
+    category: 'TEEN_EDUCATION',
+    categoryName: '고등학교 입시 전략',
+    title: '고등학교 2학년, 대입 수시·정시와 진로의 갈림길',
+    ageRange: [17, 17],
+    body: '대입 수능과 내신 관리가 본격화되는 시기. 나의 진로와 현실적 성적에 맞추어 어디에 집중할지 전략을 세워야 합니다.',
+    statContextFact: '한국대학교육협의회에 따르면 대입 전형은 학생부 위주 수시(약 79%)와 수능 위주 정시(약 21%)로 나뉘며, 자신의 학업 역량에 맞춘 현실적 타겟팅이 합격률을 좌우합니다.',
+    options: [
+      {
+        optionId: 'HIGH_STUDY_ALL_IN',
+        label: '수능 정시 1~2등급 목표로 하루 4시간 수면, 독서실 올인 (최상위권 도전)',
+        conditions: { learningMin: 50 },
+        effects: {
+          learning: 14,
+          happiness: -7,
+          health: -6,
+          bonds: -4,
+          spend: -1
+        },
+        grantFlag: 'HIGH_STUDY_ELITE',
+        consequenceText: '새벽까지 진주 시립도서관과 독서실을 지켰습니다. 코피를 쏟아가며 전국 모의고사 상위권 백분위를 달성했습니다.'
+      },
+      {
+        optionId: 'HIGH_REGIONAL_STABLE',
+        label: '경상국립대 등 지역 거점 국립대 지역인재 전형을 목표로 내신을 탄탄히 다진다',
+        effects: {
+          learning: 7,
+          happiness: 2,
+          health: 1,
+          bonds: 4,
+          spend: 0
+        },
+        grantFlag: 'HIGH_REGIONAL_STABLE',
+        consequenceText: '중간·기말고사 내신에 집중하며 진주 관내 대학 지역인재 전형 안정권 지원선을 확보했습니다.'
+      },
+      {
+        optionId: 'HIGH_VOCATIONAL_SKILL',
+        label: '기술 자격증 취득 및 공공기관·산업단지 고졸 공채 취업에 집중한다',
+        effects: {
+          learning: 3,
+          happiness: 4,
+          health: 2,
+          bonds: 3,
+          incomeChange: 1,
+          spend: 0
+        },
+        grantFlag: 'HIGH_VOCATIONAL_READY',
+        consequenceText: '국가기술자격증(전기·기계·전산)을 취득하며 조기 사회 진출과 공채 우대 스펙을 완성했습니다.'
+      },
+      {
+        optionId: 'HIGH_ARTS_CREATIVE',
+        label: '미술·디자인·음악·체육 등 실기 예술 분야에 전념한다',
+        effects: {
+          learning: 4,
+          happiness: 7,
+          health: 3,
+          bonds: 6,
+          spend: -2
+        },
+        grantFlag: 'HIGH_ARTS_CREATIVE',
+        consequenceText: '실기실에서 붓과 악기를 잡으며 나만의 포트폴리오를 다듬었습니다. 예술적 감수성이 훌쩍 자랐습니다.'
+      }
+    ]
+  },
+
+  // =========================================================================
   // 1. 청년 유출 (1차: 19세 대학 진학 갈림길)
   // =========================================================================
   {
@@ -559,7 +691,7 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
         optionId: 'OPT_TURNOVER_METRO',
         label: '더 넓은 무대로 도약하기 위해 판교·강남 IT 대기업 이직 제안을 수락한다',
         effects: { happiness: 6, learning: 9, health: -4, netWorthChange: 20000000, incomeChange: 1 },
-        grantFlag: 'MIGRATED_OUT_SEOUL',
+        grantFlag: 'TRIGGER_CAREER_CHANGE',
         consequenceText: '서울의 숨 가쁜 빌딩 숲으로 출근합니다. 치솟는 월세가 부담스럽지만, 업계 최전선에서 뛰는 자부심이 큽니다.'
       },
       {
@@ -568,6 +700,13 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
         effects: { happiness: 9, bonds: 8, health: 4, netWorthChange: 10000000 },
         grantFlag: 'LOCAL_PILLAR',
         consequenceText: '남강의 여유로운 풍경과 오랜 지인들의 곁을 지키며, 지역 사회의 든든한 중추 인력으로 자리를 굳혔습니다.'
+      },
+      {
+        optionId: 'OPT_TURNOVER_NEW_FIELD',
+        label: '지금까지와는 완전히 다른 새로운 직업군으로 진로를 전향하여 이직을 감행한다',
+        effects: { happiness: 8, learning: 8, health: 0 },
+        grantFlag: 'TRIGGER_CAREER_CHANGE',
+        consequenceText: '나의 진짜 적성과 가치를 찾아 과감하게 새로운 직업군으로 성공적인 이직을 결단했습니다.'
       }
     ]
   },

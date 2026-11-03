@@ -323,12 +323,24 @@ export const PERSONAL_EVENTS: PersonalEventDef[] = [
     stage: 7,
     minAge: 45,
     maxAge: 58,
-    cooldownYears: 4,
+    onceOnly: true,
     focusFilter: 'health',
-    text: '국가 암검진 위·대장 내시경에서 작은 용종 두 개를 떼어냈습니다. 의사의 경고를 듣고 식습관 개선과 운동을 다짐합니다.',
+    text: '생애 첫 국가 암검진 위·대장 내시경에서 작은 용종을 미리 떼어내 큰 병을 예방했습니다. 식습관 개선과 가벼운 운동을 다짐합니다.',
     label: 'FACT',
     sourceNote: '국민건강보험공단 40대 이상 암검진 통계',
-    impact: { health: 4, happiness: 2 }
+    impact: { health: 5, happiness: 3 }
+  },
+  {
+    id: 'pe_stage7_clean_health_checkup',
+    stage: 7,
+    minAge: 48,
+    maxAge: 59,
+    cooldownYears: 5,
+    focusFilter: 'health',
+    text: '정기 종합 건강검진에서 혈압, 혈당, 간수치 모두 안정적이며 이상 소견 없이 깨끗하다는 기분 좋은 판정을 받았습니다.',
+    label: 'FACT',
+    sourceNote: '국민건강보험공단 일반건강검진 종합판정 통계',
+    impact: { health: 6, happiness: 5 }
   },
   {
     id: 'pe_stage7_geumhoji_walk',

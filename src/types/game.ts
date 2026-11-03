@@ -81,6 +81,7 @@ export interface CitizenStatus {
   middleSchool: string;
   highSchool: string;
   collegeName?: string; // 진학 대학교 (예: 'KAIST (한국과학기술원)', '서울대학교', '경상국립대학교')
+  collegeMajor?: string; // 진학 대학교 전공·학과 (예: '우주항공공학부', '컴퓨터인공지능학부', '경영학부')
 
   incomeDecile: number; // 1~5분위 (교육용 모드에서는 서술형 매핑)
   incomeDesc?: string; // 교육용 서술형 표현
@@ -227,6 +228,7 @@ export interface DeathCauseStat {
 
 // 대한민국 표본 통계 기반 생애 다지선다 의사결정 (Life_Choices)
 export type LifeChoiceCategory =
+  | 'TEEN_EDUCATION'  // 14~17세 청소년기 학업 태도 및 고교 진로
   | 'YOUTH_MIGRATION' // 19세 대학 진학 & 25~28세 구직 청년 유출
   | 'MILITARY_DUTY'   // 20~21세 남성 병역 / 여성 청년 진로
   | 'MARRIAGE'        // 28~37세 만혼 및 파트너십

@@ -6,6 +6,7 @@ interface LeftProfilePanelProps {
   citizen: CitizenStatus;
   isEduMode?: boolean;
   onCloseMobile?: () => void;
+  onOpenCareerChange?: () => void;
 }
 
 function formatWealth(won: number): string {
@@ -37,7 +38,8 @@ function getTopTimeSpent(timeSpent?: Record<YearFocus, number>): string {
 export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
   citizen,
   isEduMode = false,
-  onCloseMobile
+  onCloseMobile,
+  onOpenCareerChange
 }) => {
   const spouseText = !citizen.spouse
     ? '없음'
@@ -129,14 +131,26 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
                   ? `${citizen.elementarySchool} → ${citizen.middleSchool}`
                   : citizen.age < 20 || !citizen.collegeName
                   ? `${citizen.elementarySchool} → ${citizen.middleSchool} → ${citizen.highSchool}`
-                  : `${citizen.elementarySchool} → ${citizen.middleSchool} → ${citizen.highSchool} → ${citizen.collegeName}`}
+                  : `${citizen.elementarySchool} → ${citizen.middleSchool} → ${citizen.highSchool} → ${citizen.collegeName}${citizen.collegeMajor ? ` (${citizen.collegeMajor})` : ''}`}
               </span>
             </div>
           )}
-          <div className="flex items-start">
-            <span className="w-16 text-slate-400 shrink-0 font-medium">직업</span>
-            <span className="text-slate-500 mr-2">:</span>
-            <span className="text-amber-300 font-bold">{citizen.jobTitle || citizen.job}</span>
+          <div className="flex items-start justify-between gap-1">
+            <div className="flex items-start min-w-0">
+              <span className="w-16 text-slate-400 shrink-0 font-medium">직업</span>
+              <span className="text-slate-500 mr-2">:</span>
+              <span className="text-amber-300 font-bold">{citizen.jobTitle || citizen.job}</span>
+            </div>
+            {citizen.age >= 22 && citizen.age <= 62 && citizen.isAlive && onOpenCareerChange && (
+              <button
+                type="button"
+                onClick={onOpenCareerChange}
+                className="shrink-0 text-[10px] px-2 py-0.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-300 hover:bg-blue-900 transition flex items-center gap-1 font-medium"
+                title="다른 직업군으로 이직을 시도합니다"
+              >
+                <span>💼 이직</span>
+              </button>
+            )}
           </div>
         </div>
 

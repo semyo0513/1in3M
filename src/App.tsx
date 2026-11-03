@@ -70,7 +70,7 @@ export const App: React.FC = () => {
     trust: 50
   });
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
-  const [focus, setFocus] = useState<YearFocus>('learning');
+  const [focus, setFocus] = useState<YearFocus>('change');
 
   // 컨트롤 상태
   const [isPaused, setIsPaused] = useState<boolean>(true);
@@ -146,7 +146,7 @@ export const App: React.FC = () => {
     setCityIndicators({ space: 0, economy: 0, welfare: 0, culture: 0, trust: 50 });
     resolvedDilemmaIds.current.clear();
     resolvedLifeChoiceIds.current.clear();
-    setFocus('learning');
+    setFocus('change');
     setIsEndingOpen(false);
     setActiveDilemma(null);
     setActiveLifeChoice(null);
@@ -371,13 +371,7 @@ export const App: React.FC = () => {
         }
       }
 
-      // 10-1. 자연 출생 시 작명 모달 자동 트리거
-      if (profileUpdates.childrenCount > prevCitizen.childrenCount && !activeChildNaming) {
-        const childGender: '아들' | '딸' = Math.random() < 0.5 ? '아들' : '딸';
-        setActiveChildNaming({ gender: childGender });
-        setIsPaused(true);
-        audioManager.playChimeSound();
-      }
+      // 10-1. 출산은 사용자가 생애 분기(자녀 계획)에서 직접 선택할 때만 발생합니다 (의도치 않은 임의 출산 완전 배제)
 
       // 11. 잠시 멈춤 질문 체크 (5, 15, 30, 50, 70세)
       const pauseDef = PAUSE_QUESTIONS.find(p => p.age === nextAge);
@@ -705,8 +699,11 @@ export const App: React.FC = () => {
 
     setActiveLifeChoice(null);
 
-    // 반려동물 입양 트리거 분기
-    if (option.grantFlag === 'TRIGGER_PET_ADOPTION') {
+    // 이직 및 진로 변경 트리거
+    if (option.grantFlag === 'TRIGGER_CAREER_CHANGE') {
+      setIsCareerModalOpen(true);
+      setIsPaused(true);
+    } else if (option.grantFlag === 'TRIGGER_PET_ADOPTION') {
       setIsPetModalOpen(true);
       setIsPaused(true);
     } else if (option.optionId === 'CHILD_ONE_FOCUS' || option.optionId === 'CHILD_MULTI_BLESSING') {
@@ -724,6 +721,7 @@ export const App: React.FC = () => {
     isAccepted: boolean;
     finalChoice: 'college' | 'work' | 'retry';
     collegeName: string;
+    collegeMajor?: string;
     consequenceText: string;
     learningDelta: number;
     happinessDelta: number;
@@ -749,7 +747,9 @@ export const App: React.FC = () => {
       const admittedCollegeName = (res.isAccepted && res.appliedUniv) ? res.appliedUniv.name : undefined;
 
       if (res.isAccepted && res.appliedUniv) {
-        nextEducation = `${res.appliedUniv.name} (${prev.highSchool} 졸)`;
+        nextEducation = res.collegeMajor
+          ? `${res.appliedUniv.name} ${res.collegeMajor} (${prev.highSchool} 졸)`
+          : `${res.appliedUniv.name} (${prev.highSchool} 졸)`;
         nextJob = '청년 구직자';
         nextJobTitle = res.isRelocatedAway
           ? `서울 유학생 (${res.appliedUniv.name})`
@@ -766,6 +766,7 @@ export const App: React.FC = () => {
       return {
         ...prev,
         collegeName: admittedCollegeName,
+        collegeMajor: res.collegeMajor,
         education: nextEducation,
         job: nextJob,
         jobTitle: nextJobTitle,
@@ -800,8 +801,9 @@ export const App: React.FC = () => {
     }
   };
 
-  // 직업군 선택 완료 핸들러 (출향민 서울 거주 시 스마트팜 농업 자동 제외)
+  // 직업군 선택 완료 핸들러 (출향민 서울 거주 시 스마트팜 농업 자동 제외 / 이직 지원)
   const handleResolveCareer = (career: CareerOption) => {
+    const isTurnover = citizen.flags.has('CAREER_CHOSEN');
     setCitizen(prev => {
       const nextFlags = new Set(prev.flags);
       nextFlags.add('CAREER_CHOSEN');
@@ -831,7 +833,9 @@ export const App: React.FC = () => {
         type: 'milestone',
         label: 'CAREER',
         sourceNote: `${career.regionType} 직업 생태계`,
-        text: `[진로 및 직업 확정] ${career.name} 분야의 '${career.title}'(으)로 본격적인 사회 활동을 시작했습니다. ${career.description}`
+        text: isTurnover
+          ? `[이직 및 커리어 전향] 새로운 도전 끝에 '${career.name}' 분야의 '${career.title}'(으)로 이직하여 제2의 직업 커리어를 시작했습니다.`
+          : `[진로 및 직업 확정] ${career.name} 분야의 '${career.title}'(으)로 본격적인 사회 활동을 시작했습니다. ${career.description}`
       }
     ]);
 
@@ -1123,12 +1127,26 @@ export const App: React.FC = () => {
         
         {/* 데스크톱: 좌측 패널에 항상 표시되는 인물 프로필 패널 (컴퓨터 화면 전용 고정) */}
         <aside className="hidden lg:flex w-72 xl:w-80 flex-col shrink-0 border-r border-space-800 bg-space-950/70 overflow-hidden h-full min-h-0 min-w-0">
-          <LeftProfilePanel citizen={citizen} isEduMode={isEduMode} />
+          <LeftProfilePanel
+            citizen={citizen}
+            isEduMode={isEduMode}
+            onOpenCareerChange={() => {
+              setIsPaused(true);
+              setIsCareerModalOpen(true);
+            }}
+          />
         </aside>
 
         {/* 모바일 뷰 1: 내 프로필 (mobileTab === 'profile') */}
         <div className={`flex-1 min-h-0 min-w-0 w-full flex flex-col overflow-hidden ${mobileTab === 'profile' ? 'flex lg:hidden' : 'hidden'}`}>
-          <LeftProfilePanel citizen={citizen} isEduMode={isEduMode} />
+          <LeftProfilePanel
+            citizen={citizen}
+            isEduMode={isEduMode}
+            onOpenCareerChange={() => {
+              setIsPaused(true);
+              setIsCareerModalOpen(true);
+            }}
+          />
         </div>
 
         {/* 데스크톱: 타임라인 항상 보임 / 모바일: mobileTab === 'timeline'일 때만 보임 */}
@@ -1218,15 +1236,21 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* 모달 2-2: 직업군 선택 모달 (사회 진출 및 대학 졸업 시 커리어 결정) */}
+      {/* 모달 2-2: 직업군 선택 모달 (사회 진출 및 대학 졸업 시 커리어 결정 / 이직) */}
       {isCareerModalOpen && (
         <CareerChoiceModal
           age={citizen.age}
           year={citizen.currentYear}
           education={citizen.education}
           collegeName={citizen.collegeName}
+          collegeMajor={citizen.collegeMajor}
           isRelocatedAway={citizen.isRelocatedAway}
+          isTurnoverMode={Boolean(citizen.flags.has('CAREER_CHOSEN'))}
           onSelectCareer={handleResolveCareer}
+          onCancel={() => {
+            setIsCareerModalOpen(false);
+            setIsPaused(false);
+          }}
         />
       )}
 
@@ -1302,6 +1326,11 @@ export const App: React.FC = () => {
                 citizen={citizen}
                 isEduMode={isEduMode}
                 onCloseMobile={() => setIsMobileProfileOpen(false)}
+                onOpenCareerChange={() => {
+                  setIsMobileProfileOpen(false);
+                  setIsPaused(true);
+                  setIsCareerModalOpen(true);
+                }}
               />
             </div>
           </div>

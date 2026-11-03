@@ -33,20 +33,20 @@ export function getAgeStressDelta(age: number): {
   learning: number;
   bonds: number;
 } {
-  // 0~12세 (유소년기): 신체 발달, 면역력 증가, 호기심과 배움 활발
-  if (age <= 12) return { health: 0.8, happiness: 0.2, learning: 1.5, bonds: 0.5 };
-  // 13~18세 (청소년기): 학업/입시 스트레스, 그러나 신체적 기초 체력과 세포 회복력 우수
-  if (age <= 18) return { health: 0.2, happiness: -1.0, learning: 2.0, bonds: 0.0 };
+  // 0~12세 (유소년기): 신체 발달, 면역력 증가, 호기심과 기초 성장
+  if (age <= 12) return { health: 0.8, happiness: 0.2, learning: 0.4, bonds: 0.4 };
+  // 13~18세 (청소년기): 학업/입시 스트레스와 체력 성장
+  if (age <= 18) return { health: 0.2, happiness: -0.8, learning: 0.3, bonds: 0.1 };
   // 19~29세 (청년기): 신체적 최전성기, 취업/진로 고민
-  if (age <= 29) return { health: 0.0, happiness: -0.6, learning: 0.5, bonds: -0.2 };
-  // 30~44세 (청장년기): 직장 생활과 사회 적응, 업무 지식 및 실무 능력 축적
-  if (age <= 44) return { health: -0.5, happiness: -0.3, learning: 0.2, bonds: 0.0 };
-  // 45~59세 (중년기): 직무 전문성 정점, 인생의 연륜과 성숙한 유대
-  if (age <= 59) return { health: -1.2, happiness: -0.4, learning: 0.2, bonds: 0.1 };
+  if (age <= 29) return { health: 0.0, happiness: -0.5, learning: 0.2, bonds: -0.2 };
+  // 30~44세 (청장년기): 직장 생활과 사회 적응, 실무 경험
+  if (age <= 44) return { health: -0.5, happiness: -0.3, learning: 0.1, bonds: 0.0 };
+  // 45~59세 (중년기): 직무 전문성, 인생의 연륜과 유대
+  if (age <= 59) return { health: -1.2, happiness: -0.4, learning: 0.1, bonds: 0.1 };
   // 60~74세 (전기 노년기): 은퇴 후 여가, 손주, 복지관/동호회 교류 활성화 (결정성 지능 유지)
   if (age <= 74) return { health: -2.0, happiness: -0.2, learning: -0.1, bonds: 0.2 };
-  // 75세 이상 (후기 노년기): 고령에 따른 신체 쇠약과 친구들의 사별로 인한 완만한 감퇴
-  return { health: -3.0, happiness: -0.6, learning: -0.3, bonds: -0.4 };
+  // 75세 이상 (후기 노년기): 고령에 따른 신체 쇠약과 완만한 감퇴
+  return { health: -3.0, happiness: -0.6, learning: -0.2, bonds: -0.4 };
 }
 
 // 연간 삶의 초점(Focus) 선택 시 기회비용(Trade-off) 매트릭스
@@ -58,20 +58,20 @@ export function getFocusDeltas(focus: YearFocus): {
 } {
   switch (focus) {
     case 'learning':
-      // 배움: 지식 습득, 학업 및 전문 자격증 성취
-      return { learning: 5.5, health: -0.2, bonds: -0.4, happiness: 0.5 };
+      // 배움: 지식 습득, 학업 및 전문 자격증 성취 (수능/내신 경쟁력 강화)
+      return { learning: 2.2, health: -0.4, bonds: -0.4, happiness: 0.2 };
     case 'work':
       // 일: 직무 숙련 및 경력 개발 (실무 배움 축적), 업무 피로 (-0.9), 여가 감소
-      return { learning: 2.0, health: -0.9, happiness: -1.0, bonds: -0.4 };
+      return { learning: 1.0, health: -0.9, happiness: -1.0, bonds: -0.4 };
     case 'relationship':
-      // 사람·가족: 정서적 안정 및 유대감 대폭 강화 (배움 지식은 소멸하지 않음)
-      return { bonds: 5.5, happiness: 3.5, learning: 0.0, health: 0.3 };
+      // 사람·가족: 정서적 안정 및 유대감 대폭 강화
+      return { bonds: 4.5, happiness: 3.0, learning: 0.0, health: 0.3 };
     case 'health':
       // 몸과 마음: 운동, 휴식, 치료로 건강 대폭 회복
-      return { health: 6.5, happiness: 3.5, learning: 0.0, bonds: 0.2 };
+      return { health: 5.5, happiness: 3.0, learning: 0.0, bonds: 0.2 };
     case 'change':
       // 취미·여가: 활력과 행복 증진, 새로운 세상 경험
-      return { happiness: 5.5, learning: 1.5, health: 0.5, bonds: 0.0 };
+      return { happiness: 4.5, learning: 0.8, health: 0.5, bonds: 0.0 };
   }
 }
 
@@ -279,7 +279,7 @@ export function generateBirthForDistrict(
     // 통계청 신생아 건강 기준선: 한국의 영아 의료체계 반영 (85~96)
     health: Math.round(Math.max(80, Math.min(98, 88 + randNormal(0, 3)))),
     happiness: Math.round(Math.max(50, Math.min(85, 65 + 2 * (incomeDecile - 3) + randNormal(0, 4)))),
-    learning: Math.round(Math.max(40, Math.min(75, 55 + 2 * (incomeDecile - 3) + randNormal(0, 4)))),
+    learning: Math.round(Math.max(25, Math.min(68, 45 + 2 * (incomeDecile - 3) + randNormal(0, 6)))),
     bonds: Math.round(Math.max(50, Math.min(85, 68 + 2 * (incomeDecile - 3) + randNormal(0, 4)))),
     temperament: {
       caution: Math.floor(Math.random() * 100),
@@ -310,6 +310,7 @@ export function advanceCitizenProfile(
   middleSchool: string;
   highSchool: string;
   collegeName?: string;
+  collegeMajor?: string;
   monthlyIncomeWon: number;
   totalAssetsWon: number;
   totalDebtWon: number;
@@ -403,47 +404,40 @@ export function advanceCitizenProfile(
       job = '재수생 (수능 준비)';
       jobTitle = '대입 재수생';
     } else if (isEnrolledCollege) {
-      job = '청년 구직자';
-      const univLabel = collegeName || (education.includes('서울') ? '서울권 대학' : '경상국립대');
+      const univLabel = collegeName
+        ? `${collegeName} ${prev.collegeMajor || ''}`.trim()
+        : (education.includes('서울') ? '서울권 대학' : '경상국립대');
+      job = prev.flags?.has('CAREER_CHOSEN') && prev.job && prev.job !== '청년 구직자' ? prev.job : '청년 구직자';
       jobTitle = prev.isRelocatedAway ? `서울 유학생 (${univLabel})` : `대학생 (${univLabel})`;
-    } else if (prev.flags?.has('CAREER_CHOSEN') && prev.job && prev.job !== '청년 구직자') {
+    } else if (prev.job && prev.job !== '청년 구직자') {
       job = prev.job;
-      jobTitle = `${job} · 사회초년생`;
+      jobTitle = prev.jobTitle || `${job} · 사회초년생`;
     } else {
       job = getRandomJob(prev.district.id, nextAge, prev.isRelocatedAway);
       jobTitle = `${job} · 사회초년생`;
     }
-  } else if (nextAge <= 34) {
+  } else if (nextAge <= 64) {
+    // 25~64세 경제활동 연령: 선택된 직업이 있으면 절대 무작위 농업 등으로 덮어쓰지 않음
     if (prev.flags?.has('CAREER_CHOSEN') && prev.job && prev.job !== '청년 구직자') {
       job = prev.job;
-      jobTitle = `${job} · 실무자`;
-    } else if (job === '청년 구직자' || job === '은퇴 및 프리랜서') {
-      job = getRandomJob(prev.district.id, nextAge, prev.isRelocatedAway);
-      if (prev.flags?.has('JOB_PUBLIC_CORP_CANDIDATE')) {
-        jobTitle = '공공기관 공채 준비·인턴';
-      } else if (prev.flags?.has('MIGRATED_OUT_SEOUL')) {
-        jobTitle = '수도권 IT·제조기업 사원';
-      } else {
-        jobTitle = `${job} · 사원·주임`;
-      }
+    } else if (prev.job && prev.job !== '청년 구직자' && prev.job !== '은퇴 및 프리랜서') {
+      job = prev.job;
     } else {
-      jobTitle = `${job} · 사원·주임`;
+      job = getRandomJob(prev.district.id, nextAge, prev.isRelocatedAway);
     }
-  } else if (nextAge <= 44) {
-    if (prev.flags?.has('CAREER_CHOSEN') && prev.job) {
-      job = prev.job;
+
+    // 현실적인 연령별 직급 승진 체계
+    if (nextAge <= 28) {
+      jobTitle = `${job} · 사원`;
+    } else if (nextAge <= 34) {
+      jobTitle = `${job} · 선임·주임`;
+    } else if (nextAge <= 44) {
+      jobTitle = `${job} · 대리·과장`;
+    } else if (nextAge <= 54) {
+      jobTitle = `${job} · 차장·팀장`;
+    } else {
+      jobTitle = `${job} · 부장·임원`;
     }
-    jobTitle = `${job} · 대리·과장`;
-  } else if (nextAge <= 58) {
-    if (prev.flags?.has('CAREER_CHOSEN') && prev.job) {
-      job = prev.job;
-    }
-    jobTitle = `${job} · 팀장·부장`;
-  } else if (nextAge <= 64) {
-    if (prev.flags?.has('CAREER_CHOSEN') && prev.job) {
-      job = prev.job;
-    }
-    jobTitle = `${job} · 부장·책임`;
   } else {
     // 65세 이상 은퇴
     job = '은퇴 및 프리랜서';
@@ -566,13 +560,7 @@ export function advanceCitizenProfile(
     }
   }
 
-  // 비혼이거나 딩크(DECLARED_DINK)인 경우 자동 자녀 출산 차단
-  if (!isDeclaredSingle && !isDeclaredDink && spouse && !spouse.passedAway && nextAge >= 29 && nextAge <= 39 && childrenCount < 2) {
-    if (Math.random() < 0.20) {
-      childrenCount += 1;
-    }
-  }
-
+  // 출산은 사용자의 생애 분기 선택(LifeChoice: 자녀 계획)에 의해서만 결정됨 (자동 임의 출산 배제)
   // 자녀 플래그 엄격 동기화 (자녀가 0명이면 HAS_CHILDREN 완전 제거)
   if (childrenCount > 0) {
     prev.flags?.add('HAS_CHILDREN');
@@ -669,6 +657,7 @@ export function advanceCitizenProfile(
     middleSchool,
     highSchool,
     collegeName,
+    collegeMajor: prev.collegeMajor || undefined,
     monthlyIncomeWon,
     totalAssetsWon,
     totalDebtWon,
