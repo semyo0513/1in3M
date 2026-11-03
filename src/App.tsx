@@ -335,22 +335,28 @@ export const App: React.FC = () => {
       setCohort(c => updateCohort(c, nextAge));
 
       // 10. 대한민국 표본 통계 기반 생애 전환 선택 카드 체크 (명세서 2.0: 청년유출, 병역, 결혼, 출산, 고정비, 취미, 의료)
-      // 19세에는 전국 100개 대학 입시 전용 모달(CollegeApplicationModal)이 열림
-      // 20세에 재수 플래그가 있으면 1년 뒤 재도전 모달이 다시 열림
+      // 19세 고교 졸업 대입 지원 및 20~23세 재수·삼수·N수 대입 지속 지원 (사용자 선택 존중)
       let triggeredChoice: LifeChoiceCard | null = null;
-      if (nextAge === 19) {
+      const isCollegePrepAge = nextAge >= 20 && nextAge <= 23;
+
+      if (nextAge === 19 && !tempCitizen.collegeName && !tempCitizen.flags.has('EARLY_LOCAL_CAREER') && !tempCitizen.flags.has('CAREER_CHOSEN')) {
+        // 19세 고교 졸업 후 현역 대입 지원
         setIsPaused(true);
         setIsRetryCollege(false);
         setIsCollegeModalOpen(true);
         audioManager.playChimeSound();
-      } else if (nextAge === 20 && tempCitizen.flags.has('COLLEGE_RETRY_PLANNED')) {
+      } else if (isCollegePrepAge && tempCitizen.flags.has('COLLEGE_RETRY_PLANNED') && !tempCitizen.collegeName) {
+        // 20~23세 재수·삼수·사수 대입 재도전 모달 (사용자가 재수를 2번, 3번 선택해도 지속 지원)
         setIsPaused(true);
         setIsRetryCollege(true);
         setIsCollegeModalOpen(true);
         audioManager.playChimeSound();
       } else if (
-        (nextAge === 20 && !tempCitizen.collegeName && !tempCitizen.flags.has('COLLEGE_RETRY_PLANNED') && !tempCitizen.flags.has('CAREER_CHOSEN')) ||
-        (nextAge === 24 && tempCitizen.collegeName && !tempCitizen.flags.has('CAREER_CHOSEN'))
+        // 직업군 선택(취업) 모달 분기:
+        // 1) 고교 졸업 후 조기 취업을 선택한 시민 중 아직 직업군을 고르지 않은 경우 (20세 이상)
+        (!tempCitizen.collegeName && !tempCitizen.flags.has('COLLEGE_RETRY_PLANNED') && !tempCitizen.flags.has('CAREER_CHOSEN') && nextAge >= 20) ||
+        // 2) 대학에 진학한 시민은 (입학 나이 + 4년) 시점에 졸업 및 첫 커리어 직업군 모달 진입
+        (tempCitizen.collegeName && !tempCitizen.flags.has('CAREER_CHOSEN') && nextAge >= (tempCitizen.collegeEnrolledAge ? tempCitizen.collegeEnrolledAge + 4 : 24))
       ) {
         setIsPaused(true);
         setIsCareerModalOpen(true);
@@ -743,6 +749,8 @@ export const App: React.FC = () => {
       let nextEducation = prev.education;
       let nextJob = prev.job;
       let nextJobTitle = prev.jobTitle;
+      let nextCollegeEnrolledAge = prev.collegeEnrolledAge;
+      let nextCollegeRetryCount = prev.collegeRetryCount || 0;
 
       const admittedCollegeName = (res.isAccepted && res.appliedUniv) ? res.appliedUniv.name : undefined;
 
@@ -754,12 +762,15 @@ export const App: React.FC = () => {
         nextJobTitle = res.isRelocatedAway
           ? `서울 유학생 (${res.appliedUniv.name})`
           : `대학생 (${res.appliedUniv.name})`;
+        nextCollegeEnrolledAge = prev.age;
       } else if (res.finalChoice === 'retry') {
-        nextEducation = `${prev.highSchool} 졸 (대입 재수 준비)`;
+        nextCollegeRetryCount += 1;
+        const retryTerm = nextCollegeRetryCount === 1 ? '재수' : nextCollegeRetryCount === 2 ? '삼수' : nextCollegeRetryCount === 3 ? '사수' : `${nextCollegeRetryCount}수`;
+        nextEducation = `${prev.highSchool} 졸 (${retryTerm} 준비)`;
         nextJob = '재수생 (수능 준비)';
-        nextJobTitle = '대입 재수생';
+        nextJobTitle = `${retryTerm}생 (수능·대입 준비)`;
       } else {
-        nextEducation = `고등학교 (${prev.highSchool} 졸)`;
+        nextEducation = `고등학교 (${prev.highSchool} 졸 / 취업)`;
         openCareerNext = true;
       }
 
@@ -767,6 +778,8 @@ export const App: React.FC = () => {
         ...prev,
         collegeName: admittedCollegeName,
         collegeMajor: res.collegeMajor,
+        collegeEnrolledAge: nextCollegeEnrolledAge,
+        collegeRetryCount: nextCollegeRetryCount,
         education: nextEducation,
         job: nextJob,
         jobTitle: nextJobTitle,
@@ -1231,7 +1244,7 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* 모달 2-1: 전국 주요 100개 대학교 지망 및 입시 모달 (19세 진학 분기 및 20세 대입 재수) */}
+      {/* 모달 2-1: 전국 주요 100개 대학교 지망 및 입시 모달 (19세 진학 분기 및 20~23세 대입 재수·삼수·사수) */}
       {isCollegeModalOpen && (
         <CollegeApplicationModal
           age={citizen.age}
@@ -1240,6 +1253,7 @@ export const App: React.FC = () => {
           citizenGender={citizen.gender}
           highSchool={citizen.highSchool}
           isRetryYear={isRetryCollege}
+          retryCount={citizen.collegeRetryCount || (citizen.age > 19 ? citizen.age - 19 : 0)}
           onResolve={handleResolveCollegeApplication}
         />
       )}

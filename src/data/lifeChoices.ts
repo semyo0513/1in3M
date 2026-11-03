@@ -257,8 +257,9 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
     category: 'MILITARY_DUTY',
     categoryName: '의무 병역 이행',
     title: '대한민국 청년의 병역 의무',
-    ageRange: [20, 21],
+    ageRange: [20, 22],
     genderFilter: '남성',
+    excludeFlags: ['COLLEGE_RETRY_PLANNED'], // 대입 수험(재수·삼수) 중에는 병무청 수능 응시 입영 연기 적용
     body: '병무청으로부터 입영통지서가 날아왔습니다. 진주 금산면에 위치한 공군교육사령부나 육군 현역으로 복무할지, 복무 방식을 고민합니다.',
     statContextFact: '병무청 통계에 따르면 대한민국 20대 초반 남성의 현역 입영률은 85% 이상이며, 18~21개월의 복무 기간 동안 학업과 사회 진입이 약 2년간 유예됩니다.',
     options: [
@@ -961,6 +962,7 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
     categoryName: '청년기 자산 형성',
     title: '첫 월급과 종잣돈 3,000만 원 모으기',
     ageRange: [23, 26],
+    requireFlags: ['CAREER_CHOSEN'], // 직업을 갖고 취업한 청년에게만 첫 월급 관리 선택지 노출
     body: '첫 직장 생활을 시작하며 매달 통장에 월급이 들어옵니다. 사회초년생 시기에는 소비의 유혹과 미래를 위한 종잣돈 마련 사이에서 중요한 재무적 가치관이 결정됩니다. 당신은 이 첫 결실을 어떻게 운용하시겠습니까?',
     statContextFact: '통계청 가계금융복지조사 - 20대 청년의 64.2%가 3천만 원 이하의 순자산을 보유하며, 첫 3년 저축 습관이 30대 자산 격차의 70%를 좌우함',
     options: [

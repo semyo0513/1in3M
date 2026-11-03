@@ -82,6 +82,8 @@ export interface CitizenStatus {
   highSchool: string;
   collegeName?: string; // 진학 대학교 (예: 'KAIST (한국과학기술원)', '서울대학교', '경상국립대학교')
   collegeMajor?: string; // 진학 대학교 전공·학과 (예: '우주항공공학부', '컴퓨터인공지능학부', '경영학부')
+  collegeEnrolledAge?: number; // 대학교 입학 나이 (재수·삼수 졸업 시점 동적 계산용)
+  collegeRetryCount?: number; // 대입 재수·삼수·N수 누적 횟수 (1: 재수, 2: 삼수, 3: 사수...)
 
   incomeDecile: number; // 1~5분위 (교육용 모드에서는 서술형 매핑)
   incomeDesc?: string; // 교육용 서술형 표현

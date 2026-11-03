@@ -87,6 +87,7 @@ interface CollegeApplicationModalProps {
   citizenGender: '남성' | '여성';
   highSchool: string;
   isRetryYear?: boolean;
+  retryCount?: number;
   onResolve: (result: {
     appliedUniv: UniversityInfo | null;
     isAccepted: boolean;
@@ -115,8 +116,28 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
   citizenGender,
   highSchool,
   isRetryYear = false,
+  retryCount: externalRetryCount,
   onResolve
 }) => {
+  const retryCount = externalRetryCount ?? (age > 19 ? age - 19 : 0);
+  const currAttemptTerm = retryCount === 0
+    ? '대학 진학의 갈림길'
+    : retryCount === 1
+    ? '대입 재도전 (재수)'
+    : retryCount === 2
+    ? '대입 3차 도전 (삼수)'
+    : retryCount === 3
+    ? '대입 4차 도전 (사수)'
+    : `대입 ${retryCount + 1}차 도전 (${retryCount + 1}수)`;
+
+  const nextAttemptTerm = retryCount === 0
+    ? '재수'
+    : retryCount === 1
+    ? '삼수'
+    : retryCount === 2
+    ? '사수'
+    : `${retryCount + 2}수`;
+
   const [selectedUniv, setSelectedUniv] = useState<UniversityInfo | null>(null);
   const [selectedMajor, setSelectedMajor] = useState<string>(COLLEGE_MAJORS[0].name);
   const [searchQuery, setSearchQuery] = useState('');
@@ -229,7 +250,7 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
     });
   };
 
-  // 불합격 후: 1년 더 공부하여 내년에 재도전 (재수)
+  // 불합격 후: 1년 더 공부하여 내년에 재도전 (재수·삼수·사수)
   const handleChooseRetry = () => {
     audioManager.playClickSound();
     if (!selectedUniv) return;
@@ -238,10 +259,10 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
       appliedUniv: selectedUniv,
       isAccepted: false,
       finalChoice: 'retry',
-      collegeName: `${highSchool} 졸업 (대입 재수 준비)`,
+      collegeName: `${highSchool} 졸업 (${nextAttemptTerm} 준비)`,
       collegeMajor: undefined,
-      consequenceText: `아쉽게도 ${selectedUniv.name} 입시에서 고배를 마셨지만, 1년간 피나는 노력으로 수능을 다시 준비하여 내년에 재도전하기로 결심했습니다.`,
-      learningDelta: 7, // 재수 기간 배움 상승
+      consequenceText: `아쉽게도 ${selectedUniv.name} 입시에서 고배를 마셨지만, ${age}세의 나이에도 굴하지 않고 1년간 피나는 노력으로 수능을 다시 준비하여 내년에 ${nextAttemptTerm}로 재도전하기로 결심했습니다.`,
+      learningDelta: 7, // 수험 기간 배움 누적
       happinessDelta: -5,
       bondsDelta: -2,
       isRelocatedAway: false,
@@ -301,7 +322,7 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                    {age}세 ({year}년) · {isRetryYear ? '대입 재도전 (재수)' : '대학 진학의 갈림길'}
+                    {age}세 ({year}년) · {currAttemptTerm}
                   </span>
                   <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
                     배움: {citizenLearning}점
@@ -311,7 +332,7 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
                   </span>
                 </div>
                 <h2 className="text-base sm:text-lg font-bold text-white tracking-tight mt-1 flex items-center gap-2">
-                  <span>{isRetryYear ? '20세 대입 재도전: 전국 100개 대학교 재지원' : '전국 주요 100개 대학교 지망 및 입시 지원'}</span>
+                  <span>{retryCount > 0 ? `${age}세 대입 ${retryCount + 1}차 도전: 전국 100개 대학교 재지원` : '전국 주요 100개 대학교 지망 및 입시 지원'}</span>
                   <span className="text-xs font-normal text-slate-400 hidden sm:inline">[{acadProfile.tag}]</span>
                 </h2>
               </div>
@@ -418,7 +439,7 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
                       onClick={handleChooseRetry}
                       className="flex-1 px-4 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 transition-all flex items-center justify-center gap-1.5"
                     >
-                      <span>📚 1년 더 준비 (재수)</span>
+                      <span>📚 1년 더 준비하여 내년에 재도전 ({nextAttemptTerm})</span>
                     </button>
                     <button
                       onClick={handleChooseWork}

@@ -311,6 +311,8 @@ export function advanceCitizenProfile(
   highSchool: string;
   collegeName?: string;
   collegeMajor?: string;
+  collegeEnrolledAge?: number;
+  collegeRetryCount?: number;
   monthlyIncomeWon: number;
   totalAssetsWon: number;
   totalDebtWon: number;
@@ -352,10 +354,16 @@ export function advanceCitizenProfile(
     education = `중학교 (${middleSchool})`;
   } else if (nextAge <= 19) {
     education = `고등학교 (${highSchool})`;
-  } else if (nextAge === 20) {
-    // 19세 전국 100개 대학 입시 결과(collegeName) 및 선택지 결과 우선 반영
+  } else if (nextAge <= 24) {
+    // 20~24세 청년기 학력: 사용자의 대입 지원 및 재수·삼수 선택 완벽 존중
     if (collegeName) {
-      education = `${collegeName} (${highSchool} 졸)`;
+      education = prev.collegeMajor
+        ? `${collegeName} ${prev.collegeMajor} (${highSchool} 졸)`
+        : `${collegeName} (${highSchool} 졸)`;
+    } else if (prev.flags?.has('COLLEGE_RETRY_PLANNED')) {
+      const retryCount = prev.collegeRetryCount || (nextAge - 19);
+      const retryTerm = retryCount === 1 ? '재수' : retryCount === 2 ? '삼수' : retryCount === 3 ? '사수' : `${retryCount}수`;
+      education = `고등학교 (${highSchool} 졸 / ${retryTerm} 준비)`;
     } else if (prev.flags?.has('EARLY_LOCAL_CAREER') || prev.flags?.has('COLLEGE_FAILED_CAREER')) {
       education = `고등학교 (${highSchool} 졸 / 취업)`;
     } else if (prev.flags?.has('MIGRATED_SEOUL_COLLEGE')) {
@@ -363,14 +371,14 @@ export function advanceCitizenProfile(
     } else if (prev.flags?.has('COLLEGE_LOCAL_GNU')) {
       education = `경상국립대학교 (${highSchool} 졸)`;
     } else {
-      if (prev.learning >= 65) education = `대학교 (경상국립대 / ${highSchool} 졸)`;
-      else if (prev.learning >= 35) education = `전문학사 (연암공대 / ${highSchool} 졸)`;
-      else education = `고등학교 (${highSchool} 졸업)`;
+      education = `고등학교 (${highSchool} 졸업)`;
     }
-  } else if (nextAge > 20) {
-    // 20세 이후에도 이미 진학한 대학교 및 학력 유지
+  } else if (nextAge > 24) {
+    // 25세 이후에도 이미 진학한 대학교 및 학력 유지
     if (collegeName && !education.includes(collegeName)) {
-      education = `${collegeName} (${highSchool} 졸)`;
+      education = prev.collegeMajor
+        ? `${collegeName} ${prev.collegeMajor} (${highSchool} 졸)`
+        : `${collegeName} (${highSchool} 졸)`;
     } else if (nextAge >= 26 && education.startsWith('고등학교') && timeSpent.learning >= 10) {
       education = `방통대 학사 (${highSchool} 졸)`;
     }
@@ -400,21 +408,33 @@ export function advanceCitizenProfile(
       education.includes('과기원') ||
       education.includes('학사')
     );
+
     if (prev.flags?.has('COLLEGE_RETRY_PLANNED')) {
+      // 재수·삼수·N수생 신분 보장 (절대 임의 취업으로 전환되지 않음)
+      const retryCount = prev.collegeRetryCount || (nextAge - 19);
+      const retryTerm = retryCount === 1 ? '재수생' : retryCount === 2 ? '삼수생' : retryCount === 3 ? '사수생' : `${retryCount}수생`;
       job = '재수생 (수능 준비)';
-      jobTitle = '대입 재수생';
+      jobTitle = `${retryTerm} (수능·대입 준비)`;
     } else if (isEnrolledCollege) {
       const univLabel = collegeName
         ? `${collegeName} ${prev.collegeMajor || ''}`.trim()
         : (education.includes('서울') ? '서울권 대학' : '경상국립대');
       job = prev.flags?.has('CAREER_CHOSEN') && prev.job && prev.job !== '청년 구직자' ? prev.job : '청년 구직자';
       jobTitle = prev.isRelocatedAway ? `서울 유학생 (${univLabel})` : `대학생 (${univLabel})`;
-    } else if (prev.job && prev.job !== '청년 구직자') {
+    } else if (prev.flags?.has('CAREER_CHOSEN') && prev.job && prev.job !== '청년 구직자') {
       job = prev.job;
       jobTitle = prev.jobTitle || `${job} · 사회초년생`;
+    } else if (prev.flags?.has('EARLY_LOCAL_CAREER') || prev.flags?.has('COLLEGE_FAILED_CAREER')) {
+      if (prev.job && prev.job !== '청년 구직자' && prev.job !== '재수생 (수능 준비)') {
+        job = prev.job;
+        jobTitle = prev.jobTitle || `${job} · 사회초년생`;
+      } else {
+        job = getRandomJob(prev.district.id, nextAge, prev.isRelocatedAway);
+        jobTitle = `${job} · 사회초년생`;
+      }
     } else {
-      job = getRandomJob(prev.district.id, nextAge, prev.isRelocatedAway);
-      jobTitle = `${job} · 사회초년생`;
+      job = '청년 구직자';
+      jobTitle = '청년 구직자 (취업 준비)';
     }
   } else if (nextAge <= 64) {
     // 25~64세 경제활동 연령: 선택된 직업이 있으면 절대 무작위 농업 등으로 덮어쓰지 않음
@@ -658,6 +678,8 @@ export function advanceCitizenProfile(
     highSchool,
     collegeName,
     collegeMajor: prev.collegeMajor || undefined,
+    collegeEnrolledAge: prev.collegeEnrolledAge,
+    collegeRetryCount: prev.collegeRetryCount,
     monthlyIncomeWon,
     totalAssetsWon,
     totalDebtWon,
