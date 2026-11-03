@@ -6,16 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>34만 분의 1 : 진주 (1 in 340,000 : JINJU)</title>
     <meta name="description" content="진주시 실제 공공데이터 기반 인생 시뮬레이션 게임. 당신이 태어난 진주의 동네, 마주하는 지역 현안 딜레마, 그리고 당신의 선택이 빚어내는 삶의 궤적." />
-    <!-- Browser Cache Control -->
+    <!-- Browser Cache Busting -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <!-- Web Font: Pretendard -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <script type="module" crossorigin src="./assets/index-DTsxFJ0f.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-dltZdlft.css">
+    <link rel="stylesheet" crossorigin href="./assets/index-VcTBKPoB.css?v=20261103_v25">
   </head>
   <body class="bg-[#07090e] text-slate-100 antialiased selection:bg-amber-500/30 selection:text-amber-200">
     <div id="root"></div>
+    <script type="module">
+      // GitHub Pages root static serving fallback
+      if (location.protocol === 'https:' && !window.__vite_plugin_react_preamble_installed__) {
+        const s = document.createElement('script');
+        s.type = 'module';
+        s.crossOrigin = 'anonymous';
+        s.src = './assets/index-D3lXyETk.js?v=20261103_v25';
+        document.body.appendChild(s);
+      }
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
