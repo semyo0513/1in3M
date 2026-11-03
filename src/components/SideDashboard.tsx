@@ -57,23 +57,23 @@ export const SideDashboard: React.FC<SideDashboardProps> = ({
   };
 
   return (
-    <div className="w-full h-full min-w-0 min-h-0 flex flex-col bg-space-900 lg:border-l border-space-700 text-xs">
+    <div className="w-full h-full min-w-0 min-h-0 flex flex-col bg-space-900 text-xs overflow-x-hidden">
       
       {/* 사이드바 상단 탭 헤더 */}
-      <div className="p-2 sm:p-2.5 border-b border-space-700 bg-space-950/80 shrink-0 w-full min-w-0">
-        <div className="flex rounded-xl bg-space-850 p-1 border border-slate-800">
+      <div className="p-2 sm:p-2.5 border-b border-space-800 bg-space-950/80 shrink-0 w-full min-w-0">
+        <div className="flex rounded-xl bg-space-850 p-1 border border-slate-800 gap-1">
           <button
             onClick={() => handleTabClick('impact')}
-            className={`flex-1 py-1.5 px-2 rounded-lg flex items-center justify-center gap-1.5 transition font-medium ${
+            className={`flex-1 py-1.5 px-1.5 rounded-lg flex items-center justify-center gap-1 transition font-medium min-w-0 ${
               activeTab === 'impact'
                 ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 shadow-sm'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Scale className="w-3.5 h-3.5" />
-            <span>내 선택 & 도시 변화</span>
+            <Scale className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate text-[11px] sm:text-xs">내 선택 & 도시</span>
             {choicesHistory.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-space-950 text-[10px] font-bold">
+              <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-space-950 text-[10px] font-bold shrink-0">
                 {choicesHistory.length}
               </span>
             )}
@@ -81,14 +81,14 @@ export const SideDashboard: React.FC<SideDashboardProps> = ({
 
           <button
             onClick={() => handleTabClick('cohort')}
-            className={`flex-1 py-1.5 px-2 rounded-lg flex items-center justify-center gap-1.5 transition font-medium ${
+            className={`flex-1 py-1.5 px-1.5 rounded-lg flex items-center justify-center gap-1 transition font-medium min-w-0 ${
               activeTab === 'cohort'
                 ? 'bg-sky-500/20 text-sky-300 font-bold border border-sky-500/40 shadow-sm'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Users2 className="w-3.5 h-3.5" />
-            <span>동갑내기 4인</span>
+            <Users2 className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate text-[11px] sm:text-xs">동갑내기 4인</span>
           </button>
         </div>
       </div>

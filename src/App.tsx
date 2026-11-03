@@ -1123,16 +1123,20 @@ export const App: React.FC = () => {
       </div>
 
       {/* 4. 메인 콘텐츠: 좌측 프로필 패널 + 텍스트 타임라인 + 사이드 대시보드 */}
-      <main className="flex-1 min-h-0 max-w-[1600px] w-full mx-auto flex flex-col lg:flex-row overflow-hidden relative min-w-0">
+      <main className="flex-1 min-h-0 w-full max-w-[1680px] mx-auto flex flex-col lg:flex-row overflow-hidden relative min-w-0">
         
         {/* 데스크톱: 좌측 패널에 항상 표시되는 인물 프로필 패널 (컴퓨터 화면 전용 고정) */}
-        <aside className="hidden lg:flex w-72 xl:w-80 flex-col shrink-0 border-r border-space-800 bg-space-950/70 overflow-hidden h-full min-h-0 min-w-0">
+        <aside className="hidden lg:flex w-64 xl:w-72 flex-col shrink-0 border-r border-space-800 bg-space-950/70 overflow-hidden h-full min-h-0 min-w-0">
           <LeftProfilePanel
             citizen={citizen}
             isEduMode={isEduMode}
             onOpenCareerChange={() => {
               setIsPaused(true);
               setIsCareerModalOpen(true);
+            }}
+            onOpenCollegeApplication={() => {
+              setIsPaused(true);
+              setIsCollegeModalOpen(true);
             }}
           />
         </aside>
@@ -1146,16 +1150,20 @@ export const App: React.FC = () => {
               setIsPaused(true);
               setIsCareerModalOpen(true);
             }}
+            onOpenCollegeApplication={() => {
+              setIsPaused(true);
+              setIsCollegeModalOpen(true);
+            }}
           />
         </div>
 
         {/* 데스크톱: 타임라인 항상 보임 / 모바일: mobileTab === 'timeline'일 때만 보임 */}
-        <div className={`flex-1 min-h-0 min-w-0 w-full flex flex-col overflow-hidden ${mobileTab !== 'timeline' ? 'hidden lg:flex' : 'flex'}`}>
+        <div className={`flex-1 min-h-0 min-w-0 w-0 flex flex-col overflow-hidden ${mobileTab !== 'timeline' ? 'hidden lg:flex' : 'flex'}`}>
           <TimelineLog entries={timeline} />
         </div>
 
         {/* 데스크톱: 사이드바 항상 보임 / 모바일: mobileTab이 impact 또는 cohort일 때 보임 */}
-        <div className={`w-full lg:w-80 xl:w-96 flex flex-col shrink-0 overflow-hidden h-full min-h-0 min-w-0 ${mobileTab === 'timeline' || mobileTab === 'profile' ? 'hidden lg:flex' : 'flex flex-1'}`}>
+        <div className={`w-full lg:w-72 xl:w-80 flex flex-col shrink-0 overflow-hidden h-full min-h-0 min-w-0 border-l border-space-800 ${mobileTab === 'timeline' || mobileTab === 'profile' ? 'hidden lg:flex' : 'flex flex-1'}`}>
           <SideDashboard
             cohort={cohort}
             birthYear={citizen.birthYear}
@@ -1177,9 +1185,9 @@ export const App: React.FC = () => {
       {/* 6. 웹 하단부(Footer) 저작자 및 라이선스 명시 (명세서 4.0 필수 표기) */}
       <Footer />
 
-      {/* 화면 우측 상시 교육용 모드 플로팅 전환 버튼 (모달이 닫혀 있을 때 바로 확인/전환) */}
+      {/* 모바일 전용 빠른 교육모드 전환 플로팅 버튼 (PC에서는 상단 헤더에 위치하므로 모바일에서만 표시하여 우측 화면 가림 방지) */}
       {!isBirthModalOpen && !activeDilemma && !activeLifeChoice && !activePauseQuestion && !isEndingOpen && !isMemorialOpen && (
-        <aside aria-label="교육용 모드 빠른 전환" className="fixed bottom-16 right-3 sm:bottom-20 sm:right-5 z-20">
+        <aside aria-label="교육용 모드 빠른 전환" className="lg:hidden fixed bottom-16 right-3 sm:bottom-20 sm:right-5 z-20">
           <button
             onClick={() => {
               handleToggleEduMode();
@@ -1330,6 +1338,11 @@ export const App: React.FC = () => {
                   setIsMobileProfileOpen(false);
                   setIsPaused(true);
                   setIsCareerModalOpen(true);
+                }}
+                onOpenCollegeApplication={() => {
+                  setIsMobileProfileOpen(false);
+                  setIsPaused(true);
+                  setIsCollegeModalOpen(true);
                 }}
               />
             </div>

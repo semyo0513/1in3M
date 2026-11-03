@@ -102,6 +102,12 @@ interface CollegeApplicationModalProps {
   }) => void;
 }
 
+export interface ApplicationHistoryItem {
+  univ: UniversityInfo;
+  isAccepted: boolean;
+  probPercent: number;
+}
+
 export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = ({
   age,
   year,
@@ -119,6 +125,8 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
     isAccepted: false,
     evaluated: false
   });
+  // 지원한 대학들의 합격/불합격 누적 내역
+  const [appliedHistory, setAppliedHistory] = useState<ApplicationHistoryItem[]>([]);
 
   const acadProfile = useMemo(() => getAcademicProfile(citizenLearning), [citizenLearning]);
 
@@ -177,6 +185,12 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
     const prob = calculatePassProbability(univ);
     const passed = Math.random() < prob;
 
+    // 지원 이력 업데이트
+    setAppliedHistory(prev => {
+      const filtered = prev.filter(item => item.univ.id !== univ.id);
+      return [{ univ, isAccepted: passed, probPercent: Math.round(prob * 100) }, ...filtered];
+    });
+
     setAdmissionResult({
       isAccepted: passed,
       evaluated: true
@@ -185,6 +199,12 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
     if (passed) {
       audioManager.playChimeSound();
     }
+  };
+
+  // 결과 화면에서 다시 대학교 검색/목록으로 복귀
+  const handleBackToUnivList = () => {
+    audioManager.playClickSound();
+    setAdmissionResult({ isAccepted: false, evaluated: false });
   };
 
   const handleAcceptCollege = () => {
@@ -355,13 +375,21 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
                   </div>
                 </div>
 
-                <button
-                  onClick={handleAcceptCollege}
-                  className="mt-2 px-6 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-1.5"
-                >
-                  <span>[{selectedMajor.split('/')[0].trim()}] 전공으로 등록하고 진학하기</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                <div className="flex flex-col sm:flex-row gap-2 mt-2 w-full max-w-lg justify-center">
+                  <button
+                    onClick={handleAcceptCollege}
+                    className="flex-1 px-5 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <span>[{selectedMajor.split('/')[0].trim()}] 전공으로 등록하고 진학하기</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={handleBackToUnivList}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-space-850 hover:bg-space-800 border border-slate-700 transition flex items-center justify-center gap-1"
+                  >
+                    <span>← 다른 대학도 둘러보기</span>
+                  </button>
+                </div>
               </>
             ) : (
               <>
@@ -374,23 +402,31 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
                     <span className="text-slate-300">{selectedUniv.name}</span> 불합격 (예비 순위 초과)
                   </h3>
                   <p className="text-xs text-slate-300 mt-1 max-w-md mx-auto leading-relaxed">
-                    치열한 입시 경쟁 끝에 안타깝게 합격자 명단에 들지 못했습니다. 1년 더 수능을 준비하여 내년에 재도전할 수도 있고, 입시를 매듭짓고 곧바로 사회 진출을 선택할 수도 있습니다.
+                    치열한 입시 경쟁 끝에 안타깝게 합격자 명단에 들지 못했습니다. 목록으로 돌아가 다른 대학교에 원서를 넣거나, 1년 더 수능을 준비하여 재도전할 수 있습니다.
                   </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-2.5 w-full max-w-md mt-2">
+                <div className="flex flex-col gap-2 w-full max-w-md mt-2">
                   <button
-                    onClick={handleChooseRetry}
-                    className="flex-1 px-4 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-1.5"
+                    onClick={handleBackToUnivList}
+                    className="w-full px-4 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-1.5"
                   >
-                    <span>📚 1년 더 준비하여 내년에 재도전 (재수)</span>
+                    <span>📝 다른 대학교 원서 쓰기 (대학 목록으로 돌아가기)</span>
                   </button>
-                  <button
-                    onClick={handleChooseWork}
-                    className="flex-1 px-4 py-2.5 rounded-xl font-medium text-xs bg-space-850 hover:bg-space-800 text-slate-200 border border-slate-700 transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <span>💼 입시 마무리하고 사회 진출·취업</span>
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                      onClick={handleChooseRetry}
+                      className="flex-1 px-4 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 transition-all flex items-center justify-center gap-1.5"
+                    >
+                      <span>📚 1년 더 준비 (재수)</span>
+                    </button>
+                    <button
+                      onClick={handleChooseWork}
+                      className="flex-1 px-4 py-2 rounded-xl font-medium text-xs bg-space-850 hover:bg-space-800 text-slate-200 border border-slate-700 transition-all flex items-center justify-center gap-1.5"
+                    >
+                      <span>💼 사회 진출·취업</span>
+                    </button>
+                  </div>
                 </div>
               </>
             )}
@@ -400,6 +436,37 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
         {/* 본문: 대학 검색 및 권역 필터 */}
         {!admissionResult.evaluated && (
           <div className="p-4 sm:p-5 flex-1 min-h-0 flex flex-col space-y-3">
+
+            {/* 지원 이력 및 합격 현황 요약 바 */}
+            {appliedHistory.length > 0 && (
+              <div className="bg-space-950/90 border border-slate-700/80 rounded-xl p-2.5 flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="font-bold text-slate-300">📋 나의 지원 현황:</span>
+                  <span className="text-emerald-400 font-bold">
+                    합격 {appliedHistory.filter(h => h.isAccepted).length}곳
+                  </span>
+                  <span className="text-slate-600">/</span>
+                  <span className="text-rose-400 font-bold">
+                    불합격 {appliedHistory.filter(h => !h.isAccepted).length}곳
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {appliedHistory.filter(h => h.isAccepted).map(item => (
+                    <button
+                      key={item.univ.id}
+                      onClick={() => {
+                        setSelectedUniv(item.univ);
+                        setAdmissionResult({ isAccepted: true, evaluated: true });
+                        audioManager.playClickSound();
+                      }}
+                      className="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/30 text-[11px] font-bold flex items-center gap-1 transition"
+                    >
+                      <span>🎉 {item.univ.name} 등록하기</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             
             {/* 지역 권역 필터 탭 */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar shrink-0">
@@ -437,16 +504,33 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
                 const percent = Math.round(prob * 100);
                 const isUnderCutoff = citizenLearning < univ.minLearningCutoff;
 
+                const appliedItem = appliedHistory.find(h => h.univ.id === univ.id);
+
                 return (
                   <div
                     key={univ.id}
-                    className="p-3 rounded-xl bg-space-850 border border-slate-700 hover:border-blue-400 transition flex items-center justify-between gap-3 group"
+                    className={`p-3 rounded-xl border transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 group ${
+                      appliedItem?.isAccepted
+                        ? 'bg-emerald-950/20 border-emerald-500/40'
+                        : appliedItem
+                        ? 'bg-rose-950/20 border-rose-500/40'
+                        : 'bg-space-850 border-slate-700 hover:border-blue-400'
+                    }`}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap mb-0.5">
                         <span className="font-bold text-sm text-white group-hover:text-blue-300 transition">
                           {univ.name}
                         </span>
+                        {appliedItem && (
+                          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${
+                            appliedItem.isAccepted
+                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                              : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                          }`}>
+                            {appliedItem.isAccepted ? '✓ 합격됨' : '✕ 불합격'}
+                          </span>
+                        )}
                         <span className="text-[10px] px-1.5 py-0.2 rounded bg-space-800 text-slate-400 border border-slate-700 flex items-center gap-0.5">
                           <MapPin className="w-2.5 h-2.5 text-sky-400" />
                           <span>{univ.region}</span>
@@ -463,8 +547,8 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <div className="text-right">
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end shrink-0">
+                      <div className="text-left sm:text-right">
                         <div className={`text-xs font-mono font-bold ${
                           percent >= 75 ? 'text-emerald-400' : percent >= 45 ? 'text-amber-400' : 'text-rose-400'
                         }`}>
@@ -477,9 +561,17 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
 
                       <button
                         onClick={() => handleApply(univ)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow transition flex items-center gap-1"
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold shadow transition flex items-center gap-1 ${
+                          appliedItem?.isAccepted
+                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white ring-2 ring-emerald-400/40'
+                            : appliedItem
+                            ? 'bg-rose-700 hover:bg-rose-600 text-white'
+                            : 'bg-blue-600 hover:bg-blue-500 text-white'
+                        }`}
                       >
-                        <span>원서 접수</span>
+                        <span>
+                          {appliedItem?.isAccepted ? '🎉 합격 (선택)' : appliedItem ? '재지원' : '원서 접수'}
+                        </span>
                       </button>
                     </div>
                   </div>

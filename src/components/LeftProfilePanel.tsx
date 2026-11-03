@@ -7,6 +7,7 @@ interface LeftProfilePanelProps {
   isEduMode?: boolean;
   onCloseMobile?: () => void;
   onOpenCareerChange?: () => void;
+  onOpenCollegeApplication?: () => void;
 }
 
 function formatWealth(won: number): string {
@@ -39,7 +40,8 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
   citizen,
   isEduMode = false,
   onCloseMobile,
-  onOpenCareerChange
+  onOpenCareerChange,
+  onOpenCollegeApplication
 }) => {
   const spouseText = !citizen.spouse
     ? '없음'
@@ -115,10 +117,23 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
               </span>
             </span>
           </div>
-          <div className="flex items-start">
-            <span className="w-16 text-slate-400 shrink-0 font-medium">학력</span>
-            <span className="text-slate-500 mr-2">:</span>
-            <span className="text-slate-100 font-medium">{citizen.education || '미취학 (영유아)'}</span>
+          <div className="flex items-start justify-between gap-1">
+            <div className="flex items-start min-w-0">
+              <span className="w-16 text-slate-400 shrink-0 font-medium">학력</span>
+              <span className="text-slate-500 mr-2">:</span>
+              <span className="text-slate-100 font-medium">{citizen.education || '미취학 (영유아)'}</span>
+            </div>
+            {onOpenCollegeApplication && (citizen.age === 19 || citizen.flags?.has('COLLEGE_RETRY_PLANNED') || (citizen.age >= 19 && citizen.age <= 21 && !citizen.collegeName)) && (
+              <button
+                type="button"
+                onClick={onOpenCollegeApplication}
+                className="shrink-0 text-[10px] px-2 py-0.5 rounded bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-900 transition flex items-center gap-1 font-bold shadow animate-pulse"
+                title="전국 주요 100개 대학 입시 지원서 작성"
+              >
+                <GraduationCap className="w-3 h-3 text-emerald-400" />
+                <span>대입 원서 쓰기</span>
+              </button>
+            )}
           </div>
           {citizen.age >= 8 && citizen.elementarySchool && (
             <div className="flex items-start text-[11px] text-slate-400 pl-0.5">
