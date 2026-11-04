@@ -51,11 +51,11 @@ export const LifeChoiceModal: React.FC<LifeChoiceModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn">
-      <div className="bg-space-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-5 animate-fadeIn">
+      <div className="bg-space-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[92dvh]">
         
         {/* 상단 헤더 */}
-        <div className={`bg-gradient-to-r ${getCategoryColor(choiceCard.category)} px-4 sm:px-6 py-3.5 sm:py-4 border-b flex items-center justify-between`}>
+        <div className={`bg-gradient-to-r ${getCategoryColor(choiceCard.category)} px-3.5 sm:px-6 py-3 sm:py-4 border-b flex items-center justify-between shrink-0`}>
           <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="p-2 rounded-xl bg-black/30 border border-white/10">
               <Compass className="w-5 h-5 text-amber-400" />
@@ -69,7 +69,7 @@ export const LifeChoiceModal: React.FC<LifeChoiceModalProps> = ({
                   {choiceCard.categoryName}
                 </span>
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-white tracking-tight leading-snug mt-0.5">
+              <h2 className="text-sm sm:text-lg font-bold text-white tracking-tight leading-snug mt-0.5">
                 {choiceCard.title}
               </h2>
             </div>
@@ -77,7 +77,7 @@ export const LifeChoiceModal: React.FC<LifeChoiceModalProps> = ({
         </div>
 
         {/* 본문 콘텐츠 */}
-        <div className="p-4 sm:p-6 space-y-4 overflow-y-auto text-xs sm:text-sm">
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3.5 sm:p-5 space-y-3 text-xs sm:text-sm">
           
           {/* 생애 상황 본문 */}
           <div className="bg-space-850 p-4 rounded-xl border border-slate-700/60 text-slate-200 leading-relaxed text-sm">

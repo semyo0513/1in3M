@@ -47,6 +47,7 @@ import { CollegeApplicationModal } from './components/CollegeApplicationModal';
 import { CareerChoiceModal, CareerOption } from './components/CareerChoiceModal';
 import { ChildNamingModal } from './components/ChildNamingModal';
 import { PetAdoptionModal, PetInfo } from './components/PetAdoptionModal';
+import { PetMemorialModal } from './components/PetMemorialModal';
 import { AchievementModal } from './components/AchievementModal';
 import { ChildParentingModal, ChildMilestoneDecision } from './components/ChildParentingModal';
 import { evaluateAchievements } from './data/achievements';
@@ -55,6 +56,16 @@ import { Footer } from './components/Footer';
 import { ScrollText, Scale, Users, GraduationCap, User, Navigation, Trophy } from 'lucide-react';
 
 const BASE_YEAR_TICK_MS = 6000; // 1년 = 6초 (15분 내 완주 가능한 템포)
+
+// 실제 통계청 및 수의학 데이터 기반 반려동물 주요 사망 원인
+const PET_DEATH_CAUSES = [
+  '노환으로 인한 평온한 자연사 (기력 쇠약)',
+  '노령성 만성 심부전증 (심장 질환)',
+  '만성 신부전증 (노령성 신장 질환)',
+  '악성 종양 (노령성 암)',
+  '퇴행성 관절 질환 및 복합 노인성 합병증',
+  '급성 호흡기 질환 및 폐렴'
+];
 
 export const App: React.FC = () => {
   // 교육용 모드 초기화 (?edu=1 감지)
@@ -111,6 +122,8 @@ export const App: React.FC = () => {
   const [isCareerModalOpen, setIsCareerModalOpen] = useState<boolean>(false);
   const [activeChildNaming, setActiveChildNaming] = useState<{ gender: '아들' | '딸' } | null>(null);
   const [isPetModalOpen, setIsPetModalOpen] = useState<boolean>(false);
+  const [isPetMemorialOpen, setIsPetMemorialOpen] = useState<boolean>(false);
+  const [activePetDeathCause, setActivePetDeathCause] = useState<string>('');
   const [activePauseQuestion, setActivePauseQuestion] = useState<{ age: number; question: string } | null>(null);
   const [isEndingOpen, setIsEndingOpen] = useState<boolean>(false);
   const [isMemorialOpen, setIsMemorialOpen] = useState<boolean>(false);
@@ -173,6 +186,8 @@ export const App: React.FC = () => {
     setIsRetryCollege(false);
     setIsCareerModalOpen(false);
     setIsPetModalOpen(false);
+    setIsPetMemorialOpen(false);
+    setActivePetDeathCause('');
     setActiveChildNaming(null);
     setActivePauseQuestion(null);
     setMobileTab('timeline');
@@ -218,7 +233,7 @@ export const App: React.FC = () => {
   // 키보드 스페이스바 일시정지 토글
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && !isBirthModalOpen && !activeDilemma && !activeLifeChoice && !isCollegeModalOpen && !isCareerModalOpen && !isPetModalOpen && !activeChildNaming && !activeChildDecision && !isAchievementModalOpen && !activePauseQuestion && !isEndingOpen && !isMemorialOpen) {
+      if (e.code === 'Space' && !isBirthModalOpen && !activeDilemma && !activeLifeChoice && !isCollegeModalOpen && !isCareerModalOpen && !isPetModalOpen && !isPetMemorialOpen && !activeChildNaming && !activeChildDecision && !isAchievementModalOpen && !activePauseQuestion && !isEndingOpen && !isMemorialOpen) {
         e.preventDefault();
         setIsPaused(prev => !prev);
         audioManager.playClickSound();
@@ -226,7 +241,7 @@ export const App: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, isCareerModalOpen, isPetModalOpen, activeChildNaming, activeChildDecision, isAchievementModalOpen, activePauseQuestion, isEndingOpen, isMemorialOpen]);
+  }, [isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, isCareerModalOpen, isPetModalOpen, isPetMemorialOpen, activeChildNaming, activeChildDecision, isAchievementModalOpen, activePauseQuestion, isEndingOpen, isMemorialOpen]);
 
   // 1년 진행 틱 함수 (명세서 3.0 동적 밸런싱 & 한국형 스트레스 곡선 & 중복 방지)
   const tickYear = useCallback(() => {
@@ -532,6 +547,48 @@ export const App: React.FC = () => {
         ]);
       }
 
+      // 12-3. 반려동물 수명 및 자연스러운 이별 체크 (수의학 통계 평균 수명 10~17년 반영)
+      if (tempCitizen.pet && tempCitizen.pet.isAlive) {
+        const petYearsTogether = nextAge - tempCitizen.pet.adoptedAge;
+        const lifespanLimit = tempCitizen.pet.expectedLifespanYears || 13;
+        if (petYearsTogether >= lifespanLimit) {
+          const deathCause = PET_DEATH_CAUSES[Math.floor(Math.random() * PET_DEATH_CAUSES.length)];
+          const petAge = 1 + petYearsTogether;
+
+          // 펫로스 슬픔 및 가족 간 유대감 변화
+          happiness = Math.max(0, happiness - 15);
+          bonds = Math.min(100, bonds + 6);
+          learning = Math.min(100, learning + 4);
+
+          const passedPet: PetInfo = {
+            ...tempCitizen.pet,
+            isAlive: false,
+            passedAge: nextAge,
+            passedPetAge: petAge,
+            deathCause
+          };
+          tempCitizen.pet = passedPet;
+
+          setTimeline(t => [
+            ...t,
+            {
+              id: `pet_death_${nextAge}_${Date.now()}`,
+              year: nextYear,
+              age: nextAge,
+              type: 'milestone',
+              label: 'FAMILY',
+              sourceNote: '수의학 반려동물 생애 통계',
+              text: `[반려동물과의 영원한 작별] ${petYearsTogether}년 동안 온기를 나눈 단짝 '${passedPet.name}'(${passedPet.breed})이(가) 향년 ${petAge}세의 나이로 무지개다리를 건넜습니다. (사유: ${deathCause}) 깊은 슬픔 속에서 가족들이 서로의 슬픔을 보듬습니다.`
+            }
+          ]);
+
+          setIsPaused(true);
+          setActivePetDeathCause(deathCause);
+          setIsPetMemorialOpen(true);
+          audioManager.playChimeSound();
+        }
+      }
+
       // 13. 지역 현안 딜레마 체크 (보이텔스바흐 원칙)
       const dilemma = checkDilemmaTrigger(tempCitizen, resolvedDilemmaIds.current, isEduMode);
       if (dilemma && !pauseDef && !triggeredChoice && nextAge !== 19) {
@@ -612,7 +669,7 @@ export const App: React.FC = () => {
 
   // 메인 타이머 루프
   useEffect(() => {
-    if (isPaused || isBirthModalOpen || activeDilemma || activeLifeChoice || isCollegeModalOpen || isCareerModalOpen || isPetModalOpen || activeChildNaming || activeChildDecision || isAchievementModalOpen || activePauseQuestion || isEndingOpen || isMemorialOpen) {
+    if (isPaused || isBirthModalOpen || activeDilemma || activeLifeChoice || isCollegeModalOpen || isCareerModalOpen || isPetModalOpen || isPetMemorialOpen || activeChildNaming || activeChildDecision || isAchievementModalOpen || activePauseQuestion || isEndingOpen || isMemorialOpen) {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -629,7 +686,7 @@ export const App: React.FC = () => {
         timerRef.current = null;
       }
     };
-  }, [isPaused, speed, isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, isCareerModalOpen, isPetModalOpen, activeChildNaming, activeChildDecision, isAchievementModalOpen, activePauseQuestion, isEndingOpen, isMemorialOpen, tickYear]);
+  }, [isPaused, speed, isBirthModalOpen, activeDilemma, activeLifeChoice, isCollegeModalOpen, isCareerModalOpen, isPetModalOpen, isPetMemorialOpen, activeChildNaming, activeChildDecision, isAchievementModalOpen, activePauseQuestion, isEndingOpen, isMemorialOpen, tickYear]);
 
   // 출생 모달에서 삶 시작
   const handleStartLife = () => {
@@ -1046,6 +1103,40 @@ export const App: React.FC = () => {
     ]);
 
     setIsPetModalOpen(false);
+    setIsPaused(false);
+  };
+
+  // 반려동물 추모 및 애도 완료 핸들러
+  const handleResolvePetMemorial = (memorialAction: string, impact: { happiness: number; bonds: number; learning: number }) => {
+    setCitizen(prev => {
+      if (!prev.pet) return prev;
+      return {
+        ...prev,
+        happiness: Math.min(100, prev.happiness + impact.happiness),
+        bonds: Math.min(100, prev.bonds + impact.bonds),
+        learning: Math.min(100, prev.learning + impact.learning),
+        pet: {
+          ...prev.pet,
+          memorialAction
+        }
+      };
+    });
+
+    setTimeline(t => [
+      ...t,
+      {
+        id: `pet_memorial_${Date.now()}`,
+        year: citizen.currentYear,
+        age: citizen.age,
+        type: 'milestone',
+        label: 'FAMILY',
+        sourceNote: '가족 추모 의례',
+        text: `[반려동물 추모] 떠나간 가족 '${citizen.pet?.name}'을(를) 위해 [${memorialAction}]을(를) 정성껏 올렸습니다. 가슴 시린 이별을 지나 마음의 평온과 더 깊은 생명의 소중함을 배웠습니다.`
+      }
+    ]);
+
+    setIsPetMemorialOpen(false);
+    setActivePetDeathCause('');
     setIsPaused(false);
   };
 
@@ -1511,6 +1602,17 @@ export const App: React.FC = () => {
             setIsPetModalOpen(false);
             setIsPaused(false);
           }}
+        />
+      )}
+
+      {/* 모달 2-5: 반려동물 무지개다리 추모 및 애도 모달 */}
+      {isPetMemorialOpen && citizen.pet && (
+        <PetMemorialModal
+          pet={citizen.pet}
+          citizenAge={citizen.age}
+          year={citizen.currentYear}
+          deathCause={activePetDeathCause || citizen.pet.deathCause || '노환으로 인한 자연사'}
+          onResolve={handleResolvePetMemorial}
         />
       )}
 

@@ -195,12 +195,21 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
           </div>
           {citizen.pet && (
             <div className="flex items-start pl-1">
-              <span className="w-14 text-slate-400 shrink-0">반려동물</span>
-              <span className="text-slate-500 mr-2">:</span>
-              <span className="text-amber-200 flex items-center gap-1 font-medium">
-                <span>{citizen.pet.icon}</span>
-                <span>{citizen.pet.breed} '{citizen.pet.name}' ({Math.max(1, citizen.age - citizen.pet.adoptedAge)}년째 동행)</span>
+              <span className="w-14 text-slate-400 shrink-0">
+                {citizen.pet.isAlive ? '반려동물' : '추모 반려'}
               </span>
+              <span className="text-slate-500 mr-2">:</span>
+              {citizen.pet.isAlive ? (
+                <span className="text-amber-200 flex items-center gap-1 font-medium">
+                  <span>{citizen.pet.icon}</span>
+                  <span>{citizen.pet.breed} '{citizen.pet.name}' ({Math.max(1, citizen.age - citizen.pet.adoptedAge)}년째 동행)</span>
+                </span>
+              ) : (
+                <span className="text-purple-300 flex items-center gap-1 font-medium text-[11px] leading-snug">
+                  <span>🌈</span>
+                  <span>무지개다리 건넌 '{citizen.pet.name}' (향년 {citizen.pet.passedPetAge || (citizen.pet.passedAge ? citizen.pet.passedAge - citizen.pet.adoptedAge + 1 : 13)}세 · {citizen.pet.memorialAction?.split(' ')[0] || '영원한 안식'})</span>
+                </span>
+              )}
             </div>
           )}
         </div>

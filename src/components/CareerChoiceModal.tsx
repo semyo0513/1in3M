@@ -200,11 +200,11 @@ export const CareerChoiceModal: React.FC<CareerChoiceModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn">
-      <div className="bg-[#0b0e17] border border-blue-500/40 rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl shadow-blue-950/60">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-5 animate-fadeIn">
+      <div className="bg-[#0b0e17] border border-blue-500/40 rounded-2xl max-w-2xl w-full max-h-[92dvh] flex flex-col overflow-hidden shadow-2xl shadow-blue-950/60">
         
         {/* 헤더 */}
-        <div className="bg-gradient-to-r from-blue-950 via-indigo-950 to-space-900 border-b border-blue-500/30 p-4 sm:p-5 shrink-0">
+        <div className="bg-gradient-to-r from-blue-950 via-indigo-950 to-space-900 border-b border-blue-500/30 p-3.5 sm:p-5 shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
@@ -307,23 +307,23 @@ export const CareerChoiceModal: React.FC<CareerChoiceModalProps> = ({
         </div>
 
         {/* 푸터 */}
-        <div className="p-4 bg-space-950 border-t border-slate-800 shrink-0 flex items-center justify-between gap-3">
+        <div className="p-3 sm:p-4 bg-space-950 border-t border-slate-800 shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
           <div className="text-xs text-slate-300">
             선택된 직업: <strong className="text-blue-300 font-bold">{selectedCareer.name} ({selectedCareer.title})</strong>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             {onCancel && (
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 rounded-xl font-medium text-xs bg-space-800 hover:bg-space-750 text-slate-300 border border-slate-700 transition"
+                className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl font-medium text-xs bg-space-800 hover:bg-space-750 text-slate-300 border border-slate-700 transition"
               >
                 현재 직장 유지
               </button>
             )}
             <button
               onClick={handleConfirm}
-              className="px-6 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20 transition flex items-center gap-1.5 shrink-0"
+              className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20 transition flex items-center justify-center gap-1.5"
             >
               <span>{isTurnoverMode ? '이 직업으로 이직하기' : '이 진로로 첫발 내딛기'}</span>
               <ArrowRight className="w-4 h-4" />

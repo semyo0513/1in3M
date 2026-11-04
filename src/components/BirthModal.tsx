@@ -41,8 +41,8 @@ export const BirthModal: React.FC<BirthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#06080d]/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn">
-      <div className="max-w-xl w-full my-auto text-center space-y-3.5 sm:space-y-4">
+    <div className="fixed inset-0 z-50 bg-[#06080d]/95 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-5 py-4 sm:py-8 overflow-y-auto custom-scrollbar animate-fadeIn">
+      <div className="max-w-xl w-full my-auto text-center space-y-3 sm:space-y-4">
         
         {/* [중요] 모드 선택 세그먼트 (일반 시민 모드 vs 학생 교육용 모드) */}
         <div className="bg-space-950/90 p-1.5 rounded-2xl border border-slate-700/80 shadow-lg max-w-lg mx-auto">

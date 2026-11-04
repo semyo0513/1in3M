@@ -36,11 +36,11 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn select-none">
-      <div className="bg-space-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-5 animate-fadeIn select-none">
+      <div className="bg-space-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[92dvh]">
         
         {/* 상단 헤더 */}
-        <div className="bg-gradient-to-r from-amber-950/80 via-space-900 to-space-950 border-b border-amber-500/30 px-5 py-4 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-amber-950/80 via-space-900 to-space-950 border-b border-amber-500/30 px-3.5 sm:px-5 py-3 sm:py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300">
               <Trophy className="w-5 h-5" />

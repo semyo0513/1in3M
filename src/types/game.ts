@@ -54,6 +54,20 @@ export interface SpouseInfo {
   passedAway?: boolean;
 }
 
+export interface PetInfo {
+  name: string;
+  type: 'dog' | 'cat';
+  breed: string;
+  icon: string;
+  adoptedAge: number;
+  expectedLifespanYears: number; // 입양 후 기대 수명 (10~17년)
+  isAlive: boolean; // 생존 여부
+  passedAge?: number; // 무지개다리를 건넌 시점의 시민 나이
+  passedPetAge?: number; // 무지개다리를 건넌 시점의 반려동물 실제 나이
+  deathCause?: string; // 사망 원인 (노환 자연사, 만성 심부전, 신부전, 악성 종양 등)
+  memorialAction?: string; // 추모 방식 (수목장, 보호소 봉사/기부, 메모리얼 스톤 등)
+}
+
 export interface HappiestYearInfo {
   age: number;
   year: number;
@@ -106,7 +120,7 @@ export interface CitizenStatus {
     job?: string;
     milestoneSeen?: number[]; // [7, 14, 19, 24]
   }>;
-  pet?: { name: string; type: 'dog' | 'cat'; breed: string; icon: string; adoptedAge: number } | null;
+  pet?: PetInfo | null;
   farewellCompanion: string; // 마지막 길을 배웅한 사람 (또는 곁을 지키는 사람)
   
   // 하이라이트 & 삶의 결

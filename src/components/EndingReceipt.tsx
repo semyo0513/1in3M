@@ -83,7 +83,7 @@ ${citizen.choicesHistory.map((c, i) => `${i + 1}. [${c.age}세] ${c.issueTitle} 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn select-none">
+    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-5 overflow-y-auto custom-scrollbar animate-fadeIn select-none">
       <div className="bg-[#12161f] text-slate-200 border border-amber-500/40 rounded-2xl max-w-2xl w-full my-auto shadow-2xl shadow-amber-950/50 p-4 sm:p-6 font-mono text-xs sm:text-sm">
         
         {/* 상단 3단 뷰 전환 탭: 영수증 / 레트로 회상 애니메이션 / 인생 신문 */}
@@ -220,10 +220,13 @@ ${citizen.choicesHistory.map((c, i) => `${i + 1}. [${c.age}세] ${c.issueTitle} 
             </span>
           </div>
           {citizen.pet && (
-            <div className="flex justify-between">
-              <span className="text-slate-400">평생의 반려</span>
-              <span className="font-semibold text-amber-200">
-                {citizen.pet.icon} {citizen.pet.breed} '{citizen.pet.name}'
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-slate-400">
+                {citizen.pet.isAlive ? '평생의 반려' : '무지개다리 건넌 반려'}
+              </span>
+              <span className="font-semibold text-amber-200 flex items-center gap-1">
+                <span>{citizen.pet.isAlive ? citizen.pet.icon : '🌈'}</span>
+                <span>{citizen.pet.breed} '{citizen.pet.name}' {citizen.pet.isAlive ? '' : `(향년 ${citizen.pet.passedPetAge || 13}세)`}</span>
               </span>
             </div>
           )}

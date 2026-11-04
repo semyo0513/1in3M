@@ -1,5 +1,5 @@
 // 진주시 시뮬레이션 엔진 및 수학적 모델 (공공데이터 및 교육용 모드 필터 지원)
-import { CitizenStatus, CohortPerson, DistrictInfo, DilemmaIssue, CityMacroIndicators, YearFocus, JobType, SpouseInfo, HappiestYearInfo, LifeArchetypeInfo } from '../types/game';
+import { CitizenStatus, CohortPerson, DistrictInfo, DilemmaIssue, CityMacroIndicators, YearFocus, JobType, SpouseInfo, HappiestYearInfo, LifeArchetypeInfo, PetInfo } from '../types/game';
 import { JINJU_DISTRICTS, JINJU_META, getEduIncomeDesc } from '../data/jinjuData';
 import { PERSONAL_EVENTS, PersonalEventDef } from '../data/personalEvents';
 import { getDilemmas } from '../data/dilemmas';
@@ -321,7 +321,7 @@ export function advanceCitizenProfile(
   spouse: SpouseInfo | null;
   childrenCount: number;
   childrenList: Array<{ id: string; name: string; birthAge: number; gender: '아들' | '딸' }>;
-  pet?: { name: string; type: 'dog' | 'cat'; breed: string; icon: string; adoptedAge: number } | null;
+  pet?: PetInfo | null;
   farewellCompanion: string;
   happiestYear: HappiestYearInfo;
   timeSpent: Record<YearFocus, number>;

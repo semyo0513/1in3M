@@ -309,8 +309,8 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn">
-      <div className="bg-space-900 border border-slate-700/80 rounded-2xl max-w-3xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-5 animate-fadeIn">
+      <div className="bg-space-900 border border-slate-700/80 rounded-2xl max-w-3xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[92dvh]">
         
         {/* 상단 헤더: 수능 성적표 및 학업 역량 리포트 */}
         <div className="bg-gradient-to-r from-blue-950 via-indigo-950 to-space-900 border-b border-blue-500/30 px-5 py-4">
@@ -342,7 +342,7 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
 
         {/* 입시 합격/불합격 결과 팝업 오버레이 */}
         {admissionResult.evaluated && selectedUniv && (
-          <div className="p-6 bg-space-950/95 border-b border-space-800 flex flex-col items-center text-center space-y-4 animate-fadeIn">
+          <div className="p-3.5 sm:p-6 bg-space-950/95 border-b border-space-800 flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col items-center text-center space-y-3 sm:space-y-4 animate-fadeIn">
             {admissionResult.isAccepted ? (
               <>
                 <div className="w-14 h-14 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/20">
@@ -396,17 +396,17 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-2 mt-2 w-full max-w-lg justify-center">
+                <div className="flex flex-col sm:flex-row gap-2 mt-2 w-full max-w-lg justify-center shrink-0">
                   <button
                     onClick={handleAcceptCollege}
-                    className="flex-1 px-5 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5"
+                    className="flex-1 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5"
                   >
                     <span>[{selectedMajor.split('/')[0].trim()}] 전공으로 등록하고 진학하기</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                   <button
                     onClick={handleBackToUnivList}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-space-850 hover:bg-space-800 border border-slate-700 transition flex items-center justify-center gap-1"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-space-850 hover:bg-space-800 border border-slate-700 transition flex items-center justify-center gap-1 shrink-0"
                   >
                     <span>← 다른 대학도 둘러보기</span>
                   </button>
@@ -427,7 +427,7 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-2 w-full max-w-md mt-2">
+                <div className="flex flex-col gap-2 w-full max-w-md mt-2 shrink-0">
                   <button
                     onClick={handleBackToUnivList}
                     className="w-full px-4 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-1.5"
@@ -601,13 +601,13 @@ export const CollegeApplicationModal: React.FC<CollegeApplicationModalProps> = (
             </div>
 
             {/* 하단 취업/자립 대안 버튼 */}
-            <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+            <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shrink-0">
               <span className="text-[11px] text-slate-500">
                 대학에 진학하지 않고 실용적 기술을 익혀 사회에 바로 나갈 수도 있습니다.
               </span>
               <button
                 onClick={handleSkipCollege}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-space-800 hover:bg-space-750 border border-slate-700 transition"
+                className="px-3.5 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-space-800 hover:bg-space-750 border border-slate-700 transition shrink-0"
               >
                 대학 미진학 및 취업·창업 시작
               </button>

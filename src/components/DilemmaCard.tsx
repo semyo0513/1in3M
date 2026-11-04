@@ -63,11 +63,11 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-5 overflow-y-auto animate-fadeIn">
-      <div className="bg-space-900 border border-amber-500/40 rounded-2xl max-w-2xl w-full my-auto shadow-2xl shadow-amber-950/40 overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-5 animate-fadeIn">
+      <div className="bg-space-900 border border-amber-500/40 rounded-2xl max-w-2xl w-full my-auto shadow-2xl shadow-amber-950/40 overflow-hidden flex flex-col max-h-[92dvh]">
         
         {/* 헤더 */}
-        <div className="bg-gradient-to-r from-amber-950/60 to-space-900 px-3.5 sm:px-5 py-3 sm:py-4 border-b border-amber-500/30 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-amber-950/60 to-space-900 px-3.5 sm:px-5 py-3 sm:py-4 border-b border-amber-500/30 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 sm:gap-2.5">
             <div className="p-1.5 sm:p-2 rounded-lg bg-amber-500/20 text-amber-300">
               <Scale className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -94,7 +94,7 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
         </div>
 
         {/* 본문 스크롤 영역 */}
-        <div className="p-3.5 sm:p-5 space-y-3.5 overflow-y-auto text-xs sm:text-sm">
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 sm:p-5 space-y-3 text-xs sm:text-sm">
           
           {/* 1막: FACT 사실 */}
           <div className="bg-space-850 p-3 rounded-xl border border-sky-600/30">
@@ -231,15 +231,15 @@ export const DilemmaCard: React.FC<DilemmaCardProps> = ({
         </div>
 
         {/* 하단 확정 버튼 */}
-        <div className="p-3 sm:p-4 bg-space-950 border-t border-slate-800 flex items-center justify-between">
+        <div className="p-3 sm:p-4 bg-space-950 border-t border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shrink-0">
           <div className="text-[10px] text-slate-500 flex items-center gap-1">
-            <HelpCircle className="w-3.5 h-3.5" />
+            <HelpCircle className="w-3.5 h-3.5 shrink-0" />
             <span>이 선택에는 정답이 없으며 공익과 비용이 공존합니다.</span>
           </div>
           <button
             onClick={handleSubmit}
             disabled={isEduMode && !hasReviewedCounterArg}
-            className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all transform active:scale-95 ${
+            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all transform active:scale-95 text-center ${
               isEduMode && !hasReviewedCounterArg
                 ? 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-60'
                 : 'bg-gradient-to-r from-amber-500 to-amber-600 text-space-950 hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20'

@@ -36,11 +36,11 @@ export const ChildParentingModal: React.FC<ChildParentingModalProps> = ({
   const { childName, childAge, gender, stage } = decision;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn select-none">
-      <div className="bg-space-900 border border-slate-700/80 rounded-2xl max-w-xl w-full my-auto shadow-2xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-5 animate-fadeIn select-none">
+      <div className="bg-space-900 border border-slate-700/80 rounded-2xl max-w-xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[92dvh]">
         
         {/* 상단 헤더 */}
-        <div className="bg-gradient-to-r from-pink-950/80 via-purple-950/70 to-space-900 border-b border-pink-500/30 px-5 py-4">
+        <div className="bg-gradient-to-r from-pink-950/80 via-purple-950/70 to-space-900 border-b border-pink-500/30 px-4 sm:px-5 py-3 sm:py-4 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-400/40 flex items-center justify-center text-pink-300 text-lg">
               {gender === '아들' ? '👦' : '👧'}
@@ -64,7 +64,7 @@ export const ChildParentingModal: React.FC<ChildParentingModalProps> = ({
         </div>
 
         {/* 본문 설명 */}
-        <div className="p-4 sm:p-5 space-y-4 text-xs">
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3.5 sm:p-5 space-y-3.5 text-xs">
           <p className="text-slate-300 leading-relaxed bg-space-950/60 p-3 rounded-xl border border-slate-800">
             {stage === 'elem_7' && (
               `품 안에 쏙 안기던 '${childName}'이(가) 어느덧 훌쩍 자라 어엿한 책가방을 멜 나이가 되었습니다. 부모로서 아이의 첫 학교생활과 교육에 어떤 마음으로 힘을 실어주시겠습니까?`
