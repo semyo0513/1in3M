@@ -1225,14 +1225,17 @@ export const App: React.FC = () => {
             setMobileTab('timeline');
             audioManager.playClickSound();
           }}
-          className={`flex items-center gap-1 py-1.5 px-2.5 rounded-lg font-medium transition text-[11px] ${
+          className={`flex items-center gap-1 py-1.5 px-2.5 rounded-lg font-bold transition text-[11px] relative ${
             mobileTab === 'timeline'
-              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
-              : 'text-slate-400'
+              ? 'bg-amber-500/25 text-amber-300 border border-amber-500/50 shadow-sm'
+              : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <ScrollText className="w-3.5 h-3.5" />
           <span>생애 기록</span>
+          {mobileTab !== 'timeline' && timeline.length > 0 && (
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping absolute top-1 right-1" />
+          )}
         </button>
 
         <button
@@ -1285,6 +1288,32 @@ export const App: React.FC = () => {
           <Navigation className="w-3.5 h-3.5" />
           <span>진주 지도</span>
         </button>
+      </div>
+
+      {/* 모바일 전용: 다른 탭 열람 시 최신 생애 코멘트 실시간 라이브 티커 바 (탭 시 즉시 생애 기록으로 전환) */}
+      <div className="lg:hidden shrink-0">
+        {mobileTab !== 'timeline' && timeline.length > 0 && (
+          <div
+            onClick={() => {
+              setMobileTab('timeline');
+              audioManager.playClickSound();
+            }}
+            className="bg-amber-950/85 hover:bg-amber-900/90 border-b border-amber-500/40 px-3 py-1 flex items-center justify-between text-xs cursor-pointer transition select-none animate-fadeIn"
+          >
+            <div className="flex items-center gap-1.5 min-w-0 text-amber-200 overflow-hidden">
+              <ScrollText className="w-3 h-3 text-amber-400 shrink-0 animate-pulse" />
+              <span className="font-bold shrink-0 text-[10px] text-amber-400">
+                [{timeline[timeline.length - 1].age}세 최근 기록]
+              </span>
+              <span className="truncate text-[11px] text-slate-200 font-medium">
+                {timeline[timeline.length - 1].text}
+              </span>
+            </div>
+            <span className="text-[10px] text-amber-300 font-bold shrink-0 ml-2 hover:underline">
+              전체 보기 →
+            </span>
+          </div>
+        )}
       </div>
 
       {/* 실시간 업적 달성 축하 팝업 토스트 */}
@@ -1343,8 +1372,8 @@ export const App: React.FC = () => {
           />
         </div>
 
-        {/* 데스크톱: 타임라인 항상 보임 / 모바일: mobileTab === 'timeline'일 때만 보임 */}
-        <div className={`flex-1 min-h-0 min-w-0 w-0 flex flex-col overflow-hidden ${mobileTab !== 'timeline' ? 'hidden lg:flex' : 'flex'}`}>
+        {/* 중앙: 생애 타임라인 로그 (모바일, PC 브라우저 확대 시에도 가로 너비 100% 보장 및 메시지 상시 노출) */}
+        <div className={`flex-1 min-h-0 min-w-0 w-full flex flex-col overflow-hidden ${mobileTab !== 'timeline' ? 'hidden lg:flex' : 'flex'}`}>
           <TimelineLog entries={timeline} />
         </div>
 
