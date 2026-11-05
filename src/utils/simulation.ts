@@ -519,7 +519,7 @@ export function advanceCitizenProfile(
     totalAssetsWon += yearlySavings;
 
     // 부동산 보유 시 매년 인플레이션 및 도시 성장(혁신도시/초전/평거) 자산 가치 상승 (연 2.4%)
-    if (prev.flags?.has('HOME_OWNER_CHUNGMUGONG') || prev.flags?.has('HOME_OWNER_CHOJEON') || prev.flags?.has('WEALTH_EXPANDED')) {
+    if (prev.flags?.has('HOME_OWNER_CHUNGMUGONG') || prev.flags?.has('HOME_OWNER_CHOJEON') || prev.flags?.has('WEALTH_EXPANDED') || prev.flags?.has('HOUSING_STABLE') || prev.flags?.has('HOUSING_OVERLEVERAGED')) {
       const propertyGrowth = Math.floor(totalAssetsWon * 0.024);
       totalAssetsWon += propertyGrowth;
     }
@@ -530,9 +530,35 @@ export function advanceCitizenProfile(
       totalAssetsWon += investGain;
     }
 
-    // 부채가 있을 경우 매년 소득의 12%를 부채 상환에 배정하여 부채 감소
+    // 자녀가 있는 경우: 연간 자녀 1인당 기본 양육비 및 학원·교육비 지출 차감
+    if (prev.childrenCount > 0 && prev.childrenList && prev.childrenList.length > 0) {
+      for (const ch of prev.childrenList) {
+        const chAge = nextAge - ch.birthAge;
+        if (chAge >= 0 && chAge <= 24) {
+          let childAnnualCost = 4500000; // 0~7세 영유아 보육비/분유·기저귀
+          if (chAge >= 8 && chAge <= 13) {
+            childAnnualCost = 6000000; // 8~13세 초등학교 학용품·방과후·급식
+          } else if (chAge >= 14 && chAge <= 19) {
+            // 중·고교 입시 사교육비 (평거동 몰입 가구는 연 1,400만 원, 일반 가구 800만 원)
+            childAnnualCost = prev.flags?.has('EDU_HEAVY_INVESTMENT') ? 14000000 : 8000000;
+          } else if (chAge >= 20 && chAge <= 24) {
+            childAnnualCost = 6000000; // 대학생 등록금·자취비 지원
+          }
+
+          if (totalAssetsWon >= childAnnualCost) {
+            totalAssetsWon -= childAnnualCost;
+          } else {
+            const shortage = childAnnualCost - totalAssetsWon;
+            totalAssetsWon = 0;
+            totalDebtWon += shortage; // 자산 부족 시 가계 양육비 대출 전환
+          }
+        }
+      }
+    }
+
+    // 부채가 있을 경우 매년 소득의 15%를 성실 상환하여 부채 원리금 감소
     if (totalDebtWon > 0) {
-      const debtPayment = Math.min(totalDebtWon, Math.floor(monthlyIncomeWon * 12 * 0.12));
+      const debtPayment = Math.min(totalDebtWon, Math.floor(monthlyIncomeWon * 12 * 0.15));
       totalDebtWon -= debtPayment;
     }
   } else {
@@ -548,8 +574,8 @@ export function advanceCitizenProfile(
   }
 
   let netWorthWon = Math.max(0, totalAssetsWon - totalDebtWon);
-  // 부채가 0원이면 부채 위험 플래그 자동 해제
-  const hasDebtRisk = totalDebtWon > 0 && Boolean(prev.hasDebtRisk);
+  // 부채가 5,000만 원 미만으로 감소하거나 0원이면 부채 위험 플래그 자동 해제
+  const hasDebtRisk = totalDebtWon >= 50000000 && Boolean(prev.hasDebtRisk);
 
   // 5. 배우자 및 자녀 (비혼 선언 및 딩크 선택 철저 반영)
   let spouse: SpouseInfo | null = prev.spouse ? { ...prev.spouse } : null;

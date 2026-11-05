@@ -279,17 +279,19 @@ export const LeftProfilePanel: React.FC<LeftProfilePanelProps> = ({
               {/* 하단: 자산 배지 태그들 (보유 시에만 노출) */}
               {(citizen.flags?.has('HOME_OWNER_CHUNGMUGONG') ||
                 citizen.flags?.has('HOME_OWNER_CHOJEON') ||
+                citizen.flags?.has('HOUSING_OVERLEVERAGED') ||
+                citizen.flags?.has('HOUSING_STABLE') ||
                 citizen.flags?.has('COMPOUND_INVESTOR') ||
                 citizen.flags?.has('REVERSE_MORTGAGE') ||
                 citizen.flags?.has('SOLID_PENSION') ||
                 (citizen.totalDebtWon > 0 && citizen.hasDebtRisk)) && (
                 <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-slate-800/60">
-                  {citizen.flags?.has('HOME_OWNER_CHUNGMUGONG') && (
+                  {(citizen.flags?.has('HOME_OWNER_CHUNGMUGONG') || citizen.flags?.has('HOUSING_OVERLEVERAGED')) && (
                     <span className="px-1.5 py-0.5 rounded text-[10px] bg-sky-950/80 border border-sky-500/40 text-sky-300 font-semibold whitespace-nowrap">
                       혁신도시 자가
                     </span>
                   )}
-                  {citizen.flags?.has('HOME_OWNER_CHOJEON') && (
+                  {(citizen.flags?.has('HOME_OWNER_CHOJEON') || citizen.flags?.has('HOUSING_STABLE')) && (
                     <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-semibold whitespace-nowrap">
                       초전·평거 자가
                     </span>

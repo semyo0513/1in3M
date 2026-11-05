@@ -163,18 +163,38 @@ export const LifeChoiceModal: React.FC<LifeChoiceModalProps> = ({
                         관계 {option.effects.bonds > 0 ? `+${option.effects.bonds}` : option.effects.bonds}
                       </span>
                     )}
+                    {/* 자산 및 대출/부채 명시적 칩 */}
+                    {option.effects.assetsChange !== undefined && option.effects.assetsChange !== 0 && (
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                        option.effects.assetsChange > 0 ? 'bg-sky-950/70 border-sky-400/50 text-sky-300' : 'bg-rose-950/70 border-rose-500/50 text-rose-300'
+                      }`}>
+                        {option.effects.assetsChange > 0
+                          ? `🏢 총자산 +${Math.floor(option.effects.assetsChange / 10000).toLocaleString('ko-KR')}만 원`
+                          : `💸 지출 ${Math.floor(option.effects.assetsChange / 10000).toLocaleString('ko-KR')}만 원`}
+                      </span>
+                    )}
+                    {option.effects.debtChange !== undefined && option.effects.debtChange > 0 && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-rose-950/80 border-rose-500/60 text-rose-300">
+                        🔴 대출(부채) +{Math.floor(option.effects.debtChange / 10000).toLocaleString('ko-KR')}만 원
+                      </span>
+                    )}
+                    {option.effects.netWorthChange !== undefined && option.effects.netWorthChange !== 0 && (option.effects.assetsChange === undefined && option.effects.debtChange === undefined) && (
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                        option.effects.netWorthChange > 0 ? 'bg-amber-950/70 border-amber-400/50 text-amber-300' : 'bg-rose-950/70 border-rose-500/40 text-rose-300'
+                      }`}>
+                        순자산 {option.effects.netWorthChange > 0 ? `+${Math.floor(option.effects.netWorthChange / 10000).toLocaleString('ko-KR')}만 원` : `${Math.floor(option.effects.netWorthChange / 10000).toLocaleString('ko-KR')}만 원`}
+                      </span>
+                    )}
+                    {option.effects.hasDebtRisk && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-amber-950/90 border-amber-500 text-amber-300 animate-pulse">
+                        ⚠️ 부채위험 발생
+                      </span>
+                    )}
                     {option.effects.spend !== undefined && option.effects.spend !== 0 && (
                       <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${
                         option.effects.spend > 0 ? 'bg-teal-950/60 border-teal-500/30 text-teal-300' : 'bg-orange-950/60 border-orange-500/30 text-orange-300'
                       }`}>
-                        {option.effects.spend > 0 ? '가계 지출 절감' : option.effects.spend < -2 ? '막대한 가계 지출' : '가계 지출 발생'}
-                      </span>
-                    )}
-                    {option.effects.netWorthChange !== undefined && option.effects.netWorthChange !== 0 && (
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${
-                        option.effects.netWorthChange > 0 ? 'bg-amber-950/70 border-amber-400/50 text-amber-300 font-bold' : 'bg-rose-950/60 border-rose-500/40 text-rose-300'
-                      }`}>
-                        자산 {option.effects.netWorthChange > 0 ? `+${Math.floor(option.effects.netWorthChange / 10000).toLocaleString('ko-KR')}만 원` : `${Math.floor(option.effects.netWorthChange / 10000).toLocaleString('ko-KR')}만 원`}
+                        {option.effects.spend > 0 ? '가계 지출 절감' : option.effects.spend < -2 ? '막대한 고정비 발생' : '가계 고정비 발생'}
                       </span>
                     )}
                   </div>

@@ -327,10 +327,13 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
           bonds: 14,
           health: 0,
           learning: -1,
-          spend: -1
+          spend: -1,
+          assetsChange: 120000000, // 전세 보증금 자산 취득
+          debtChange: 80000000,    // 버팀목 전세대출 8천만 원 실행
+          netWorthChange: 40000000
         },
         grantFlag: 'MARRIED_VALUE_PARTNER',
-        consequenceText: '허례허식을 줄이고 남강변 전세 아파트에서 소박하게 신혼을 시작했습니다. 함께 저녁을 먹고 산책하는 일상의 기쁨이 큽니다.'
+        consequenceText: '허례허식을 줄이고 남강변 전세 아파트(보증금 1억 2,000만 원, 전세대출 8,000만 원)에서 소박하게 신혼을 시작했습니다. 함께 저녁을 먹고 산책하는 일상의 기쁨이 큽니다.'
       },
       {
         optionId: 'MAR-02',
@@ -342,10 +345,13 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
           health: -2,
           learning: 0,
           incomeChange: 2,
-          spend: 1 // 맞벌이 가구 소득 합산 효과
+          spend: 1, // 맞벌이 가구 소득 합산 효과
+          assetsChange: 60000000, // 부부 저축 합산
+          debtChange: 0,
+          netWorthChange: 60000000
         },
         grantFlag: 'MARRIED_DUAL_INCOME',
-        consequenceText: '부부 합산 소득이 늘어나 신혼부부 특별공급 청약과 내 집 마련에 한결 자신감이 붙었습니다. 양가 명절 조율이 새로운 과제입니다.'
+        consequenceText: '부부 합산 소득과 저축(6,000만 원 합산)이 늘어나 신혼부부 특별공급 청약과 내 집 마련에 한결 자신감이 붙었습니다. 양가 명절 조율이 새로운 과제입니다.'
       },
       {
         optionId: 'MAR-03',
@@ -463,23 +469,27 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
           happiness: 6,
           health: 1,
           learning: -2,
-          spend: -1
+          spend: -1,
+          assetsChange: -3000000,
+          netWorthChange: -3000000
         },
         grantFlag: 'CHILDCARE_WAY_RESOLVED',
         consequenceText: '육아휴직급여를 수령하며 아이의 첫 걸음마를 온전히 함께 지켜보았습니다. 경력 단절 없이 1년 후 본 직무로 복귀했습니다.'
       },
       {
         optionId: 'CARE_GRANDPARENTS',
-        label: '진주 시내에 계신 양가 부모님께 매달 양육비를 드리고 황혼육아 지원을 받는다',
+        label: '진주 시내에 계신 양가 부모님께 매달 양육비를 드리고 황혼육아 지원을 받는다 (연 600만 원 지원)',
         effects: {
           bonds: 5,
           happiness: -2,
           health: -1,
           learning: 0,
-          spend: -2
+          spend: -2,
+          assetsChange: -6000000,
+          netWorthChange: -6000000
         },
         grantFlag: 'CHILDCARE_WAY_RESOLVED',
-        consequenceText: '부부의 직장 경력을 지켜냈지만, 연로하신 부모님의 관절 통증과 육아 방식 차이로 인한 소소한 갈등이 찾아옵니다.'
+        consequenceText: '부부의 직장 경력을 지켜냈지만, 연로하신 부모님께 매달 드리는 양육비(연 600만 원)와 육아 방식 차이로 인한 소소한 갈등이 찾아옵니다.'
       },
       {
         optionId: 'CARE_FULLDAY_BURN',
@@ -530,34 +540,44 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
           happiness: -3,
           health: 1,
           bonds: 1,
-          spend: 2 // 주거비 최소화
+          spend: 2, // 주거비 최소화
+          assetsChange: 0,
+          debtChange: 0,
+          netWorthChange: 0
         },
         grantFlag: 'HOUSING_DEFENSIVE',
         consequenceText: '대출 이자 부담이 없어 통장 잔고는 안전하지만, 좁은 주차 공간과 노후 배관으로 일상적 불편을 겪습니다.'
       },
       {
         optionId: 'HOUSE_MID_STABLE',
-        label: '평거·신안·가좌동 구축 아파트를 적정 담보대출로 매수하여 안정적으로 정착한다',
+        label: '평거·신안·가좌동 구축 아파트 매수 (아파트 2.7억 / 주담대 1.2억 실행 / 실속형 자가)',
         effects: {
-          happiness: 4,
+          happiness: 5,
           health: 0,
           bonds: 3,
-          spend: -1
+          spend: -1,
+          assetsChange: 270000000, // 아파트 자산 취득
+          debtChange: 120000000,   // 주담대 1억 2,000만 원 대출 발생
+          netWorthChange: 150000000
         },
         grantFlag: 'HOUSING_STABLE',
-        consequenceText: '가처분 소득의 25%를 원리금으로 성실히 상환하며 남강 둔치 산책로와 학군 인프라를 무난하게 누립니다.'
+        consequenceText: '평거·가좌동 생활권의 구축 아파트(매매가 2억 7,000만 원, 주담대 1억 2,000만 원)에 안착했습니다. 매달 가처분 소득으로 원리금을 성실히 상환하며 안정된 가정을 꾸려갑니다.'
       },
       {
         optionId: 'HOUSE_INNOVATION_OVERLEVERAGE',
-        label: '혁신도시·초전동 신축 브랜드 아파트를 영끌 대출로 분양받아 프리미엄을 노린다',
+        label: '혁신도시·초전동 신축 브랜드 아파트 영끌 분양 (아파트 4.2억 / 주담대 2.5억 / LTV 60% 영끌)',
         effects: {
-          happiness: 9,
+          happiness: 10,
           health: -3,
           bonds: 2,
-          spend: -3 // 고비용 지출 플래그
+          spend: -3, // 고비용 지출 플래그
+          assetsChange: 420000000, // 신축 아파트 4억 2천만 원
+          debtChange: 250000000,   // 영끌 주담대 2억 5천만 원 대출 발생
+          netWorthChange: 170000000,
+          hasDebtRisk: true        // 과도한 부채 위험 플래그
         },
         grantFlag: 'HOUSING_OVERLEVERAGED',
-        consequenceText: '호화로운 신축 커뮤니티와 지하주차장에 만족하지만, 매달 나가는 높은 대출 이자에 외식 한번 마음 편히 못 합니다.'
+        consequenceText: '충무공동·초전동 신축 대단지 아파트(분양가 4억 2,000만 원, 주담대 2억 5,000만 원)에 입주했습니다. 신축의 품격은 누리지만, 매달 150만 원이 넘는 높은 원리금 상환에 가계 부채 위험이 켜졌습니다.'
       }
     ]
   },
@@ -579,36 +599,42 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
           learning: -1,
           health: 1,
           bonds: -2,
-          spend: 2 // 교육비 절약
+          spend: 2, // 교육비 절약
+          assetsChange: -600000,
+          netWorthChange: -600000
         },
         grantFlag: 'EDU_SELF_STUDY',
         consequenceText: '노후 준비 자금은 굳건히 지켜냈지만, 주변 친구들이 전부 학원에 간 사이 아이가 느끼는 불안감을 달래야 합니다.'
       },
       {
         optionId: 'EDU_STANDARD_SUBJECT',
-        label: '국·영·수 주요 과목 단과학원과 진주시 미래세대 장학 혜택을 적절히 지원한다',
+        label: '국·영·수 주요 과목 단과학원과 진주시 미래세대 장학 혜택을 적절히 지원한다 (연 600만 원 지출)',
         effects: {
           happiness: 2,
           learning: 4,
           health: -1,
           bonds: 2,
-          spend: -1
+          spend: -1,
+          assetsChange: -6000000,
+          netWorthChange: -6000000
         },
         grantFlag: 'EDU_BALANCED_ACADEMY',
-        consequenceText: '자녀의 학업 성취도를 무난히 끌어올리며 가계 지출과의 균형을 유지합니다. 아이는 밤 10시에 학원 버스를 타고 귀가합니다.'
+        consequenceText: '자녀의 학업 성취도를 무난히 끌어올리며 가계 지출(연 600만 원)과의 균형을 유지합니다. 아이는 밤 10시에 학원 버스를 타고 귀가합니다.'
       },
       {
         optionId: 'EDU_ALL_IN_PRIVATE',
-        label: '평거동 대형 종합학원 풀코스와 주말 1:1 과외에 올인하여 의대·명문대 입시를 지원한다',
+        label: '평거동 대형 종합학원 풀코스와 주말 1:1 과외에 올인하여 의대·명문대 입시를 지원한다 (연 1,800만 원 지출)',
         effects: {
           happiness: -2,
           learning: 8,
           health: -4,
           bonds: -3,
-          spend: -3 // 막대한 사교육비
+          spend: -3, // 막대한 사교육비
+          assetsChange: -18000000,
+          netWorthChange: -18000000
         },
         grantFlag: 'EDU_HEAVY_INVESTMENT',
-        consequenceText: '월 소득의 40% 이상이 학원비로 빠져나가 노후 저축이 사실상 중단되었습니다. 부모는 허리띠를 졸라매고 자녀는 수면 부족에 시달립니다.'
+        consequenceText: '월 소득의 상당액(연 1,800만 원)이 학원비로 빠져나가 가계 자산이 크게 줄었습니다. 부모는 허리띠를 졸라매고 자녀는 수면 부족에 시달립니다.'
       }
     ]
   },
@@ -869,10 +895,18 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
     options: [
       {
         optionId: 'MED_TAKE_HALF_DAY',
-        label: '직장 눈치와 업무 지연을 무릅쓰고 당당히 평일 반차를 내어 정밀 진료와 물리치료를 받는다',
-        effects: { health: 7, happiness: -1, bonds: 0, learning: 0, spend: -1 },
+        label: '직장 눈치와 업무 지연을 무릅쓰고 당당히 평일 반차를 내어 정밀 진료와 물리치료를 받는다 (비급여 도수치료 120만 원 지출)',
+        effects: {
+          health: 7,
+          happiness: -1,
+          bonds: 0,
+          learning: 0,
+          spend: -1,
+          assetsChange: -1200000,
+          netWorthChange: -1200000
+        },
         grantFlag: 'MED_PROACTIVE_CARE',
-        consequenceText: '의사의 정확한 진단을 받고 도수·물리치료를 받아 묵은 통증이 크게 완화되었습니다. 오후에 복귀하니 책상에 결재 서류가 쌓여 있습니다.'
+        consequenceText: '의사의 정확한 진단을 받고 도수·물리치료(비용 120만 원 지출)를 받아 묵은 통증이 크게 완화되었습니다. 오후에 복귀하니 책상에 결재 서류가 쌓여 있습니다.'
       },
       {
         optionId: 'MED_NIGHT_CLINIC',
@@ -901,17 +935,33 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
     options: [
       {
         optionId: 'MED_DENTAL_FULL_CARE',
-        label: '목돈 지출을 감수하고 치과 임플란트 시술과 비급여 수면 위·대장 내시경을 즉시 완료한다',
-        effects: { health: 10, happiness: 5, bonds: 0, learning: 0, spend: -3 },
+        label: '목돈 지출을 감수하고 치과 임플란트 시술과 비급여 수면 위·대장 내시경을 즉시 완료한다 (의료비 600만 원 지출)',
+        effects: {
+          health: 10,
+          happiness: 5,
+          bonds: 0,
+          learning: 0,
+          spend: -3,
+          assetsChange: -6000000,
+          netWorthChange: -6000000
+        },
         grantFlag: 'MED_DENTAL_COMPLETED',
-        consequenceText: '저축해 둔 목돈이 쑥 빠져나갔지만 마음 편히 음식을 씹고 소화할 수 있게 되었습니다. 초기 대장 용종도 미리 제거했습니다.'
+        consequenceText: '저축해 둔 목돈(600만 원)이 쑥 빠져나갔지만 마음 편히 음식을 씹고 소화할 수 있게 되었습니다. 초기 대장 용종도 미리 제거했습니다.'
       },
       {
         optionId: 'MED_DENTAL_BASIC_COVER',
-        label: '무료 기본 국가검진과 건강보험 급여가 적용되는 기본 치료(발치·틀니 등)만 진행한다',
-        effects: { health: 3, happiness: 0, bonds: 0, learning: 0, spend: 0 },
+        label: '무료 기본 국가검진과 건강보험 급여가 적용되는 기본 치료(발치·틀니 등)만 진행한다 (의료비 60만 원 지출)',
+        effects: {
+          health: 3,
+          happiness: 0,
+          bonds: 0,
+          learning: 0,
+          spend: 0,
+          assetsChange: -600000,
+          netWorthChange: -600000
+        },
         grantFlag: 'MED_DENTAL_BASIC',
-        consequenceText: '비용 지출을 최소화하며 급한 치료를 마쳤습니다. 딱딱한 음식을 씹을 때 약간의 불편함이 남습니다.'
+        consequenceText: '비용 지출을 최소화(60만 원 지출)하며 급한 치료를 마쳤습니다. 딱딱한 음식을 씹을 때 약간의 불편함이 남습니다.'
       },
       {
         optionId: 'MED_DENTAL_POSTPONE_FEAR',
@@ -933,17 +983,33 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
     options: [
       {
         optionId: 'MED_SEOUL_BIG5',
-        label: 'KTX 이동 고통과 서울 환자방 숙박비, 간병비를 감수하고 서울 빅5 대형 병원으로 원정 치료를 간다',
-        effects: { health: 15, happiness: -4, bonds: -3, learning: 0, spend: -4 },
+        label: 'KTX 이동 고통과 서울 환자방 숙박비, 간병비를 감수하고 서울 빅5 대형 병원으로 원정 치료를 간다 (비급여 의료비 2,500만 원 지출)',
+        effects: {
+          health: 15,
+          happiness: -4,
+          bonds: -3,
+          learning: 0,
+          spend: -4,
+          assetsChange: -25000000,
+          netWorthChange: -25000000
+        },
         grantFlag: 'SEOUL_MEDICAL_EXPEDITION',
-        consequenceText: '새벽 KTX를 타고 서울 병원을 오가며 국내 최고 명의의 수술을 성공적으로 마쳤습니다. 가계 재정에 큰 타격을 입었지만 생명의 끈을 지켜냈습니다.'
+        consequenceText: '새벽 KTX를 타고 서울 병원을 오가며 국내 최고 명의의 수술을 성공적으로 마쳤습니다. 비급여 치료비와 간병비 등 막대한 지출(2,500만 원)로 가계 재정에 큰 타격을 입었지만 생명의 끈을 지켜냈습니다.'
       },
       {
         optionId: 'MED_JINJU_REGIONAL_UNIV',
-        label: '진주 권역책임의료기관인 경상국립대병원에서 가족 곁을 지키며 통원 치료를 받는다',
-        effects: { health: 12, happiness: 3, bonds: 6, learning: 0, spend: -1 },
+        label: '진주 권역책임의료기관인 경상국립대병원에서 가족 곁을 지키며 통원 치료를 받는다 (의료비 400만 원 지출)',
+        effects: {
+          health: 12,
+          happiness: 3,
+          bonds: 6,
+          learning: 0,
+          spend: -1,
+          assetsChange: -4000000,
+          netWorthChange: -4000000
+        },
         grantFlag: 'REGIONAL_MEDICAL_CARE',
-        consequenceText: '익숙한 집에서 가족들의 따뜻한 간병을 받으며 치료를 마쳤습니다. 장거리 이동 피로 없이 지역 의료진의 헌신 속에 건강을 회복해 나갑니다.'
+        consequenceText: '익숙한 집에서 가족들의 따뜻한 간병을 받으며 치료를 마쳤습니다. 장거리 이동 피로 없이 지역 의료진의 헌신과 건강보험 혜택 속에 실속 있게(400만 원 지출) 건강을 회복해 나갑니다.'
       },
       {
         optionId: 'MED_DELAY_COST_FEAR',
@@ -1002,24 +1068,48 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
     options: [
       {
         optionId: 'OPT_HOME_CHUNGMUGONG',
-        label: '충무공동 혁신도시 신축 아파트 주담대 분양 청약 (LTV 60% 영끌 자가 매수)',
-        effects: { happiness: 12, bonds: 8, learning: 2, netWorthChange: 140000000, spend: -2 },
+        label: '충무공동 혁신도시 신축 아파트 주담대 분양 청약 (아파트 4.2억 / 주담대 2.4억 대출)',
+        effects: {
+          happiness: 12,
+          bonds: 8,
+          learning: 2,
+          assetsChange: 420000000, // 신축 아파트 자산 취득
+          debtChange: 240000000,   // 주담대 2억 4,000만 원 대출 실행
+          netWorthChange: 180000000,
+          hasDebtRisk: true,
+          spend: -2
+        },
         grantFlag: 'HOME_OWNER_CHUNGMUGONG',
-        consequenceText: '충무공동 남강 조망 신축 아파트에 우리 집 명패를 달았습니다. 매달 대출 원리금 상환 부담은 있지만, 든든한 보금자리와 자산 상승의 기틀을 마련했습니다.'
+        consequenceText: '충무공동 남강 조망 신축 아파트(분양가 4억 2,000만 원, 주담대 2억 4,000만 원)에 우리 집 명패를 달았습니다. 매달 대출 원리금 상환 부담은 있지만, 든든한 보금자리와 자산 상승의 기틀을 마련했습니다.'
       },
       {
         optionId: 'OPT_HOME_CHOJEON',
-        label: '초전동·평거동 학군지 구축 아파트 매수 (대출 부담이 적은 실속형 자가)',
-        effects: { happiness: 9, health: 3, bonds: 5, netWorthChange: 80000000, spend: 0 },
+        label: '초전동·평거동 학군지 구축 아파트 매수 (아파트 2.8억 / 주담대 1.1억 실속 자가)',
+        effects: {
+          happiness: 9,
+          health: 3,
+          bonds: 5,
+          assetsChange: 280000000, // 구축 아파트 자산 취득
+          debtChange: 110000000,   // 주담대 1억 1,000만 원 실행
+          netWorthChange: 170000000,
+          spend: 0
+        },
         grantFlag: 'HOME_OWNER_CHOJEON',
-        consequenceText: '초전동 생활권의 단단한 아파트를 실속 있게 매수했습니다. 과도한 빚 없이 평화롭고 안정된 가정을 꾸려갑니다.'
+        consequenceText: '초전동 생활권의 단단한 아파트(매매가 2억 8,000만 원, 주담대 1억 1,000만 원)를 실속 있게 매수했습니다. 과도한 빚 없이 평화롭고 안정된 가정을 꾸려갑니다.'
       },
       {
         optionId: 'OPT_HOME_RENT_INVEST',
         label: '무리한 주담대 대신 전세로 살며 남는 자금을 주식·스마트팜 사업 종잣돈으로 굴린다',
-        effects: { learning: 6, happiness: 5, netWorthChange: 30000000, spend: 1 },
+        effects: {
+          learning: 6,
+          happiness: 5,
+          assetsChange: 30000000,
+          debtChange: 0,
+          netWorthChange: 30000000,
+          spend: 1
+        },
         grantFlag: 'LIQUID_INVESTOR',
-        consequenceText: '부동산 빚에 얽매이지 않고 유동성 자산으로 투자 기회를 엿봅니다. 유연하고 가벼운 삶의 방식을 유지합니다.'
+        consequenceText: '부동산 빚에 얽매이지 않고 유동성 자산(3,000만 원 투자)으로 투자 기회를 엿봅니다. 유연하고 가벼운 삶의 방식을 유지합니다.'
       }
     ]
   },
@@ -1073,21 +1163,38 @@ export const LIFE_CHOICES: LifeChoiceCard[] = [
       {
         optionId: 'OPT_PENSION_IRP_MAX',
         label: '개인형 IRP와 퇴직연금 불입 한도를 최대로 채워 자립적인 노후를 확정한다',
-        effects: { happiness: 9, learning: 4, netWorthChange: 70000000 },
+        effects: {
+          happiness: 9,
+          learning: 4,
+          assetsChange: 70000000,
+          debtChange: 0,
+          netWorthChange: 70000000
+        },
         grantFlag: 'SOLID_PENSION',
-        consequenceText: '자식에게 짐이 되지 않는 당당한 노후를 위해 연금 자산을 두둑이 확보했습니다. 훗날 자녀들에게도 가장 든든한 힘이 됩니다.'
+        consequenceText: '자식에게 짐이 되지 않는 당당한 노후를 위해 연금 자산(7,000만 원 불입)을 두둑이 확보했습니다. 훗날 자녀들에게도 가장 든든한 힘이 됩니다.'
       },
       {
         optionId: 'OPT_CHILD_SUPPORT_ALL',
-        label: '자녀의 수도권 전세 보증금과 결혼 자금을 전폭적으로 지원한다 (부모의 헌신)',
-        effects: { bonds: 18, happiness: 10, netWorthChange: -60000000 },
+        label: '자녀의 수도권 전세 보증금과 결혼 자금을 전폭적으로 지원한다 (자산 6,000만 원 지원)',
+        effects: {
+          bonds: 18,
+          happiness: 10,
+          assetsChange: -60000000,
+          netWorthChange: -60000000
+        },
         grantFlag: 'DEVOTED_PARENT',
-        consequenceText: '내 저축을 헐어 자녀의 새 출발에 날개를 달아주었습니다. 부모로서 가슴 벅찬 보람과 자녀의 깊은 감사를 받습니다.'
+        consequenceText: '내 저축을 헐어 자녀의 새 출발(6,000만 원 지원)에 날개를 달아주었습니다. 부모로서 가슴 벅찬 보람과 자녀의 깊은 감사를 받습니다.'
       },
       {
         optionId: 'OPT_PENSION_BALANCE',
         label: '자녀와 솔직하게 상의하여 절반씩 매칭 분담하고 내 연금도 균형 있게 지킨다',
-        effects: { bonds: 10, happiness: 9, learning: 4, netWorthChange: 30000000 },
+        effects: {
+          bonds: 10,
+          happiness: 9,
+          learning: 4,
+          assetsChange: 30000000,
+          netWorthChange: 30000000
+        },
         grantFlag: 'BALANCED_RETIREMENT',
         consequenceText: '자녀에게 자립심을 심어주면서도 부모의 따뜻한 온기를 전했습니다. 노후 자산도 안정적으로 지켜냈습니다.'
       }

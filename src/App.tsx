@@ -768,20 +768,45 @@ export const App: React.FC = () => {
       else if (option.optionId === 'HOBBY_READ_ROOT') nextHobby = '독서와 작은 도서관 모임';
       else if (option.optionId === 'HOBBY_MUSIC_ROOT') nextHobby = '통기타·건반 연주 및 아마추어 밴드';
 
-      // 자산 및 부채 분리 변동액(청약, 부동산 매매, 투자, 사업 등) 현실적 반영
-      let nextTotalAssetsWon = prev.totalAssetsWon || prev.netWorthWon || 500000;
-      let nextTotalDebtWon = prev.totalDebtWon || 0;
+      // 자산 및 부채 분리 변동액(청약, 부동산 매매, 투자, 사업, 의료비, 양육비 등) 현실적 반영
+      let nextTotalAssetsWon = prev.totalAssetsWon ?? prev.netWorthWon ?? 500000;
+      let nextTotalDebtWon = prev.totalDebtWon ?? 0;
 
-      if (option.grantFlag === 'HOME_OWNER_CHUNGMUGONG') {
-        nextTotalAssetsWon += 380000000;
-        nextTotalDebtWon += 180000000;
-      } else if (option.grantFlag === 'HOME_OWNER_CHOJEON') {
-        nextTotalAssetsWon += 320000000;
-        nextTotalDebtWon += 140000000;
+      // 1) 명시적 assetsChange 및 debtChange가 있는 경우 최우선 적용
+      if (eff.assetsChange !== undefined || eff.debtChange !== undefined) {
+        if (eff.assetsChange !== undefined) {
+          if (eff.assetsChange >= 0) {
+            nextTotalAssetsWon += eff.assetsChange;
+          } else {
+            // 지출/손실 발생 시: 자산에서 우선 차감하고, 자산이 부족하면 의료비/생활비 대출(부채)로 전환
+            const absCost = Math.abs(eff.assetsChange);
+            if (nextTotalAssetsWon >= absCost) {
+              nextTotalAssetsWon -= absCost;
+            } else {
+              const shortage = absCost - nextTotalAssetsWon;
+              nextTotalAssetsWon = 0;
+              nextTotalDebtWon += shortage;
+            }
+          }
+        }
+
+        if (eff.debtChange !== undefined) {
+          nextTotalDebtWon = Math.max(0, nextTotalDebtWon + eff.debtChange);
+        }
+      }
+      // 2) 주택 플래그별 대출 및 자산 분기 (단일 플래그 매핑 보장)
+      else if (option.grantFlag === 'HOME_OWNER_CHUNGMUGONG' || option.grantFlag === 'HOUSING_OVERLEVERAGED') {
+        nextTotalAssetsWon += 420000000; // 혁신도시 신축 아파트
+        nextTotalDebtWon += 240000000;   // 주담대 2억 4천만 원 실행
+      } else if (option.grantFlag === 'HOME_OWNER_CHOJEON' || option.grantFlag === 'HOUSING_STABLE') {
+        nextTotalAssetsWon += 280000000; // 초전/평거 아파트
+        nextTotalDebtWon += 110000000;   // 주담대 1억 1천만 원 실행
       } else if (option.grantFlag === 'HOME_OWNER_PYEONGGEO') {
         nextTotalAssetsWon += 270000000;
         nextTotalDebtWon += 100000000;
-      } else if (eff.netWorthChange) {
+      }
+      // 3) 단일 netWorthChange만 있는 경우 fallback
+      else if (eff.netWorthChange) {
         if (eff.netWorthChange > 0) {
           nextTotalAssetsWon += eff.netWorthChange;
         } else {
@@ -795,8 +820,20 @@ export const App: React.FC = () => {
         }
       }
 
+      // 부채 위험(hasDebtRisk) 판정:
+      // 영끌 대출 플래그이거나, 부채가 1억 5천 이상이면서 부채비율(부채/자산)이 45% 이상인 경우 위험 점등
+      let nextDebtRisk = false;
+      if (nextTotalDebtWon > 0) {
+        if (eff.hasDebtRisk || option.grantFlag === 'HOUSING_OVERLEVERAGED' || option.grantFlag === 'HOME_OWNER_CHUNGMUGONG') {
+          nextDebtRisk = true;
+        } else if (nextTotalDebtWon >= 150000000 && (nextTotalDebtWon / (nextTotalAssetsWon || 1)) >= 0.45) {
+          nextDebtRisk = true;
+        } else {
+          nextDebtRisk = Boolean(prev.hasDebtRisk);
+        }
+      }
+
       let nextNetWorth = Math.max(0, nextTotalAssetsWon - nextTotalDebtWon);
-      const nextDebtRisk = nextTotalDebtWon > 0 && rawDebtRisk;
 
       return {
         ...prev,
@@ -1050,8 +1087,21 @@ export const App: React.FC = () => {
         return ch;
       });
 
-      const nextAssets = Math.max(0, (prev.totalAssetsWon || prev.netWorthWon) - res.spendAmount);
-      const nextNetWorth = Math.max(0, nextAssets - (prev.totalDebtWon || 0));
+      let nextAssets = prev.totalAssetsWon ?? prev.netWorthWon ?? 0;
+      let nextDebt = prev.totalDebtWon ?? 0;
+
+      if (res.spendAmount > 0) {
+        if (nextAssets >= res.spendAmount) {
+          nextAssets -= res.spendAmount;
+        } else {
+          const shortage = res.spendAmount - nextAssets;
+          nextAssets = 0;
+          nextDebt += shortage; // 자산 부족 시 학자금/양육비 대출 전환
+        }
+      }
+
+      const nextNetWorth = Math.max(0, nextAssets - nextDebt);
+      const nextDebtRisk = nextDebt > 0 && (nextDebt >= 100000000 || Boolean(prev.hasDebtRisk));
 
       return {
         ...prev,
@@ -1059,7 +1109,9 @@ export const App: React.FC = () => {
         happiness: Math.max(0, Math.min(100, prev.happiness + res.happinessDelta)),
         bonds: Math.max(0, Math.min(100, prev.bonds + res.bondsDelta)),
         totalAssetsWon: nextAssets,
-        netWorthWon: nextNetWorth
+        totalDebtWon: nextDebt,
+        netWorthWon: nextNetWorth,
+        hasDebtRisk: nextDebtRisk
       };
     });
 

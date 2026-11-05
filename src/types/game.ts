@@ -296,6 +296,9 @@ export interface LifeChoiceOption {
     incomeChange?: number;
     spend?: number; // 가계 지출 부담 수준 (-3: 막대함, 0: 없음, +1: 절감)
     netWorthChange?: number; // 가계 순자산 직접 변동액 (원)
+    assetsChange?: number; // 가계 총자산 직접 변동액 (원: 부동산 가액, 투자금 등)
+    debtChange?: number; // 가계 총부채 직접 변동액 (원: 주담대, 전세대출, 신용대출 등)
+    hasDebtRisk?: boolean; // 과도한 레버리지/영끌 대출 위험 발생 여부
   };
   grantFlag?: string;
   removeFlag?: string;
